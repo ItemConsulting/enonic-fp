@@ -34,6 +34,6 @@ export interface Response {
 }
 
 export interface Error {
-  errorKey: "InternalServerError" | "NotFoundError" | "PublishError",
+  errorKey: "InternalServerError" | "NotFoundError" | "PublishError" | "BadRequestError" | "UnauthorizedError",
   cause?: string
 }
