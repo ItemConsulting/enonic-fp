@@ -1,0 +1,33 @@
+{
+  "name": "enonic-fp",
+  "version": "0.0.1",
+  "description": "Functional programming helpers for Enonic XP",
+  "main": "lib/index.js",
+  "module": "es6/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib/* es6/*",
+    "build": "npm run clean && tsc && tsc -p tsconfig.es6.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ItemConsulting/enonic-fp.git"
+  },
+  "keywords": [
+    "enonic",
+    "fp"
+  ],
+  "author": "Tom Arild Jakobsen <tajakobsen@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ItemConsulting/enonic-fp/issues"
+  },
+  "homepage": "https://github.com/ItemConsulting/enonic-fp#readme",
+  "dependencies": {
+    "fp-ts": "^2.0.5"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.0",
+    "typescript": "^3.5.3"
+  }
+}
