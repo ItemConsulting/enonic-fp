@@ -21,6 +21,16 @@ export interface PageContributions {
   bodyEnd?: string | Array<string>
 }
 
+type ErrorKey =
+   "BadRequestError"
+  | "UnauthorizedError"
+  | "ForbiddenError"
+  | "NotFoundError"
+  | "MethodNotAllowedError"
+  | "InternalServerError"
+  | "BadGatewayError"
+  | "PublishError"
+
 export interface Response {
   status: number,
   body?: string|object,
@@ -34,6 +44,6 @@ export interface Response {
 }
 
 export interface Error {
-  errorKey: "InternalServerError" | "NotFoundError" | "PublishError" | "BadRequestError" | "UnauthorizedError",
+  errorKey: ErrorKey,
   cause?: string
 }
