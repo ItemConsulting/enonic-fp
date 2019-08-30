@@ -25,7 +25,7 @@ export interface Content {
   publish: any
 }
 
-interface QueryContentParams {
+export interface QueryContentParams {
   start?: number,
   count?: number,
   query: string,
@@ -78,13 +78,13 @@ export interface PublishContentParams {
   includeDependencies?: boolean
 }
 
-interface ScheduleParams {
+export interface ScheduleParams {
   from: string,
   to: string
 }
 
 
-interface PublishResponse {
+export interface PublishResponse {
   pushedContents: Array<string>,
   deletedContents: Array<string>,
   failedContents: Array<string>
@@ -96,7 +96,7 @@ export function get(params: GetContentParams) :Either<Error, Content> {
       () => content.get(params),
       (e) => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
-    chain(fromNullable<Error>({ errorKey: "InternalServerError" }))
+    chain(fromNullable<Error>({ errorKey: "NotFoundError" }))
   );
 }
 
