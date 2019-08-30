@@ -39,7 +39,7 @@ export function get(req: Request): Response {
     getContent({ 
       key: req.params.key 
     }),
-    fold(
+    fold<Error, Content, Response>(
       (err: Error) => ({
         status: 500, // 500 = Internal Server Error
         contentType: 'application/json',
@@ -70,7 +70,7 @@ function runInDraftContext<T>(f: () => T) {
   }, f);
 }
 
-function publishToMaster(key) {
+function publishToMaster(key: string) {
   return publish({
     keys: [key],
     sourceBranch: 'draft',
@@ -78,7 +78,7 @@ function publishToMaster(key) {
   });
 }
 
-const errorsKeyToStatus = {
+const errorsKeyToStatus : { [key: string]: number; } = {
   "InternalServerError": 500,
   "NotFoundError": 404,
   "PublishError": 500
@@ -90,21 +90,19 @@ function del(req: Request): Response {
   return pipe(
     runInDraftContext(() => remove({ key })),
     chain(() => publishToMaster(key)),
-    fold(
-      (err: Error) => {
-        return {
-          status: errorsKeyToStatus[err.errorKey],
-          contentType: 'application/json',
-          body: err
-        }
-      },
+    fold<Error, any, Response>(
+      (err: Error) => ({
+        status: errorsKeyToStatus[err.errorKey],
+        contentType: 'application/json',
+        body: err
+      }),
       () => ({
         status: 204, // 204 = No content
         contentType: 'application/json',
         body: ''
       })
     )
-  )
+  );
 }
 
 export { del as delete };
