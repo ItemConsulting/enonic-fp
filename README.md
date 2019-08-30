@@ -73,26 +73,6 @@ import { run } from 'enonic-fp/lib/context';
 import { pipe } from "fp-ts/lib/pipeable";
 import { chain, fold } from "fp-ts/lib/Either";
 
-function runInDraftContext<T>(f: () => T) {
-  return run({ 
-    branch: 'draft'
-  }, f);
-}
-
-function publishToMaster(key: string) {
-  return publish({
-    keys: [key],
-    sourceBranch: 'draft',
-    targetBranch: 'master',
-  });
-}
-
-const errorKeyToStatus : { [key: string]: number; } = {
-  "InternalServerError": 500,
-  "NotFoundError": 404,
-  "PublishError": 500
-};
-
 function del(req: Request): Response {
   const key = req.params.key;
 
@@ -112,8 +92,29 @@ function del(req: Request): Response {
     )
   );
 }
+export { del as delete }; // hack since delete is a keyword
 
-export { del as delete };
+// --- HELPER FUNCTIONS ---
+
+function runInDraftContext<T>(f: () => T) {
+  return run({ 
+    branch: 'draft'
+  }, f);
+}
+
+function publishToMaster(key: string) {
+  return publish({
+    keys: [key],
+    sourceBranch: 'draft',
+    targetBranch: 'master',
+  });
+}
+
+const errorKeyToStatus : { [key: string]: number; } = {
+  "InternalServerError": 500,
+  "NotFoundError": 404,
+  "PublishError": 500
+};
 ```
 
 ### Multiple queries, and http request
@@ -137,39 +138,6 @@ import { sequenceT } from 'fp-ts/lib/Apply'
 import { Response, Request, Error } from "enonic-fp/lib/common";
 import { Content, get as getContent, query, QueryResponse } from "enonic-fp/lib/content";
 import { request} from "enonic-fp/lib/http";
-
-const errorKeyToStatus : { [key: string]: number; } = {
-  "NotFoundError": 404,
-  "InternalServerError": 500,
-  "BadGatewayError": 502
-};
-
-function getArticle(key: string) : Either<Error, Content> {
-  return getContent({ key });
-}
-
-function queryComments(articleId: string) : Either<Error, QueryResponse> {
-  return query({
-    query: `data.articleId = ${articleId}`,
-    contentTypes: ['com.example:comment']
-  });
-}
-
-function createBadGatewayError(reason: any): Error {
-  return {
-    errorKey: 'BadGatewayError',
-    cause: String(reason)
-  };
-}
-
-function getOpenPositionsOverHttp() : Either<Error, any> {
-  return pipe(
-    request({
-      url: "https://example.com/api/open-positions"
-    }),
-    chain(res => parseJSON(res.body!, createBadGatewayError))
-  )
-}
 
 export function get(req: Request): Response {
   const key = req.params.key;
@@ -201,6 +169,41 @@ export function get(req: Request): Response {
         body: res
       })
     )
+  )
+}
+
+// --- HELPER FUNCTIONS ---
+
+const errorKeyToStatus : { [key: string]: number; } = {
+  "NotFoundError": 404,
+  "InternalServerError": 500,
+  "BadGatewayError": 502
+};
+
+function getArticle(key: string) : Either<Error, Content> {
+  return getContent({ key });
+}
+
+function queryComments(articleId: string) : Either<Error, QueryResponse> {
+  return query({
+    query: `data.articleId = ${articleId}`,
+    contentTypes: ['com.example:comment']
+  });
+}
+
+function createBadGatewayError(reason: any): Error {
+  return {
+    errorKey: 'BadGatewayError',
+    cause: String(reason)
+  };
+}
+
+function getOpenPositionsOverHttp() : Either<Error, any> {
+  return pipe(
+    request({
+      url: "https://example.com/api/open-positions"
+    }),
+    chain(res => parseJSON(res.body!, createBadGatewayError))
   )
 }
 ```
