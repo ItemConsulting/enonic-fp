@@ -26,7 +26,10 @@ This style of programming encourages us to write re-usable functions, that we ca
 
 ## Usage
 
-Getting some content content by key. 
+### Simple get content by key
+
+In this example we ask for content by the key, and then we either return an _Internal Server Error_ or return the 
+content to the user as json.
 
 ```typescript
 import { Response, Request, Error } from "enonic-fp/lib/common";
@@ -55,7 +58,13 @@ export function get(req: Request): Response {
 }
 ```
 
-Deleting some content by key. Deleting it first on the `draft` branch, and then publish it to the `master` branch. 
+### Delete content by key and publish
+
+In this example we delete come content by `key`. We are first doing this on the `draft` branch. And then we `publish` it
+to the `master` branch. 
+
+We will return a http error based on the type of error that happened (trough a lookup in the `errorsKeyToStatus` map). 
+Or we return a http status `204`, indicating success.
 
 ```typescript
 import { Response, Request, Error } from "enonic-fp/lib/common";
@@ -78,7 +87,7 @@ function publishToMaster(key: string) {
   });
 }
 
-const errorsKeyToStatus : { [key: string]: number; } = {
+const errorKeyToStatus : { [key: string]: number; } = {
   "InternalServerError": 500,
   "NotFoundError": 404,
   "PublishError": 500
@@ -92,13 +101,12 @@ function del(req: Request): Response {
     chain(() => publishToMaster(key)),
     fold<Error, any, Response>(
       (err: Error) => ({
-        status: errorsKeyToStatus[err.errorKey],
+        status: errorKeyToStatus[err.errorKey],
         contentType: 'application/json',
         body: err
       }),
       () => ({
         status: 204, // 204 = No content
-        contentType: 'application/json',
         body: ''
       })
     )
@@ -106,6 +114,95 @@ function del(req: Request): Response {
 }
 
 export { del as delete };
+```
+
+### Multiple queries, and http request
+
+In this example we do 3 queries. First we look up an article by `key`, then we search for comments related to that 
+article based on the articles key. And then we get a list of open positions in the company, that we want to display on
+the web page.
+
+The first two are queries in Enonic, and the last one is over http. We do a `sequenceT` taking the 3 `Either<Error, T>`
+as input, and getting an Either with the results in a tuple (`Either<Error, [Content, QueryResponse, any]>`).
+
+We then `map` over the tuple, and create an object with all the data, that can be returned to the user.
+
+In the `fold` we either return the an error, with the correct http status (`404`, `500` or `502`), or we return the
+result with the http status `200`.
+
+```typescript
+import { pipe } from "fp-ts/lib/pipeable";
+import { chain, map, fold, either, Either, parseJSON } from "fp-ts/lib/Either";
+import { sequenceT } from 'fp-ts/lib/Apply'
+import { Response, Request, Error } from "enonic-fp/lib/common";
+import { Content, get as getContent, query, QueryResponse } from "enonic-fp/lib/content";
+import { request} from "enonic-fp/lib/http";
+
+const errorKeyToStatus : { [key: string]: number; } = {
+  "NotFoundError": 404,
+  "InternalServerError": 500,
+  "BadGatewayError": 502
+};
+
+function getArticle(key: string) : Either<Error, Content> {
+  return getContent({ key });
+}
+
+function queryComments(articleId: string) : Either<Error, QueryResponse> {
+  return query({
+    query: `data.articleId = ${articleId}`,
+    contentTypes: ['com.example:comment']
+  });
+}
+
+function createBadGatewayError(reason: any): Error {
+  return {
+    errorKey: 'BadGatewayError',
+    cause: String(reason)
+  };
+}
+
+function getOpenPositionsOverHttp() : Either<Error, any> {
+  return pipe(
+    request({
+      url: "https://example.com/api/open-positions"
+    }),
+    chain(res => parseJSON(res.body!, createBadGatewayError))
+  )
+}
+
+export function get(req: Request): Response {
+  const key = req.params.key;
+
+  return pipe(
+    sequenceT(either)(
+      getArticle(key),
+      queryComments(key),
+      getOpenPositionsOverHttp()
+    ),
+    map(([article, comments, openPositions]) => {
+      return {
+        ...article,
+        openPositions,
+        comments: comments.hits,
+      };
+    }),
+    fold<Error, any, Response>(
+      (err: Error) => {
+        return {
+          status: errorKeyToStatus[err.errorKey],
+          contentType: 'application/json',
+          body: err
+        }
+      },
+      (res) => ({
+        status: 200,
+        contentType: 'application/json',
+        body: res
+      })
+    )
+  )
+}
 ```
 
 ## Building the project
