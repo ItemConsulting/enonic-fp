@@ -161,13 +161,11 @@ export function get(req: Request): Response {
       };
     }),
     fold<Error, any, Response>(
-      (err: Error) => {
-        return {
-          status: errorKeyToStatus[err.errorKey],
-          contentType: 'application/json',
-          body: err
-        }
-      },
+      (err: Error) => ({
+        status: errorKeyToStatus[err.errorKey],
+        contentType: 'application/json',
+        body: err
+      }),
       (res) => ({
         status: 200,
         contentType: 'application/json',
