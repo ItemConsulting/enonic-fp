@@ -3,7 +3,7 @@ import { pipe } from 'fp-ts/lib/pipeable';
 import { Error } from "./common";
 const content = __non_webpack_require__('/lib/xp/content');
 
-export interface Content {
+export interface Content<T> {
   _id: string,
   name: string,
   _path: string,
@@ -18,7 +18,7 @@ export interface Content {
   language: string,
   valid: Boolean,
   childOrder: String,
-  data: any,
+  data: T,
   x: { [key:string]: string },
   page: any,
   attachments: object,
@@ -35,10 +35,10 @@ export interface QueryContentParams {
   contentTypes?: Array<string>
 }
 
-export interface QueryResponse {
+export interface QueryResponse<T> {
   aggregations: object,
   count: number,
-  hits: Array<Content>,
+  hits: Array<Content<T>>,
   total: number
 }
 
@@ -50,7 +50,7 @@ export interface DeleteContentParams {
   key: string
 }
 
-export interface CreateContentParams {
+export interface CreateContentParams<T> {
   name: string,
   parentPath: string,
   displayName?: string,
@@ -59,13 +59,13 @@ export interface CreateContentParams {
   contentType: string,
   language?: string,
   childOrder?: string,
-  data: any,
+  data: T,
   x?: string
 }
 
-export interface ModifyContentParams {
+export interface ModifyContentParams<T> {
   key: string,
-  editor: (c?: Content) => Content,
+  editor: (c?: Content<T>) => Content<T>,
   requireValid?: boolean
 }
 
@@ -90,9 +90,9 @@ export interface PublishResponse {
   failedContents: Array<string>
 }
 
-export function get(params: GetContentParams) :Either<Error, Content> {
+export function get<T>(params: GetContentParams) :Either<Error, Content<T>> {
   return pipe(
-    tryCatch<Error, Content>(
+    tryCatch<Error, Content<T>>(
       () => content.get(params),
       (e) => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
@@ -100,21 +100,21 @@ export function get(params: GetContentParams) :Either<Error, Content> {
   );
 }
 
-export function query(params: QueryContentParams) :Either<Error, QueryResponse> {
+export function query<T>(params: QueryContentParams) :Either<Error, QueryResponse<T>> {
   return tryCatch(
     () => content.query(params),
     (e) =>({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function create(params: CreateContentParams) :Either<Error, Content> {
+export function create<T>(params: CreateContentParams<T>) :Either<Error, Content<T>> {
   return tryCatch(
     () => content.create(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function modify(params: ModifyContentParams) :Either<Error, Content> {
+export function modify<T>(params: ModifyContentParams<T>) :Either<Error, Content<T>> {
   return tryCatch(
     () => content.modify(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })

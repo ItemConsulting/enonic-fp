@@ -39,22 +39,27 @@ import { fold } from "fp-ts/lib/Either";
 
 export function get(req: Request): Response {
   return pipe(
-    getContent({ 
-      key: req.params.key 
+    getContent<Article>({
+      key: req.params.key
     }),
-    fold<Error, Content, Response>(
+    fold<Error, Content<Article>, Response>(
       (err: Error) => ({
         status: 500, // 500 = Internal Server Error
         contentType: 'application/json',
         body: err
       }),
-      (content: Content) => ({
+      (content: Content<Article>) => ({
         status: 200, // 200 = Ok
         contentType: 'application/json',
         body: content
       })
     )
   );
+}
+
+interface Article {
+  title: string,
+  text: string
 }
 ```
 
@@ -172,7 +177,15 @@ export function get(req: Request): Response {
   )
 }
 
-// --- HELPER FUNCTIONS ---
+interface Article {
+  title: string
+  text: string
+}
+
+interface Comment {
+  writtenBy: string,
+  text: string
+}
 
 const errorKeyToStatus : { [key: string]: number; } = {
   "NotFoundError": 404,
@@ -180,11 +193,11 @@ const errorKeyToStatus : { [key: string]: number; } = {
   "BadGatewayError": 502
 };
 
-function getArticle(key: string) : Either<Error, Content> {
+function getArticle(key: string) : Either<Error, Content<Article>> {
   return getContent({ key });
 }
 
-function queryComments(articleId: string) : Either<Error, QueryResponse> {
+function queryComments(articleId: string) : Either<Error, QueryResponse<Comment>> {
   return query({
     query: `data.articleId = ${articleId}`,
     contentTypes: ['com.example:comment']
