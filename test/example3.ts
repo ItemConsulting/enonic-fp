@@ -11,7 +11,7 @@ export function get(req: Request): Response {
   return pipe(
     sequenceT(either)(
       getArticle(key),
-      queryComments(key),
+      getCommentsByArticleId(key),
       getOpenPositionsOverHttp()
     ),
     map(([article, comments, openPositions]) => {
@@ -56,7 +56,7 @@ function getArticle(key: string) : Either<Error, Content<Article>> {
   return getContent({ key });
 }
 
-function queryComments(articleId: string) : Either<Error, QueryResponse<Comment>> {
+function getCommentsByArticleId(articleId: string) : Either<Error, QueryResponse<Comment>> {
   return query({
     query: `data.articleId = ${articleId}`,
     contentTypes: ['com.example:comment']
