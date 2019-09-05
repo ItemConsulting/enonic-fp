@@ -21,7 +21,7 @@ export interface PageContributions {
   bodyEnd?: string | Array<string>
 }
 
-type ErrorKey =
+export type ErrorKey =
    "BadRequestError"
   | "UnauthorizedError"
   | "ForbiddenError"
