@@ -17,8 +17,8 @@ interface HttpRequestParamsAuth {
 export interface HttpRequestParams {
   url: string
   method?: string
-  params?: object
-  headers?: object
+  params?: { [key: string]: string }
+  headers?: { [key: string]: string }
   connectionTimeout?: number
   readTimeout?: number
   body?: string | any
@@ -32,7 +32,7 @@ export interface HttpRequestParams {
 export interface HttpResponse {
   status: number
   message: string
-  headers: object
+  headers: { [key: string]: string | undefined }
   contentType: string
   body: string | null
   bodyStream: any

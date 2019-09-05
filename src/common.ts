@@ -9,9 +9,9 @@ export interface Request {
   mode: string,
   branch: string,
   body: string,
-  params: { [key: string]: string; }
-  headers: { [key: string]: string; }
-  cookies: { [key: string]: string; }
+  params: { [key: string]: string | undefined }
+  headers: { [key: string]: string | undefined }
+  cookies: { [key: string]: string | undefined }
 }
 
 export interface PageContributions {
