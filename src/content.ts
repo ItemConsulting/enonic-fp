@@ -204,7 +204,7 @@ export interface ContentType {
   "form": any[]
 }
 
-export function get<T>(params: GetContentParams) :Either<Error, Content<T>> {
+export function get<T>(params: GetContentParams): Either<Error, Content<T>> {
   return pipe(
     tryCatch<Error, Content<T>>(
       () => content.get(params),
@@ -214,90 +214,90 @@ export function get<T>(params: GetContentParams) :Either<Error, Content<T>> {
   );
 }
 
-export function query<T>(params: QueryContentParams) :Either<Error, QueryResponse<T>> {
+export function query<T>(params: QueryContentParams): Either<Error, QueryResponse<T>> {
   return tryCatch(
     () => content.query(params),
     (e) =>({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function create<T>(params: CreateContentParams<T>) :Either<Error, Content<T>> {
+export function create<T>(params: CreateContentParams<T>): Either<Error, Content<T>> {
   return tryCatch(
     () => content.create(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function modify<T>(params: ModifyContentParams<T>) :Either<Error, Content<T>> {
+export function modify<T>(params: ModifyContentParams<T>): Either<Error, Content<T>> {
   return tryCatch(
     () => content.modify(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function remove(params: DeleteContentParams) :Either<Error, boolean> {
+export function remove(params: DeleteContentParams): Either<Error, void> {
   return pipe(
     tryCatch<Error, boolean>(
       () : boolean => content.delete(params),
       (e) => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
-    chain((success) => success
-      ? right(success)
+    chain((success: boolean) => success
+      ? right(undefined)
       : left({ errorKey: "NotFoundError" })
     )
   );
 }
 
-export function publish(params: PublishContentParams) :Either<Error, PublishResponse> {
+export function publish(params: PublishContentParams): Either<Error, PublishResponse> {
   return tryCatch<Error, PublishResponse>(
     () => content.publish(params),
     (e) => ({ errorKey: "PublishError", cause: String(e) })
   )
 }
 
-export function unpublish(params: UnpublishContentParams) :Either<Error, string[]> {
+export function unpublish(params: UnpublishContentParams): Either<Error, string[]> {
   return tryCatch<Error, string[]>(
     () => content.unpublish(params),
     (e) => ({ errorKey: "PublishError", cause: String(e) })
   )
 }
 
-export function getChildren<T>(params: GetChildrenParams) :Either<Error, QueryResponse<T>> {
+export function getChildren<T>(params: GetChildrenParams): Either<Error, QueryResponse<T>> {
   return tryCatch<Error, QueryResponse<T>>(
     () => content.getChildren(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function move<T>(params: MoveParams) :Either<Error, Content<T>> {
+export function move<T>(params: MoveParams): Either<Error, Content<T>> {
   return tryCatch<Error, Content<T>>(
     () => content.move(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function getSite<T>(params: GetSiteParams) :Either<Error, Site<T>> {
+export function getSite<T>(params: GetSiteParams): Either<Error, Site<T>> {
   return tryCatch<Error, Site<T>>(
     () => content.getSite(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function getSiteConfig<T>(params: GetSiteConfigParams) :Either<Error, T> {
+export function getSiteConfig<T>(params: GetSiteConfigParams): Either<Error, T> {
   return tryCatch<Error, T>(
     () => content.getSiteConfig(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function createMedia<T>(params: CreateMediaParams) :Either<Error, Content<T>> {
+export function createMedia<T>(params: CreateMediaParams): Either<Error, Content<T>> {
   return tryCatch<Error, Content<T>>(
     () => content.createMedia(params),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
 }
 
-export function getAttachments(key: string) :Either<Error, Attachments> {
+export function getAttachments(key: string): Either<Error, Attachments> {
   return pipe(
     tryCatch<Error, Attachments>(
       () => content.getAttachments(key),

@@ -34,11 +34,11 @@ export function login(params: LoginParams) : Either<Error, LoginResult> {
   )
 }
 
-export function logout() : Either<Error, boolean> {
-  return tryCatch<Error, boolean>(
+export function logout() : Either<Error, void> {
+  return tryCatch<Error, void>(
     () => {
       auth.logout();
-      return true;
+      return undefined;
     },
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   )

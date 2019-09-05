@@ -24,7 +24,7 @@ export interface EmailParams {
   attachments?: Array<EmailAttachment>
 }
 
-export function send(params: EmailParams) : E.Either<Error, boolean> {
+export function send(params: EmailParams) : E.Either<Error, void> {
   return pipe(
     E.tryCatch<Error, boolean>(
       () : boolean => email.send(params),
@@ -33,8 +33,8 @@ export function send(params: EmailParams) : E.Either<Error, boolean> {
         cause: String(e)
       })
     ),
-    E.chain((success) => success
-      ? E.right(success)
+    E.chain((success: boolean) => success
+      ? E.right(undefined)
       : E.left({ errorKey: "InternalServerError" })
     )
   );
