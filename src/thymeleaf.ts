@@ -12,9 +12,13 @@ export interface ThymeleafRenderOptions {
     | 'RAW'
 }
 
-export function render(view: any, options?: ThymeleafRenderOptions): (model: any) => Either<Error, string> {
-  return (model: any) => tryCatch<Error, string>(
+export function render<A>(view: any, model?: A, options?: ThymeleafRenderOptions) : Either<Error, string> {
+  return tryCatch<Error, string>(
     () => thymeleaf.render(view, model, options),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   )
+}
+
+export function getRenderer(view: any, options?: ThymeleafRenderOptions): <A>(model: A) => Either<Error, string> {
+  return <A>(model: A) => render(view, model, options);
 }
