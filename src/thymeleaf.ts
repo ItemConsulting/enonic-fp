@@ -19,6 +19,6 @@ export function render<A>(view: any, model?: A, options?: ThymeleafRenderOptions
   )
 }
 
-export function getRenderer(view: any, options?: ThymeleafRenderOptions): <A>(model: A) => Either<Error, string> {
-  return <A>(model: A) => render(view, model, options);
+export function getRenderer<A>(view: any, options?: ThymeleafRenderOptions): (model: A) => Either<Error, string> {
+  return (model: A) => render(view, model, options);
 }
