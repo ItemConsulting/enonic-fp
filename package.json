@@ -1,6 +1,6 @@
 {
   "name": "enonic-fp",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Functional programming helpers for Enonic XP",
   "main": "lib/index.js",
   "module": "es6/index.js",
@@ -28,6 +28,6 @@
   },
   "devDependencies": {
     "rimraf": "^3.0.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.6.2"
   }
 }
