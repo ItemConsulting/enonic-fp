@@ -35,7 +35,7 @@ export interface Response {
   status: number,
   body?: string|object,
   contentType?: string,
-  headers?: object,
+  headers?: { [key: string]: string; },
   cookies?: { [key: string]: string; },
   redirect?: string,
   postProcess?: boolean,
