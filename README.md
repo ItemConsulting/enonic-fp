@@ -40,7 +40,7 @@ import { fold } from "fp-ts/lib/Either";
 export function get(req: Request): Response {
   return pipe(
     getContent<Article>({
-      key: req.params.key
+      key: req.params.key!!
     }),
     fold<Error, Content<Article>, Response>(
       (err: Error) => ({
@@ -79,7 +79,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { chain, fold } from "fp-ts/lib/Either";
 
 function del(req: Request): Response {
-  const key = req.params.key;
+  const key = req.params.key!!;
 
   return pipe(
     runInDraftContext(() => remove({ key })),
@@ -145,7 +145,7 @@ import { Content, get as getContent, query, QueryResponse } from "enonic-fp/lib/
 import { request} from "enonic-fp/lib/http";
 
 export function get(req: Request): Response {
-  const key = req.params.key;
+  const key = req.params.key!!;
 
   return pipe(
     sequenceT(either)(
