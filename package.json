@@ -1,13 +1,14 @@
 {
   "name": "enonic-fp",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Functional programming helpers for Enonic XP",
   "main": "lib/index.js",
   "module": "es6/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "clean": "rimraf lib/* es6/*",
-    "build": "npm run clean && tsc && tsc -p tsconfig.es6.json"
+    "build": "npm run clean && tsc && tsc -p tsconfig.es6.json",
+    "lint:ts": "tslint --project tsconfig.json --config tslint.json --fix"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,8 @@
   },
   "devDependencies": {
     "rimraf": "^3.0.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.6.2"
   }
 }

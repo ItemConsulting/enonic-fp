@@ -1,49 +1,49 @@
 import { Either, tryCatch } from "fp-ts/lib/Either";
-import { Option, fromNullable } from "fp-ts/lib/Option";
+import { fromNullable, Option } from "fp-ts/lib/Option";
 import { Error } from "./common";
 
-const auth = __non_webpack_require__('/lib/xp/auth');
+const auth = __non_webpack_require__("/lib/xp/auth");
 
 export interface LoginParams {
-  user: string
-  password: string
-  idProvider?: string
-  skipAuth?: boolean
-  sessionTimeout?: number
+  user: string;
+  password: string;
+  idProvider?: string;
+  skipAuth?: boolean;
+  sessionTimeout?: number;
 }
 
 export interface LoginResult {
-  authenticated: boolean,
-  user: LoginResultUser
+  authenticated: boolean;
+  user: LoginResultUser;
 }
 
 export interface LoginResultUser {
-  type: string
-  key: string
-  displayName: string
-  disabled: boolean
-  email: string
-  login: string
-  idProvider: string
+  type: string;
+  key: string;
+  displayName: string;
+  disabled: boolean;
+  email: string;
+  login: string;
+  idProvider: string;
 }
 
-export function login(params: LoginParams) : Either<Error, LoginResult> {
+export function login(params: LoginParams): Either<Error, LoginResult> {
   return tryCatch<Error, LoginResult>(
     () => auth.login(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
-  )
+    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+  );
 }
 
-export function logout() : Either<Error, void> {
+export function logout(): Either<Error, void> {
   return tryCatch<Error, void>(
     () => {
       auth.logout();
       return undefined;
     },
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
-  )
+    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+  );
 }
 
-export function getUser() : Option<LoginResultUser> {
+export function getUser(): Option<LoginResultUser> {
   return fromNullable(auth.getUser());
 }

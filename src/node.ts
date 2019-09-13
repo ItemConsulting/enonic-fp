@@ -9,7 +9,7 @@ export interface Source {
   branch: string;
   user?: {
     login: string
-    idProvider?: string,
+    idProvider?: string
   };
   principals?: Array<string>;
 }
@@ -104,7 +104,7 @@ export interface IndexConfig {
   default: IndexConfigEntry | IndexConfigTemplates;
   configs?: Array<{
     path: string
-    config: IndexConfigEntry | IndexConfigTemplates,
+    config: IndexConfigEntry | IndexConfigTemplates
   }>;
 }
 
@@ -168,7 +168,7 @@ export interface RepoConnection {
 export function connect(params: Source): Either<Error, RepoConnection> {
   return tryCatch<Error, RepoConnection>(
     () => node.connect(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) }),
+    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
@@ -179,9 +179,9 @@ export function get<A>(repo: RepoConnection, keys: string | Array<string>): Eith
   return pipe(
     tryCatch<Error, Array<A & RepoNode> | A & RepoNode>(
       () => repo.get(keys),
-      (e) => ({ errorKey: "InternalServerError", cause: String(e) }),
+      (e) => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
-    map((data) => Array.isArray(data) ? data : [data]),
+    map((data) => Array.isArray(data) ? data : [data])
   );
 }
 
@@ -191,7 +191,7 @@ export function get<A>(repo: RepoConnection, keys: string | Array<string>): Eith
 export function create<A>(repo: RepoConnection, params: A & NodeCreateParams): Either<Error, A & RepoNode> {
   return tryCatch<Error, A & RepoNode>(
     () => repo.create(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) }),
+    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
@@ -201,7 +201,7 @@ export function create<A>(repo: RepoConnection, params: A & NodeCreateParams): E
 export function remove(repo: RepoConnection, keys: Array<string>): Either<Error, boolean> {
   return tryCatch<Error, boolean>(
     () => repo.delete(keys),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) }),
+    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
@@ -211,6 +211,6 @@ export function remove(repo: RepoConnection, keys: Array<string>): Either<Error,
 export function query(repo: RepoConnection, params: NodeQueryParams): Either<Error, NodeQueryResponse> {
   return tryCatch<Error, NodeQueryResponse>(
     () => repo.query(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) }),
+    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }

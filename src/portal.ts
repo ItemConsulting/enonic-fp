@@ -1,96 +1,96 @@
-import {Either, tryCatch, fromNullable} from "fp-ts/lib/Either";
+import {Either, fromNullable, tryCatch} from "fp-ts/lib/Either";
 import {Error} from "./common";
 import {Content, Site} from "./content";
 
-const portal = __non_webpack_require__('/lib/xp/portal');
+const portal = __non_webpack_require__("/lib/xp/portal");
 
 export interface IdProviderUrlParams {
-  idProvider?: string
-  contextPath?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  idProvider?: string;
+  contextPath?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface ImagePlaceHolderParams {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
 export interface AssetUrlParams {
-  path: string
-  application?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  path: string;
+  application?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface AttachmentUrlParams {
-  id?: string
-  path?: string
-  name?: string
-  label?: string // source
-  download?: boolean
-  params?: {[key: string]: string}
-  type?: 'server' | 'absolute'
+  id?: string;
+  path?: string;
+  name?: string;
+  label?: string; // source
+  download?: boolean;
+  params?: {[key: string]: string};
+  type?: "server" | "absolute";
 }
 
 export interface ComponentUrlParams {
-  id?: string
-  path?: string
-  component?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  id?: string;
+  path?: string;
+  component?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface ImageUrlParams {
-  id?: string
-  path?: string
-  scale: string
-  quality?: number
-  background?: string
-  format?: string
-  filter?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  id?: string;
+  path?: string;
+  scale: string;
+  quality?: number;
+  background?: string;
+  format?: string;
+  filter?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface PageUrlParams {
-  id?: string
-  path?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  id?: string;
+  path?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface LoginUrlParams {
-  idProvider?: string
-  redirect?: string
-  contextPath?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  idProvider?: string;
+  redirect?: string;
+  contextPath?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface LogoutUrlParams {
-  redirect?: string
-  contextPath?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  redirect?: string;
+  contextPath?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface ServiceUrlParams {
-  service: string
-  application?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  service: string;
+  application?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface UrlParams {
-  path?: string
-  type?: 'server' | 'absolute'
-  params?: {[key: string]: string}
+  path?: string;
+  type?: "server" | "absolute";
+  params?: {[key: string]: string};
 }
 
 export interface ProcessHtmlParams {
-  value: string
-  type?: 'server' | 'absolute'
+  value: string;
+  type?: "server" | "absolute";
 }
 
 export function getContent<A>() {
@@ -100,10 +100,10 @@ export function getContent<A>() {
   );
 }
 
-export function getIdProviderKey() : Either<Error, string> {
+export function getIdProviderKey(): Either<Error, string> {
   return fromNullable<Error>({
-    errorKey: "InternalServerError",
-    cause: "Missing id provider in context"
+    cause: "Missing id provider in context",
+    errorKey: "InternalServerError"
   })(portal.getIdProviderKey());
 }
 
@@ -111,14 +111,14 @@ export function getSite<A>(): Either<Error, Site<A>> {
   return tryCatch<Error, Site<A>>(
     () => portal.getSite(),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
-  )
+  );
 }
 
 export function getSiteConfig<A>(): Either<Error, A> {
   return tryCatch<Error, A>(
     () => portal.getSiteConfig(),
     (e) => ({ errorKey: "InternalServerError", cause: String(e) })
-  )
+  );
 }
 
 export function idProviderUrl(params: IdProviderUrlParams): string {
