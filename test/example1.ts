@@ -8,7 +8,7 @@ import { request} from "../src/http";
 export function get(req: Request): Response {
   return pipe(
     getContent<Article>({
-      key: req.params.key
+      key: req.params.key!!
     }),
     fold<Error, Content<Article>, Response>(
       (err: Error) => ({

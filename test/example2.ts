@@ -5,7 +5,7 @@ import { chain, fold } from "fp-ts/lib/Either";
 import { run } from "../src/context";
 
 function del(req: Request): Response {
-  const key = req.params.key;
+  const key = req.params.key!!;
 
   return pipe(
     runInDraftContext(() => remove({ key })),

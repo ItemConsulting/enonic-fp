@@ -6,7 +6,7 @@ import { sequenceT } from 'fp-ts/lib/Apply'
 import { request} from "../src/http";
 
 export function get(req: Request): Response {
-  const key = req.params.key;
+  const key = req.params.key!!;
 
   return pipe(
     sequenceT(either)(
