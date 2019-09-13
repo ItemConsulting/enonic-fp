@@ -1,5 +1,6 @@
 tsconfig.json
 tsconfig.es6.json
+tslint.json
 src
 .idea
 .editorconfig
