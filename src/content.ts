@@ -36,7 +36,7 @@ export interface Attachments { [key: string]: Attachment; }
 
 export interface QueryContentParams {
   start?: number;
-  count?: number;
+  count: number;
   query: string;
   filters?: object;
   sort?: string;
