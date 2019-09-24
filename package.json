@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "description": "Functional programming helpers for Enonic XP",
   "main": "lib/index.js",
-  "module": "es6/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf lib/* es6/*",
-    "build": "npm run clean && tsc && tsc -p tsconfig.es6.json",
+    "clean": "rimraf lib/*",
+    "build": "npm run clean && tsc",
     "lint:ts": "tslint --project tsconfig.json --config tslint.json --fix",
     "prettier:ts": "prettier --write 'src/**/*.ts'"
   },
@@ -29,10 +28,24 @@
     "fp-ts": "^2.0.5"
   },
   "devDependencies": {
+    "husky": "^3.0.5",
+    "lint-staged": "^9.3.0",
     "prettier": "1.18.2",
     "rimraf": "^3.0.0",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.6.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "tslint --project tsconfig.json --config tslint.json --fix",
+      "prettier --write",
+      "git add"
+    ]
   }
 }
