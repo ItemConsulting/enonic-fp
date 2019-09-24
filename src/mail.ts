@@ -1,5 +1,5 @@
-import * as E from "fp-ts/lib/Either";
-import {pipe} from "fp-ts/lib/pipeable";
+import { chain, IOEither, left, right, tryCatch } from "fp-ts/lib/IOEither";
+import { pipe } from "fp-ts/lib/pipeable";
 import { Error } from "./common";
 
 const email = __non_webpack_require__("/lib/xp/mail");
@@ -13,9 +13,9 @@ export interface EmailAttachment {
 
 export interface EmailParams {
   from: string;
-  to: string|Array<string>;
-  cc?: string|Array<string>;
-  bcc?: string|Array<string>;
+  to: string | Array<string>;
+  cc?: string | Array<string>;
+  bcc?: string | Array<string>;
   replyTo?: string;
   subject: string;
   body: string;
@@ -24,18 +24,17 @@ export interface EmailParams {
   attachments?: Array<EmailAttachment>;
 }
 
-export function send(params: EmailParams): E.Either<Error, void> {
+export function send(params: EmailParams): IOEither<Error, void> {
   return pipe(
-    E.tryCatch<Error, boolean>(
+    tryCatch<Error, boolean>(
       (): boolean => email.send(params),
-      (e) => ({
+      e => ({
         cause: String(e),
         errorKey: "InternalServerError"
       })
     ),
-    E.chain((success: boolean) => success
-      ? E.right(undefined)
-      : E.left({ errorKey: "InternalServerError" })
+    chain((success: boolean) =>
+      success ? right(undefined) : left({ errorKey: "InternalServerError" })
     )
   );
 }

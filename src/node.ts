@@ -1,5 +1,5 @@
-import { Either, map, tryCatch } from "fp-ts/lib/Either";
-import {pipe} from "fp-ts/lib/pipeable";
+import { IOEither, map, tryCatch } from "fp-ts/lib/IOEither";
+import { pipe } from "fp-ts/lib/pipeable";
 import { Error } from "./common";
 import { PermissionsParams } from "./content";
 const node = __non_webpack_require__("/lib/xp/node");
@@ -8,8 +8,8 @@ export interface Source {
   repoId: string;
   branch: string;
   user?: {
-    login: string
-    idProvider?: string
+    login: string;
+    idProvider?: string;
   };
   principals?: Array<string>;
 }
@@ -98,13 +98,18 @@ export interface IndexConfigEntry {
   languages: Array<any>;
 }
 
-export type IndexConfigTemplates = "none" | "byType" | "fulltext" | "path" | "minimal";
+export type IndexConfigTemplates =
+  | "none"
+  | "byType"
+  | "fulltext"
+  | "path"
+  | "minimal";
 
 export interface IndexConfig {
   default: IndexConfigEntry | IndexConfigTemplates;
   configs?: Array<{
-    path: string
-    config: IndexConfigEntry | IndexConfigTemplates
+    path: string;
+    config: IndexConfigEntry | IndexConfigTemplates;
   }>;
 }
 
@@ -165,52 +170,64 @@ export interface RepoConnection {
 /**
  * Creates a connection to a repository with a given branch and authentication info.
  */
-export function connect(params: Source): Either<Error, RepoConnection> {
+export function connect(params: Source): IOEither<Error, RepoConnection> {
   return tryCatch<Error, RepoConnection>(
     () => node.connect(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
 /**
  * This function fetches nodes.
  */
-export function get<A>(repo: RepoConnection, keys: string | Array<string>): Either<Error, Array<A & RepoNode>> {
+export function get<A>(
+  repo: RepoConnection,
+  keys: string | Array<string>
+): IOEither<Error, Array<A & RepoNode>> {
   return pipe(
     tryCatch<Error, Array<A & RepoNode> | A & RepoNode>(
       () => repo.get(keys),
-      (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+      e => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
-    map((data) => Array.isArray(data) ? data : [data])
+    map(data => (Array.isArray(data) ? data : [data]))
   );
 }
 
 /**
  * This function creates a node.
  */
-export function create<A>(repo: RepoConnection, params: A & NodeCreateParams): Either<Error, A & RepoNode> {
+export function create<A>(
+  repo: RepoConnection,
+  params: A & NodeCreateParams
+): IOEither<Error, A & RepoNode> {
   return tryCatch<Error, A & RepoNode>(
     () => repo.create(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
 /**
  * This function deletes a node or nodes.
  */
-export function remove(repo: RepoConnection, keys: Array<string>): Either<Error, boolean> {
+export function remove(
+  repo: RepoConnection,
+  keys: Array<string>
+): IOEither<Error, boolean> {
   return tryCatch<Error, boolean>(
     () => repo.delete(keys),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
 /**
  * This command queries nodes.
  */
-export function query(repo: RepoConnection, params: NodeQueryParams): Either<Error, NodeQueryResponse> {
+export function query(
+  repo: RepoConnection,
+  params: NodeQueryParams
+): IOEither<Error, NodeQueryResponse> {
   return tryCatch<Error, NodeQueryResponse>(
     () => repo.query(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }

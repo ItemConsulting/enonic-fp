@@ -1,7 +1,9 @@
-import {chain, Either, fromNullable, tryCatch} from "fp-ts/lib/Either";
-import {pipe} from "fp-ts/lib/pipeable";
-import {Error} from "./common";
-import {PermissionsParams} from "./content";
+import { chain, IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { pipe } from "fp-ts/lib/pipeable";
+import { Error } from "./common";
+import { PermissionsParams } from "./content";
+import { fromNullable } from "./utils";
+
 const repo = __non_webpack_require__("/lib/xp/repo");
 
 export interface IndexDefinition {
@@ -14,10 +16,10 @@ export interface CreateRepoParams {
   rootPermissions?: Array<PermissionsParams>;
   settings?: {
     definitions?: {
-      search?: IndexDefinition
-      version?: IndexDefinition
-      branch?: IndexDefinition
-    }
+      search?: IndexDefinition;
+      version?: IndexDefinition;
+      branch?: IndexDefinition;
+    };
   };
 }
 
@@ -43,63 +45,71 @@ export interface DeleteBranchParams {
   repoId: string;
 }
 
-export function create(params: CreateRepoParams): Either<Error, RepositoryConfig> {
+export function create(
+  params: CreateRepoParams
+): IOEither<Error, RepositoryConfig> {
   return tryCatch<Error, RepositoryConfig>(
     () => repo.create(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function createBranch(params: CreateBranchParams): Either<Error, RepositoryConfig> {
+export function createBranch(
+  params: CreateBranchParams
+): IOEither<Error, RepositoryConfig> {
   return tryCatch<Error, RepositoryConfig>(
     () => repo.createBranch(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function get(id: string): Either<Error, RepositoryConfig> {
+export function get(id: string): IOEither<Error, RepositoryConfig> {
   return pipe(
     tryCatch<Error, RepositoryConfig>(
       () => repo.get(id),
-      (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+      e => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
     chain(fromNullable<Error>({ errorKey: "NotFoundError" }))
   );
 }
 
-export function list(): Either<Error, Array<RepositoryConfig>> {
+export function list(): IOEither<Error, Array<RepositoryConfig>> {
   return tryCatch<Error, Array<RepositoryConfig>>(
     () => repo.list(),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function remove(id: string): Either<Error, boolean> {
+export function remove(id: string): IOEither<Error, boolean> {
   return tryCatch<Error, boolean>(
     () => repo.delete(id),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function deleteBranch(params: DeleteBranchParams): Either<Error, any> { // Figure out the shape here for any
+export function deleteBranch(params: DeleteBranchParams): IOEither<Error, any> {
+  // Figure out the shape here for any
   return pipe(
     tryCatch<Error, any>(
       () => repo.deleteBranch(params),
       (e: any) => {
         return {
           cause: String(e),
-          errorKey: (e.code === "branchNotFound")
-            ? "NotFoundError"
-            : "InternalServerError"
+          errorKey:
+            e.code === "branchNotFound"
+              ? "NotFoundError"
+              : "InternalServerError"
         };
       }
     )
   );
 }
 
-export function refresh(params: RefreshParams): Either<Error, Array<RepositoryConfig>> {
+export function refresh(
+  params: RefreshParams
+): IOEither<Error, Array<RepositoryConfig>> {
   return tryCatch<Error, Array<RepositoryConfig>>(
     () => repo.refresh(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }

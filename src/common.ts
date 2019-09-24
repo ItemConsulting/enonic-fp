@@ -22,7 +22,7 @@ export interface PageContributions {
 }
 
 export type ErrorKey =
-   "BadRequestError"
+  | "BadRequestError"
   | "UnauthorizedError"
   | "ForbiddenError"
   | "NotFoundError"
@@ -33,10 +33,10 @@ export type ErrorKey =
 
 export interface Response {
   status: number;
-  body?: string|object;
+  body?: string | object;
   contentType?: string;
-  headers?: { [key: string]: string; };
-  cookies?: { [key: string]: string; };
+  headers?: { [key: string]: string };
+  cookies?: { [key: string]: string };
   redirect?: string;
   postProcess?: boolean;
   pageContributions?: PageContributions;

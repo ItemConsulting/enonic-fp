@@ -1,4 +1,4 @@
-import { Either, tryCatch } from "fp-ts/lib/Either";
+import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
 import { Error } from "./common";
 const context = __non_webpack_require__("/lib/xp/context");
 
@@ -22,10 +22,10 @@ interface User {
   idProvider: string;
 }
 
-export function get(): Either<Error, Context> {
+export function get(): IOEither<Error, Context> {
   return tryCatch(
     () => context.get(),
-    (e) => ({
+    e => ({
       cause: String(e),
       errorKey: "InternalServerError"
     })
@@ -36,11 +36,11 @@ interface RunContext {
   repository?: string;
   branch?: string;
   user?: {
-    login: string
-    idProvider?: string
+    login: string;
+    idProvider?: string;
   };
   principals?: Array<string>;
-  attributes?: { [key: string]: string|boolean|number };
+  attributes?: { [key: string]: string | boolean | number };
 }
 
 export function run<T>(runContext: RunContext, f: () => T): T {

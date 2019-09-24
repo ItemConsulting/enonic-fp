@@ -1,6 +1,7 @@
-import {Either, fromNullable, tryCatch} from "fp-ts/lib/Either";
-import {Error} from "./common";
-import {Content, Site} from "./content";
+import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { Error } from "./common";
+import { Content, Site } from "./content";
+import { fromNullable } from "./utils";
 
 const portal = __non_webpack_require__("/lib/xp/portal");
 
@@ -8,7 +9,7 @@ export interface IdProviderUrlParams {
   idProvider?: string;
   contextPath?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface ImagePlaceHolderParams {
@@ -20,7 +21,7 @@ export interface AssetUrlParams {
   path: string;
   application?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface AttachmentUrlParams {
@@ -29,7 +30,7 @@ export interface AttachmentUrlParams {
   name?: string;
   label?: string; // source
   download?: boolean;
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
   type?: "server" | "absolute";
 }
 
@@ -38,7 +39,7 @@ export interface ComponentUrlParams {
   path?: string;
   component?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface ImageUrlParams {
@@ -50,14 +51,14 @@ export interface ImageUrlParams {
   format?: string;
   filter?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface PageUrlParams {
   id?: string;
   path?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface LoginUrlParams {
@@ -65,27 +66,27 @@ export interface LoginUrlParams {
   redirect?: string;
   contextPath?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface LogoutUrlParams {
   redirect?: string;
   contextPath?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface ServiceUrlParams {
   service: string;
   application?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface UrlParams {
   path?: string;
   type?: "server" | "absolute";
-  params?: {[key: string]: string};
+  params?: { [key: string]: string };
 }
 
 export interface ProcessHtmlParams {
@@ -96,28 +97,28 @@ export interface ProcessHtmlParams {
 export function getContent<A>() {
   return tryCatch<Error, Content<A>>(
     () => portal.getContent(),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function getIdProviderKey(): Either<Error, string> {
+export function getIdProviderKey(): IOEither<Error, string> {
   return fromNullable<Error>({
     cause: "Missing id provider in context",
     errorKey: "InternalServerError"
   })(portal.getIdProviderKey());
 }
 
-export function getSite<A>(): Either<Error, Site<A>> {
+export function getSite<A>(): IOEither<Error, Site<A>> {
   return tryCatch<Error, Site<A>>(
     () => portal.getSite(),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function getSiteConfig<A>(): Either<Error, A> {
+export function getSiteConfig<A>(): IOEither<Error, A> {
   return tryCatch<Error, A>(
     () => portal.getSiteConfig(),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 

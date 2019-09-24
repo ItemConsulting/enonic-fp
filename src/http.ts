@@ -1,4 +1,4 @@
-import { Either, tryCatch } from "fp-ts/lib/Either";
+import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
 import { Error } from "./common";
 const httpClient = __non_webpack_require__("/lib/http-client");
 
@@ -93,10 +93,12 @@ export interface HttpResponse {
  * Sends an HTTP request and returns the response received from the remote server.
  * The request is sent synchronously, the execution blocks until the response is received.
  */
-export function request(params: HttpRequestParams): Either<Error, HttpResponse> {
+export function request(
+  params: HttpRequestParams
+): IOEither<Error, HttpResponse> {
   return tryCatch(
     () => httpClient.request(params),
-    (e) => ({
+    e => ({
       cause: String(e),
       errorKey: "BadGatewayError"
     })

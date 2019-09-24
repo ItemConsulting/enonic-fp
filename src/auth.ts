@@ -1,4 +1,4 @@
-import { Either, tryCatch } from "fp-ts/lib/Either";
+import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
 import { fromNullable, Option } from "fp-ts/lib/Option";
 import { Error } from "./common";
 
@@ -27,20 +27,20 @@ export interface LoginResultUser {
   idProvider: string;
 }
 
-export function login(params: LoginParams): Either<Error, LoginResult> {
+export function login(params: LoginParams): IOEither<Error, LoginResult> {
   return tryCatch<Error, LoginResult>(
     () => auth.login(params),
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function logout(): Either<Error, void> {
+export function logout(): IOEither<Error, void> {
   return tryCatch<Error, void>(
     () => {
       auth.logout();
       return undefined;
     },
-    (e) => ({ errorKey: "InternalServerError", cause: String(e) })
+    e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
