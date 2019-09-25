@@ -1,6 +1,6 @@
 import { chain, IOEither, left, right, tryCatch } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { Error } from "./common";
+import { EnonicError } from "./common";
 
 const email = __non_webpack_require__("/lib/xp/mail");
 
@@ -24,9 +24,9 @@ export interface EmailParams {
   attachments?: Array<EmailAttachment>;
 }
 
-export function send(params: EmailParams): IOEither<Error, void> {
+export function send(params: EmailParams): IOEither<EnonicError, void> {
   return pipe(
-    tryCatch<Error, boolean>(
+    tryCatch<EnonicError, boolean>(
       (): boolean => email.send(params),
       e => ({
         cause: String(e),

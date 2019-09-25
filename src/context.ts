@@ -1,5 +1,5 @@
 import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
-import { Error } from "./common";
+import { EnonicError } from "./common";
 const context = __non_webpack_require__("/lib/xp/context");
 
 export interface Context {
@@ -22,7 +22,7 @@ interface User {
   idProvider: string;
 }
 
-export function get(): IOEither<Error, Context> {
+export function get(): IOEither<EnonicError, Context> {
   return tryCatch(
     () => context.get(),
     e => ({

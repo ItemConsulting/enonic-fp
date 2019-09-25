@@ -44,7 +44,7 @@ export function get(req: Request): Response {
     }),
     fold<Error, Content<Article>, Response>(
       (err: Error) => ({
-        status: 500, // 500 = Internal Server Error
+        status: 500, EnonicError
         contentType: 'application/json',
         body: err
       }),

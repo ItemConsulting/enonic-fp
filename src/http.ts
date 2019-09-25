@@ -1,5 +1,5 @@
 import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
-import { Error } from "./common";
+import { EnonicError } from "./common";
 const httpClient = __non_webpack_require__("/lib/http-client");
 
 interface HttpRequestParamsProxy {
@@ -95,7 +95,7 @@ export interface HttpResponse {
  */
 export function request(
   params: HttpRequestParams
-): IOEither<Error, HttpResponse> {
+): IOEither<EnonicError, HttpResponse> {
   return tryCatch(
     () => httpClient.request(params),
     e => ({

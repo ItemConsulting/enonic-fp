@@ -1,6 +1,6 @@
 import { IOEither, map, tryCatch } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { Error } from "./common";
+import { EnonicError } from "./common";
 import { PermissionsParams } from "./content";
 const node = __non_webpack_require__("/lib/xp/node");
 
@@ -170,8 +170,8 @@ export interface RepoConnection {
 /**
  * Creates a connection to a repository with a given branch and authentication info.
  */
-export function connect(params: Source): IOEither<Error, RepoConnection> {
-  return tryCatch<Error, RepoConnection>(
+export function connect(params: Source): IOEither<EnonicError, RepoConnection> {
+  return tryCatch<EnonicError, RepoConnection>(
     () => node.connect(params),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
@@ -183,9 +183,9 @@ export function connect(params: Source): IOEither<Error, RepoConnection> {
 export function get<A>(
   repo: RepoConnection,
   keys: string | Array<string>
-): IOEither<Error, Array<A & RepoNode>> {
+): IOEither<EnonicError, Array<A & RepoNode>> {
   return pipe(
-    tryCatch<Error, Array<A & RepoNode> | A & RepoNode>(
+    tryCatch<EnonicError, Array<A & RepoNode> | A & RepoNode>(
       () => repo.get(keys),
       e => ({ errorKey: "InternalServerError", cause: String(e) })
     ),
@@ -199,8 +199,8 @@ export function get<A>(
 export function create<A>(
   repo: RepoConnection,
   params: A & NodeCreateParams
-): IOEither<Error, A & RepoNode> {
-  return tryCatch<Error, A & RepoNode>(
+): IOEither<EnonicError, A & RepoNode> {
+  return tryCatch<EnonicError, A & RepoNode>(
     () => repo.create(params),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
@@ -212,8 +212,8 @@ export function create<A>(
 export function remove(
   repo: RepoConnection,
   keys: Array<string>
-): IOEither<Error, boolean> {
-  return tryCatch<Error, boolean>(
+): IOEither<EnonicError, boolean> {
+  return tryCatch<EnonicError, boolean>(
     () => repo.delete(keys),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
@@ -225,8 +225,8 @@ export function remove(
 export function query(
   repo: RepoConnection,
   params: NodeQueryParams
-): IOEither<Error, NodeQueryResponse> {
-  return tryCatch<Error, NodeQueryResponse>(
+): IOEither<EnonicError, NodeQueryResponse> {
+  return tryCatch<EnonicError, NodeQueryResponse>(
     () => repo.query(params),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );

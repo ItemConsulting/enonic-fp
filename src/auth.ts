@@ -1,6 +1,6 @@
 import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
 import { fromNullable, Option } from "fp-ts/lib/Option";
-import { Error } from "./common";
+import { EnonicError } from "./common";
 
 const auth = __non_webpack_require__("/lib/xp/auth");
 
@@ -27,15 +27,15 @@ export interface LoginResultUser {
   idProvider: string;
 }
 
-export function login(params: LoginParams): IOEither<Error, LoginResult> {
-  return tryCatch<Error, LoginResult>(
+export function login(params: LoginParams): IOEither<EnonicError, LoginResult> {
+  return tryCatch<EnonicError, LoginResult>(
     () => auth.login(params),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function logout(): IOEither<Error, void> {
-  return tryCatch<Error, void>(
+export function logout(): IOEither<EnonicError, void> {
+  return tryCatch<EnonicError, void>(
     () => {
       auth.logout();
       return undefined;

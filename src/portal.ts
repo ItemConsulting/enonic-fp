@@ -1,5 +1,5 @@
 import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
-import { Error } from "./common";
+import { EnonicError } from "./common";
 import { Content, Site } from "./content";
 import { fromNullable } from "./utils";
 
@@ -95,28 +95,28 @@ export interface ProcessHtmlParams {
 }
 
 export function getContent<A>() {
-  return tryCatch<Error, Content<A>>(
+  return tryCatch<EnonicError, Content<A>>(
     () => portal.getContent(),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function getIdProviderKey(): IOEither<Error, string> {
-  return fromNullable<Error>({
+export function getIdProviderKey(): IOEither<EnonicError, string> {
+  return fromNullable<EnonicError>({
     cause: "Missing id provider in context",
     errorKey: "InternalServerError"
   })(portal.getIdProviderKey());
 }
 
-export function getSite<A>(): IOEither<Error, Site<A>> {
-  return tryCatch<Error, Site<A>>(
+export function getSite<A>(): IOEither<EnonicError, Site<A>> {
+  return tryCatch<EnonicError, Site<A>>(
     () => portal.getSite(),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
 }
 
-export function getSiteConfig<A>(): IOEither<Error, A> {
-  return tryCatch<Error, A>(
+export function getSiteConfig<A>(): IOEither<EnonicError, A> {
+  return tryCatch<EnonicError, A>(
     () => portal.getSiteConfig(),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );

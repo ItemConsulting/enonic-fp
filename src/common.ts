@@ -1,4 +1,4 @@
-export interface Request {
+export declare interface Request {
   method: "GET" | "PUT" | "POST" | "DELETE";
   scheme: string;
   host: string;
@@ -21,7 +21,7 @@ export interface PageContributions {
   bodyEnd?: string | Array<string>;
 }
 
-export type ErrorKey =
+export type EnonicErrorKey =
   | "BadRequestError"
   | "UnauthorizedError"
   | "ForbiddenError"
@@ -31,7 +31,7 @@ export type ErrorKey =
   | "BadGatewayError"
   | "PublishError";
 
-export interface Response {
+export declare interface Response {
   status: number;
   body?: string | object;
   contentType?: string;
@@ -43,7 +43,7 @@ export interface Response {
   applyFilters?: boolean;
 }
 
-export interface Error {
-  errorKey: ErrorKey;
+export interface EnonicError {
+  errorKey: EnonicErrorKey;
   cause?: string;
 }
