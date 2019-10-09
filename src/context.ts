@@ -1,3 +1,4 @@
+import { IO } from "fp-ts/lib/IO";
 import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
 const context = __non_webpack_require__("/lib/xp/context");
@@ -43,6 +44,10 @@ interface RunContext {
   attributes?: { [key: string]: string | boolean | number };
 }
 
-export function run<T>(runContext: RunContext, f: () => T): T {
+export function runUnsafe<A>(runContext: RunContext, f: () => A): A {
   return context.run(runContext, f);
+}
+
+export function run<A>(runContext: RunContext): (a: IO<A>) => IO<A> {
+  return (a: IO<A>) => () => runUnsafe(runContext, a);
 }
