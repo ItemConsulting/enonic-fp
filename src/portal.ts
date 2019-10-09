@@ -94,7 +94,7 @@ export interface ProcessHtmlParams {
   type?: "server" | "absolute";
 }
 
-export function getContent<A>() {
+export function getContent<A>(): IOEither<EnonicError, Content<A>> {
   return tryCatch<EnonicError, Content<A>>(
     () => portal.getContent(),
     e => ({ errorKey: "InternalServerError", cause: String(e) })

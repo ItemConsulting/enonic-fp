@@ -49,5 +49,5 @@ export function runUnsafe<A>(runContext: RunContext, f: () => A): A {
 }
 
 export function run<A>(runContext: RunContext): (a: IO<A>) => IO<A> {
-  return (a: IO<A>) => () => runUnsafe(runContext, a);
+  return (a: IO<A>) => (): A => runUnsafe(runContext, a);
 }

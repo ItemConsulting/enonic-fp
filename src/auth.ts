@@ -6,7 +6,7 @@ const auth = __non_webpack_require__("/lib/xp/auth");
 
 export interface LoginParams {
   user: string;
-  password?: string; // don't need password if skipAuth = true
+  password?: string;
   idProvider?: string;
   skipAuth?: boolean;
   sessionTimeout?: number;

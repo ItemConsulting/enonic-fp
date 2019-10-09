@@ -22,5 +22,5 @@ export function getRenderer<A>(
   view: any,
   options?: ThymeleafRenderOptions
 ): (model: A) => IOEither<EnonicError, string> {
-  return (model: A) => render(view, model, options);
+  return (model: A): IOEither<EnonicError, string> => render(view, model, options);
 }

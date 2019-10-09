@@ -4,5 +4,5 @@ import { fromEither, IOEither } from "fp-ts/lib/IOEither";
 export function fromNullable<E>(
   e: E
 ): <A>(a: A | null | undefined) => IOEither<E, A> {
-  return <A>(a: A | null | undefined) => fromEither(EI.fromNullable(e)(a));
+  return <A>(a: A | null | undefined): IOEither<E, A> => fromEither(EI.fromNullable(e)(a));
 }
