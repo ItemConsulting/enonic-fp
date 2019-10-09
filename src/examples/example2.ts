@@ -1,18 +1,19 @@
-import { io } from "fp-ts/lib/IO";
-import { chain, fold } from "fp-ts/lib/IOEither";
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import {IO, io} from "fp-ts/lib/IO";
+import {chain, fold, IOEither} from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { Error, Request, Response } from "../common";
-import { publish, remove } from "../content";
+import { EnonicError, Request, Response } from "../common";
+import {publish, PublishResponse, remove} from "../content";
 import { run } from "../context";
 
 export function del(req: Request): Response {
   const key = req.params.key!!;
 
-  const program = pipe(
-    runInDraftContext(() => remove({ key })),
+  return pipe(
+    runInDraftContext(remove({ key })),
     chain(() => publishToMaster(key)),
-    fold<Error, any, Response>(
-      (err: Error) =>
+    fold<EnonicError, any, Response>(
+      (err: EnonicError) =>
         io.of({
           body: err,
           contentType: "application/json",
@@ -24,21 +25,18 @@ export function del(req: Request): Response {
           status: 204 // 204 = No content
         })
     )
-  );
-
-  return program();
+  )();
 }
 
-function runInDraftContext<T>(f: () => T) {
-  return run(
+function runInDraftContext<A>(f: IO<A>): IO<A> {
+  return run<A>(
     {
       branch: "draft"
-    },
-    f
-  );
+    }
+  )(f);
 }
 
-function publishToMaster(key: string) {
+function publishToMaster(key: string): IOEither<EnonicError, PublishResponse> {
   return publish({
     keys: [key],
     sourceBranch: "draft",
