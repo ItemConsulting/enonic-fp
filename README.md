@@ -32,34 +32,38 @@ In this example we ask for content by the key, and then we either return an _Int
 content to the user as json.
 
 ```typescript
-import { Response, Request, Error } from "enonic-fp/lib/common";
-import { Content, get as getContent } from 'enonic-fp/lib/content';
+import { io } from "fp-ts/lib/IO";
 import { pipe } from "fp-ts/lib/pipeable";
 import { fold } from "fp-ts/lib/Either";
+import { EnonicError, Request, Response }  from "enonic-fp/lib/common";
+import { Content, get as getContent } from 'enonic-fp/lib/content';
+
 
 export function get(req: Request): Response {
   return pipe(
     getContent<Article>({
       key: req.params.key!!
     }),
-    fold<Error, Content<Article>, Response>(
-      (err: Error) => ({
-        status: 500, EnonicError
-        contentType: 'application/json',
-        body: err
-      }),
-      (content: Content<Article>) => ({
-        status: 200, // 200 = Ok
-        contentType: 'application/json',
-        body: content
-      })
+    fold<EnonicError, Content<Article>, Response>(
+      (err: EnonicError) =>
+        io.of({
+          body: err,
+          contentType: "application/json",
+          status: 500 // 500 = Internal Server Error
+        } as Response),
+      (content: Content<Article>) =>
+        io.of({
+          body: content,
+          contentType: "application/json",
+          status: 200 // 200 = Ok
+        })
     )
-  );
+  )();
 }
 
 interface Article {
-  title: string,
-  text: string
+  title: string;
+  text: string;
 }
 ```
 
@@ -72,53 +76,56 @@ We will return a http error based on the type of error that happened (trough a l
 Or we return a http status `204`, indicating success.
 
 ```typescript
-import { Response, Request, Error } from "enonic-fp/lib/common";
-import { remove, publish } from 'enonic-fp/lib/content';
-import { run } from 'enonic-fp/lib/context';
+import {IO, io} from "fp-ts/lib/IO";
+import {chain, fold, IOEither} from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { chain, fold } from "fp-ts/lib/Either";
+import { EnonicError, Request, Response } from "enonic-fp/lib/common";
+import {publish, PublishResponse, remove} from "enonic-fp/lib/context";
+import { run } from "enonic-fp/lib/context";
 
-function del(req: Request): Response {
+export function del(req: Request): Response {
   const key = req.params.key!!;
 
   return pipe(
-    runInDraftContext(() => remove({ key })),
+    runInDraftContext(remove({ key })),
     chain(() => publishToMaster(key)),
-    fold<Error, any, Response>(
-      (err: Error) => ({
-        status: errorKeyToStatus[err.errorKey],
-        contentType: 'application/json',
-        body: err
-      }),
-      () => ({
-        status: 204, // 204 = No content
-        body: ''
-      })
+    fold<EnonicError, any, Response>(
+      (err: EnonicError) =>
+        io.of({
+          body: err,
+          contentType: "application/json",
+          status: errorKeyToStatus[err.errorKey]
+        }),
+      () =>
+        io.of({
+          body: "",
+          status: 204 // 204 = No content
+        })
     )
-  );
-}
-export { del as delete }; // hack since delete is a keyword
-
-// --- HELPER FUNCTIONS ---
-
-function runInDraftContext<T>(f: () => T) {
-  return run({ 
-    branch: 'draft'
-  }, f);
+  )();
 }
 
-function publishToMaster(key: string) {
+
+function runInDraftContext<A>(f: IO<A>): IO<A> {
+  return run<A>(
+    {
+      branch: "draft"
+    }
+  )(f);
+}
+
+function publishToMaster(key: string): IOEither<EnonicError, PublishResponse> {
   return publish({
     keys: [key],
-    sourceBranch: 'draft',
-    targetBranch: 'master',
+    sourceBranch: "draft",
+    targetBranch: "master"
   });
 }
 
-const errorKeyToStatus : { [key: string]: number; } = {
-  "InternalServerError": 500,
-  "NotFoundError": 404,
-  "PublishError": 500
+const errorKeyToStatus: { [key: string]: number } = {
+  InternalServerError: 500,
+  NotFoundError: 404,
+  PublishError: 500
 };
 ```
 
@@ -137,85 +144,88 @@ In the `fold` we either return the an error, with the correct http status (`404`
 result with the http status `200`.
 
 ```typescript
+import { sequenceT } from "fp-ts/lib/Apply";
+import { parseJSON } from "fp-ts/lib/Either";
+import { io } from "fp-ts/lib/IO";
+import { chain, fold, fromEither, ioEither, IOEither, map } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { chain, map, fold, either, Either, parseJSON } from "fp-ts/lib/Either";
-import { sequenceT } from 'fp-ts/lib/Apply'
-import { Response, Request, Error } from "enonic-fp/lib/common";
-import { Content, get as getContent, query, QueryResponse } from "enonic-fp/lib/content";
-import { request} from "enonic-fp/lib/http";
+import { EnonicError, Request, Response } from "enonic-fp/lib/common";
+import { get as getContent, query, QueryResponse } from "enonic-fp/lib/content";
+import { request } from "enonic-fp/lib/http";
 
 export function get(req: Request): Response {
-  const key = req.params.key!!;
+  const articleKey = req.params.key!!;
 
   return pipe(
-    sequenceT(either)(
-      getArticle(key),
-      getCommentsByArticleId(key),
+    sequenceT(ioEither)(
+      getContent<Article>({ key: articleKey }),
+      getCommentsByArticleId(articleKey),
       getOpenPositionsOverHttp()
     ),
     map(([article, comments, openPositions]) => {
       return {
         ...article,
-        openPositions,
         comments: comments.hits,
+        openPositions
       };
     }),
-    fold<Error, any, Response>(
-      (err: Error) => ({
-        status: errorKeyToStatus[err.errorKey],
-        contentType: 'application/json',
-        body: err
-      }),
-      (res) => ({
-        status: 200,
-        contentType: 'application/json',
-        body: res
-      })
+    fold<EnonicError, any, Response>(
+      (err: EnonicError) =>
+        io.of({
+          body: err,
+          contentType: "application/json",
+          status: errorKeyToStatus[err.errorKey]
+        }),
+      (res) =>
+        io.of({
+          body: res,
+          contentType: "application/json",
+          status: 200
+        })
     )
-  )
+  )();
 }
 
 interface Article {
-  title: string
-  text: string
+  title: string;
+  text: string;
 }
 
 interface Comment {
-  writtenBy: string,
-  text: string
+  writtenBy: string;
+  text: string;
 }
 
-const errorKeyToStatus : { [key: string]: number; } = {
-  "NotFoundError": 404,
-  "InternalServerError": 500,
-  "BadGatewayError": 502
+const errorKeyToStatus: { [key: string]: number } = {
+  BadGatewayError: 502,
+  InternalServerError: 500,
+  NotFoundError: 404
 };
 
-function getArticle(key: string) : Either<Error, Content<Article>> {
-  return getContent({ key });
-}
-
-function getCommentsByArticleId(articleId: string) : Either<Error, QueryResponse<Comment>> {
+function getCommentsByArticleId(
+  articleId: string
+): IOEither<EnonicError, QueryResponse<Comment>> {
   return query({
-    query: `data.articleId = ${articleId}`,
-    contentTypes: ['com.example:comment']
+    contentTypes: ["com.example:comment"],
+    count: 100,
+    query: `data.articleId = ${articleId}`
   });
 }
 
-function createBadGatewayError(reason: any): Error {
+function createBadGatewayError(reason: any): EnonicError {
   return {
-    errorKey: 'BadGatewayError',
-    cause: String(reason)
+    cause: String(reason),
+    errorKey: "BadGatewayError"
   };
 }
 
-function getOpenPositionsOverHttp() : Either<Error, any> {
+function getOpenPositionsOverHttp(): IOEither<EnonicError, any> {
   return pipe(
     request({
       url: "https://example.com/api/open-positions"
     }),
-    chain(res => parseJSON(res.body!, createBadGatewayError))
-  )
+    chain(res => fromEither(parseJSON(res.body!, createBadGatewayError)))
+  );
 }
 ```
 
