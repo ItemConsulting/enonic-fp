@@ -1,6 +1,6 @@
 import * as EI from "fp-ts/lib/Either";
 import { fromEither, IOEither, tryCatch } from "fp-ts/lib/IOEither";
-import { EnonicError, EnonicErrorKey } from "./common";
+import { EnonicError, GeneralEnonicErrorKey } from "./common";
 import { Lazy } from "fp-ts/lib/function";
 
 export interface Throwable {
@@ -43,7 +43,7 @@ export function getRootCause(t: Throwable | unknown): Throwable | undefined {
     : undefined;
 }
 
-export function handleJavaThrowable(errorKey: EnonicErrorKey, t: Throwable | string | unknown): EnonicError {
+export function handleJavaThrowable(errorKey: GeneralEnonicErrorKey, t: Throwable | string | unknown): EnonicError {
   if (isJavaThrowable(t)) {
     return {
       errorKey,
@@ -60,7 +60,7 @@ export function handleJavaThrowable(errorKey: EnonicErrorKey, t: Throwable | str
 
 export function catchEnonicError<A>(
   f: Lazy<A>,
-  errorKey: EnonicErrorKey = "InternalServerError"
+  errorKey: GeneralEnonicErrorKey = "InternalServerError"
 ): IOEither<EnonicError, A> {
   return tryCatch<EnonicError, A>(f, (t) => handleJavaThrowable(errorKey, t));
 }

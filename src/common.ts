@@ -21,8 +21,11 @@ export interface PageContributions {
   bodyEnd?: string | Array<string>;
 }
 
-export type EnonicErrorKey =
-  | "BadRequestError"
+interface BaseError {
+  errorKey: EnonicErrorKey;
+}
+
+export type GeneralEnonicErrorKey =
   | "UnauthorizedError"
   | "ForbiddenError"
   | "NotFoundError"
@@ -30,6 +33,8 @@ export type EnonicErrorKey =
   | "InternalServerError"
   | "BadGatewayError"
   | "PublishError";
+
+export type EnonicErrorKey = GeneralEnonicErrorKey | "BadRequestError";
 
 export declare interface Response {
   status: number;
@@ -43,8 +48,23 @@ export declare interface Response {
   applyFilters?: boolean;
 }
 
-export interface EnonicError {
-  errorKey: EnonicErrorKey;
+export interface BadRequestErrorsByKey {
+  [key: string]: Array<string>;
+}
+
+export interface GenericError extends BaseError {
+  errorKey: GeneralEnonicErrorKey;
   cause?: string;
   stackTrace?: string;
 }
+
+export interface BadRequestError extends BaseError {
+  errorKey: "BadRequestError";
+  errors: BadRequestErrorsByKey;
+}
+
+export function isBadRequestError(err: EnonicError): err is BadRequestError {
+  return err.errorKey === "BadRequestError";
+}
+
+export type EnonicError = GenericError | BadRequestError;
