@@ -1,6 +1,8 @@
 import { IO } from "fp-ts/lib/IO";
-import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
+import { catchEnonicError } from "./utils";
+
 const context = __non_webpack_require__("/lib/xp/context");
 
 export interface Context {
@@ -24,12 +26,8 @@ interface User {
 }
 
 export function get(): IOEither<EnonicError, Context> {
-  return tryCatch(
-    () => context.get(),
-    e => ({
-      cause: String(e),
-      errorKey: "InternalServerError"
-    })
+  return catchEnonicError<Context>(
+    () => context.get()
   );
 }
 

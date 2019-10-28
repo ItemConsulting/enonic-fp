@@ -1,7 +1,7 @@
-import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
 import { Content, Site } from "./content";
-import { fromNullable } from "./utils";
+import { catchEnonicError, fromNullable } from "./utils";
 
 const portal = __non_webpack_require__("/lib/xp/portal");
 
@@ -95,9 +95,8 @@ export interface ProcessHtmlParams {
 }
 
 export function getContent<A>(): IOEither<EnonicError, Content<A>> {
-  return tryCatch<EnonicError, Content<A>>(
-    () => portal.getContent(),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Content<A>>(
+    () => portal.getContent()
   );
 }
 
@@ -109,16 +108,14 @@ export function getIdProviderKey(): IOEither<EnonicError, string> {
 }
 
 export function getSite<A>(): IOEither<EnonicError, Site<A>> {
-  return tryCatch<EnonicError, Site<A>>(
-    () => portal.getSite(),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Site<A>>(
+    () => portal.getSite()
   );
 }
 
 export function getSiteConfig<A>(): IOEither<EnonicError, A> {
-  return tryCatch<EnonicError, A>(
-    () => portal.getSiteConfig(),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<A>(
+    () => portal.getSiteConfig()
   );
 }
 

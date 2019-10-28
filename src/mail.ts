@@ -1,6 +1,7 @@
-import { chain, IOEither, left, right, tryCatch } from "fp-ts/lib/IOEither";
+import { chain, IOEither, left, right } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
 import { EnonicError } from "./common";
+import { catchEnonicError } from "./utils";
 
 const email = __non_webpack_require__("/lib/xp/mail");
 
@@ -26,15 +27,13 @@ export interface EmailParams {
 
 export function send(params: EmailParams): IOEither<EnonicError, void> {
   return pipe(
-    tryCatch<EnonicError, boolean>(
-      (): boolean => email.send(params),
-      e => ({
-        cause: String(e),
-        errorKey: "InternalServerError"
-      })
+    catchEnonicError<boolean>(
+      () => email.send(params),
     ),
     chain((success: boolean) =>
-      success ? right(undefined) : left({ errorKey: "InternalServerError" })
+      success
+        ? right(undefined)
+        : left({ errorKey: "InternalServerError" })
     )
   );
 }

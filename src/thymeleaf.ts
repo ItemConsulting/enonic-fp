@@ -1,5 +1,6 @@
-import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
+import { catchEnonicError } from "./utils";
 
 const thymeleaf = __non_webpack_require__("/lib/thymeleaf");
 
@@ -20,9 +21,8 @@ export function render<A>(
   model?: A,
   options?: ThymeleafRenderOptions
 ): IOEither<EnonicError, string> {
-  return tryCatch<EnonicError, string>(
-    () => renderUnsafe(view, model, options),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<string>(
+    () => renderUnsafe(view, model, options)
   );
 }
 

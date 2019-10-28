@@ -1,6 +1,7 @@
-import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { IOEither } from "fp-ts/lib/IOEither";
 import { fromNullable, Option } from "fp-ts/lib/Option";
 import { EnonicError } from "./common";
+import { catchEnonicError } from "./utils";
 
 const auth = __non_webpack_require__("/lib/xp/auth");
 
@@ -83,16 +84,14 @@ export interface CreateGroupParams {
 }
 
 export function login(params: LoginParams): IOEither<EnonicError, LoginResult> {
-  return tryCatch<EnonicError, LoginResult>(
-    () => auth.login(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<LoginResult>(
+    () => auth.login(params)
   );
 }
 
 export function logout(): IOEither<EnonicError, void> {
-  return tryCatch<EnonicError, void>(
-    () => auth.logout(),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<void>(
+    () => auth.logout()
   );
 }
 
@@ -107,27 +106,24 @@ export function getIdProviderConfig<A>(): Option<A> {
 export function findUsers<A>(
   params: FindUsersParams
 ): IOEither<EnonicError, UserQueryResult<A>> {
-  return tryCatch<EnonicError, UserQueryResult<A>>(
-    () => auth.findUsers(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<UserQueryResult<A>>(
+    () => auth.findUsers(params)
   );
 }
 
 export function modifyUser(
   params: ModifyUserParams
 ): IOEither<EnonicError, User> {
-  return tryCatch<EnonicError, User>(
-    () => auth.modifyUser(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<User>(
+    () => auth.modifyUser(params)
   );
 }
 
 export function createUser(
   params: CreateUserParams
 ): IOEither<EnonicError, User> {
-  return tryCatch<EnonicError, User>(
-    () => auth.createUser(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<User>(
+    () => auth.createUser(params)
   );
 }
 
@@ -135,9 +131,8 @@ export function addMembers(
   principalKey: string,
   members: Array<string>
 ): IOEither<EnonicError, void> {
-  return tryCatch<EnonicError, void>(
-    () => auth.addMembers(principalKey, members),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<void>(
+    () => auth.addMembers(principalKey, members)
   );
 }
 
@@ -145,9 +140,8 @@ export function removeMembers(
   principalKey: string,
   members: Array<string>
 ): IOEither<EnonicError, void> {
-  return tryCatch<EnonicError, void>(
-    () => auth.removeMembers(principalKey, members),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<void>(
+    () => auth.removeMembers(principalKey, members)
   );
 }
 
@@ -158,18 +152,16 @@ export function getPrincipal(principalKey: string): Option<User> {
 export function createRole(
   params: CreateRoleParams
 ): IOEither<EnonicError, Role> {
-  return tryCatch<EnonicError, Role>(
-    () => auth.createRole(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Role>(
+    () => auth.createRole(params)
   );
 }
 
 export function createGroup(
   params: CreateGroupParams
 ): IOEither<EnonicError, Group> {
-  return tryCatch<EnonicError, Group>(
-    () => auth.createGroup(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Group>(
+    () => auth.createGroup(params)
   );
 }
 
@@ -177,8 +169,7 @@ export function getMemberships(
   principalKey: string,
   transitive?: boolean
 ): IOEither<EnonicError, Array<Principal>> {
-  return tryCatch<EnonicError, Array<Principal>>(
-    () => auth.getMemberships(principalKey, transitive),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Array<Principal>>(
+    () => auth.getMemberships(principalKey, transitive)
   );
 }

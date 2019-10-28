@@ -1,8 +1,8 @@
-import { chain, IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { chain, IOEither } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
 import { EnonicError } from "./common";
-import { PermissionsParams } from "./content";
-import { fromNullable } from "./utils";
+import {PermissionsParams } from "./content";
+import {catchEnonicError, fromNullable } from "./utils";
 
 const repo = __non_webpack_require__("/lib/xp/repo");
 
@@ -48,70 +48,53 @@ export interface DeleteBranchParams {
 export function create(
   params: CreateRepoParams
 ): IOEither<EnonicError, RepositoryConfig> {
-  return tryCatch<EnonicError, RepositoryConfig>(
-    () => repo.create(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<RepositoryConfig>(
+    () => repo.create(params)
   );
 }
 
 export function createBranch(
   params: CreateBranchParams
 ): IOEither<EnonicError, RepositoryConfig> {
-  return tryCatch<EnonicError, RepositoryConfig>(
-    () => repo.createBranch(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<RepositoryConfig>(
+    () => repo.createBranch(params)
   );
 }
 
 export function get(id: string): IOEither<EnonicError, RepositoryConfig> {
   return pipe(
-    tryCatch<EnonicError, RepositoryConfig>(
-      () => repo.get(id),
-      e => ({ errorKey: "InternalServerError", cause: String(e) })
+    catchEnonicError<RepositoryConfig>(
+      () => repo.get(id)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
 }
 
 export function list(): IOEither<EnonicError, Array<RepositoryConfig>> {
-  return tryCatch<EnonicError, Array<RepositoryConfig>>(
-    () => repo.list(),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Array<RepositoryConfig>>(
+    () => repo.list()
   );
 }
 
 export function remove(id: string): IOEither<EnonicError, boolean> {
-  return tryCatch<EnonicError, boolean>(
-    () => repo.delete(id),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<boolean>(
+    () => repo.delete(id)
   );
 }
 
 export function deleteBranch(
   params: DeleteBranchParams
 ): IOEither<EnonicError, any> {
-  // Figure out the shape here for any
-  return pipe(
-    tryCatch<EnonicError, any>(
-      () => repo.deleteBranch(params),
-      (e: any) => {
-        return {
-          cause: String(e),
-          errorKey:
-            e.code === "branchNotFound"
-              ? "NotFoundError"
-              : "InternalServerError"
-        };
-      }
-    )
+  // TODO Figure out the shape here for "any"
+   return catchEnonicError<any>(
+    () => repo.deleteBranch(params)
   );
 }
 
 export function refresh(
   params: RefreshParams
 ): IOEither<EnonicError, Array<RepositoryConfig>> {
-  return tryCatch<EnonicError, Array<RepositoryConfig>>(
-    () => repo.refresh(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Array<RepositoryConfig>>(
+    () => repo.refresh(params)
   );
 }

@@ -46,4 +46,5 @@ export declare interface Response {
 export interface EnonicError {
   errorKey: EnonicErrorKey;
   cause?: string;
+  stackTrace?: string;
 }

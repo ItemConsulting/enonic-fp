@@ -1,10 +1,12 @@
-import { chain, IOEither, left, right, tryCatch } from "fp-ts/lib/IOEither";
+import { chain, IOEither, left, right } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
 import { EnonicError } from "./common";
 import { fromNullable } from "./utils";
+import { catchEnonicError } from "./utils";
+
 const content = __non_webpack_require__("/lib/xp/content");
 
-export interface Content<T> {
+export interface Content<A> {
   _id: string;
   _name: string;
   _path: string;
@@ -19,7 +21,7 @@ export interface Content<T> {
   language: string;
   valid: boolean;
   childOrder: string;
-  data: T;
+  data: A;
   x: { [key: string]: string };
   page: any;
   attachments: Attachments;
@@ -47,10 +49,10 @@ export interface QueryContentParams {
   contentTypes?: Array<string>;
 }
 
-export interface QueryResponse<T> {
+export interface QueryResponse<A> {
   aggregations: object;
   count: number;
-  hits: Array<Content<T>>;
+  hits: Array<Content<A>>;
   total: number;
 }
 
@@ -62,7 +64,7 @@ export interface DeleteContentParams {
   key: string;
 }
 
-export interface CreateContentParams<T> {
+export interface CreateContentParams<A> {
   name: string;
   parentPath: string;
   displayName?: string;
@@ -71,13 +73,13 @@ export interface CreateContentParams<T> {
   contentType: string;
   language?: string;
   childOrder?: string;
-  data: T;
+  data: A;
   x?: string;
 }
 
-export interface ModifyContentParams<T> {
+export interface ModifyContentParams<A> {
   key: string;
-  editor: (c: Content<T>) => Content<T>;
+  editor: (c: Content<A>) => Content<A>;
   requireValid?: boolean;
 }
 
@@ -121,7 +123,7 @@ export interface GetSiteParams {
   key: string;
 }
 
-export interface Site<T> {
+export interface Site<A> {
   _id: string;
   _name: string;
   _path: string;
@@ -129,7 +131,7 @@ export interface Site<T> {
   hasChildren: boolean;
   valid: boolean;
   data: {
-    siteConfig: SiteConfig<T>;
+    siteConfig: SiteConfig<A>;
   };
   x: { [key: string]: string };
   page: any;
@@ -137,9 +139,9 @@ export interface Site<T> {
   publish: any;
 }
 
-export interface SiteConfig<T> {
+export interface SiteConfig<A> {
   applicationKey: string;
-  config: T;
+  config: A;
 }
 
 export interface GetSiteConfigParams {
@@ -207,42 +209,38 @@ export interface ContentType {
   form: Array<any>;
 }
 
-export function get<T>(
+export function get<A>(
   params: GetContentParams
-): IOEither<EnonicError, Content<T>> {
+): IOEither<EnonicError, Content<A>> {
   return pipe(
-    tryCatch<EnonicError, Content<T>>(
-      () => content.get(params),
-      e => ({ errorKey: "InternalServerError", cause: String(e) })
+    catchEnonicError<Content<A>>(
+      () => content.get(params)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
 }
 
-export function query<T>(
+export function query<A>(
   params: QueryContentParams
-): IOEither<EnonicError, QueryResponse<T>> {
-  return tryCatch(
-    () => content.query(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+): IOEither<EnonicError, QueryResponse<A>> {
+  return catchEnonicError< QueryResponse<A>>(
+    () => content.query(params)
   );
 }
 
-export function create<T>(
-  params: CreateContentParams<T>
-): IOEither<EnonicError, Content<T>> {
-  return tryCatch(
-    () => content.create(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+export function create<A>(
+  params: CreateContentParams<A>
+): IOEither<EnonicError, Content<A>> {
+  return catchEnonicError<Content<A>>(
+    () => content.create(params)
   );
 }
 
-export function modify<T>(
-  params: ModifyContentParams<T>
-): IOEither<EnonicError, Content<T>> {
-  return tryCatch(
-    () => content.modify(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+export function modify<A>(
+  params: ModifyContentParams<A>
+): IOEither<EnonicError, Content<A>> {
+  return catchEnonicError<Content<A>>(
+    () => content.modify(params)
   );
 }
 
@@ -250,12 +248,15 @@ export function remove(
   params: DeleteContentParams
 ): IOEither<EnonicError, void> {
   return pipe(
-    tryCatch<EnonicError, boolean>(
-      (): boolean => content.delete(params),
-      e => ({ errorKey: "InternalServerError", cause: String(e) })
+     catchEnonicError<boolean>(
+      () => content.delete(params),
     ),
     chain((success: boolean) =>
-      success ? right(undefined) : left({ errorKey: "NotFoundError" })
+      success
+        ? right(undefined)
+        : left({
+          errorKey: "NotFoundError"
+        })
     )
   );
 }
@@ -263,61 +264,56 @@ export function remove(
 export function publish(
   params: PublishContentParams
 ): IOEither<EnonicError, PublishResponse> {
-  return tryCatch<EnonicError, PublishResponse>(
+  return catchEnonicError<PublishResponse>(
     () => content.publish(params),
-    e => ({ errorKey: "PublishError", cause: String(e) })
+    "PublishError"
   );
 }
 
 export function unpublish(
   params: UnpublishContentParams
 ): IOEither<EnonicError, Array<string>> {
-  return tryCatch<EnonicError, Array<string>>(
+  return catchEnonicError<Array<string>>(
     () => content.unpublish(params),
-    e => ({ errorKey: "PublishError", cause: String(e) })
+    "PublishError"
   );
 }
 
-export function getChildren<T>(
+export function getChildren<A>(
   params: GetChildrenParams
-): IOEither<EnonicError, QueryResponse<T>> {
-  return tryCatch<EnonicError, QueryResponse<T>>(
-    () => content.getChildren(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+): IOEither<EnonicError, QueryResponse<A>> {
+  return catchEnonicError<QueryResponse<A>>(
+    () => content.getChildren(params)
   );
 }
 
-export function move<T>(params: MoveParams): IOEither<EnonicError, Content<T>> {
-  return tryCatch<EnonicError, Content<T>>(
-    () => content.move(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+export function move<A>(params: MoveParams): IOEither<EnonicError, Content<A>> {
+  return catchEnonicError<Content<A>>(
+    () => content.move(params)
   );
 }
 
-export function getSite<T>(
+export function getSite<A>(
   params: GetSiteParams
-): IOEither<EnonicError, Site<T>> {
-  return tryCatch<EnonicError, Site<T>>(
-    () => content.getSite(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+): IOEither<EnonicError, Site<A>> {
+  return catchEnonicError<Site<A>>(
+    () => content.getSite(params)
   );
 }
 
-export function getSiteConfig<T>(
+export function getSiteConfig<A>(
   params: GetSiteConfigParams
-): IOEither<EnonicError, T> {
-  return tryCatch<EnonicError, T>(
-    () => content.getSiteConfig(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+): IOEither<EnonicError, A> {
+  return catchEnonicError<A>(
+    () => content.getSiteConfig(params)
   );
 }
 
-export function createMedia<T>(
+export function createMedia<A>(
   params: CreateMediaParams
-): IOEither<EnonicError, Content<T>> {
-  return tryCatch<EnonicError, Content<T>>(
-    () => content.createMedia(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+): IOEither<EnonicError, Content<A>> {
+  return catchEnonicError<Content<A>>(
+    () => content.createMedia(params)
   );
 }
 
@@ -325,9 +321,8 @@ export function getAttachments(
   key: string
 ): IOEither<EnonicError, Attachments> {
   return pipe(
-    tryCatch<EnonicError, Attachments>(
-      () => content.getAttachments(key),
-      e => ({ errorKey: "InternalServerError", cause: String(e) })
+    catchEnonicError<Attachments>(
+      () => content.getAttachments(key)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
@@ -338,9 +333,8 @@ export function getAttachmentStream(
   params: AttachmentStreamParams
 ): IOEither<EnonicError, any> {
   return pipe(
-    tryCatch<EnonicError, any>(
-      () => content.getAttachmentStream(params),
-      e => ({ errorKey: "InternalServerError", cause: String(e) })
+    catchEnonicError<any>(
+      () => content.getAttachmentStream(params)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
@@ -349,40 +343,35 @@ export function getAttachmentStream(
 export function removeAttachment(
   params: RemoveAttachmentParams
 ): IOEither<EnonicError, void> {
-  return tryCatch<EnonicError, void>(
-    () => content.removeAttachment(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<void>(
+    () => content.removeAttachment(params)
   );
 }
 
 export function getPermissions(
   params: GetPermissionsParams
 ): IOEither<EnonicError, GetPermissionsResult> {
-  return tryCatch<EnonicError, GetPermissionsResult>(
-    () => content.getPermissions(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<GetPermissionsResult>(
+    () => content.getPermissions(params)
   );
 }
 
 export function setPermissions(
   params: SetPermissionsParams
 ): IOEither<EnonicError, GetPermissionsResult> {
-  return tryCatch<EnonicError, GetPermissionsResult>(
-    () => content.setPermissions(params),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<GetPermissionsResult>(
+    () => content.setPermissions(params)
   );
 }
 
 export function getType(name: string): IOEither<EnonicError, ContentType> {
-  return tryCatch<EnonicError, ContentType>(
-    () => content.getType(name),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<ContentType>(
+    () => content.getType(name)
   );
 }
 
 export function getTypes(): IOEither<EnonicError, Array<ContentType>> {
-  return tryCatch<EnonicError, Array<ContentType>>(
-    () => content.getTypes(),
-    e => ({ errorKey: "InternalServerError", cause: String(e) })
+  return catchEnonicError<Array<ContentType>>(
+    () => content.getTypes()
   );
 }

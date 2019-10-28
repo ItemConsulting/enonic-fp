@@ -1,5 +1,6 @@
-import { IOEither, tryCatch } from "fp-ts/lib/IOEither";
+import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
+import {catchEnonicError} from "./utils";
 const httpClient = __non_webpack_require__("/lib/http-client");
 
 interface HttpRequestParamsProxy {
@@ -96,11 +97,8 @@ export interface HttpResponse {
 export function request(
   params: HttpRequestParams
 ): IOEither<EnonicError, HttpResponse> {
-  return tryCatch(
-    () => httpClient.request(params),
-    e => ({
-      cause: String(e),
-      errorKey: "BadGatewayError"
-    })
+  return catchEnonicError<HttpResponse>(
+    () =>  httpClient.request(params),
+    "BadGatewayError"
   );
 }
