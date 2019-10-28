@@ -7,15 +7,30 @@ export interface ThymeleafRenderOptions {
   mode: "HTML" | "XML" | "TEXT" | "JAVASCRIPT" | "CSS" | "RAW";
 }
 
+export function renderUnsafe<A>(
+  view: any,
+  model?: A,
+  options?: ThymeleafRenderOptions
+): string {
+  return thymeleaf.render(view, model, options);
+}
+
 export function render<A>(
   view: any,
   model?: A,
   options?: ThymeleafRenderOptions
 ): IOEither<EnonicError, string> {
   return tryCatch<EnonicError, string>(
-    () => thymeleaf.render(view, model, options),
+    () => renderUnsafe(view, model, options),
     e => ({ errorKey: "InternalServerError", cause: String(e) })
   );
+}
+
+export function getUnsafeRenderer<A>(
+  view: any,
+  options?: ThymeleafRenderOptions
+): (model: A) => string {
+  return (model: A): string => renderUnsafe(view, model, options);
 }
 
 export function getRenderer<A>(
