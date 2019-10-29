@@ -2,6 +2,8 @@ import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
 import { ByteSource, Content, Site } from "./content";
 import { catchEnonicError, fromNullable } from "./utils";
+import { pipe } from "fp-ts/lib/pipeable";
+import { chain } from "fp-ts/es6/IOEither";
 
 const portal = __non_webpack_require__("/lib/xp/portal");
 
@@ -114,27 +116,67 @@ export interface MultipartItem {
   readonly size: number;
 }
 
+/**
+ * This function returns a JSON containing multipart items.
+ * If not a multipart request, then this function returns `BadRequestError`.
+ */
 export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>> {
   return catchEnonicError<ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>>(
     () => portal.getMultipartForm()
   );
 }
 
-export function getMultipartItem(name: string, index?: number): IOEither<EnonicError, MultipartItem> {
-  return catchEnonicError<MultipartItem>(
-    () => portal.getMultipartItem(name, index)
+/**
+ * This function returns a JSON containing a named multipart item.
+ * If the item does not exist it returns `BadRequestError`.
+ */
+export function getMultipartItem(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, MultipartItem> {
+  return pipe(
+    catchEnonicError<MultipartItem | null>(
+      () => portal.getMultipartItem(name, index)
+    ),
+    chain(fromNullable<EnonicError>({
+      errorKey: "BadRequestError",
+      errors: {
+        [name]: [errorMessage]
+      }
+    }))
   );
 }
 
-export function getMultipartStream(name: string, index?: number): IOEither<EnonicError, ByteSource> {
-  return catchEnonicError<ByteSource>(
-    () => portal.getMultipartStream(name, index)
+/**
+ * This function returns a data-stream for a named multipart item.
+ * If the item does not exist it returns `BadRequestError`.
+ */
+export function getMultipartStream(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, ByteSource> {
+  return pipe(
+    catchEnonicError<ByteSource | null>(
+      () => portal.getMultipartStream(name, index)
+    ),
+    chain(fromNullable<EnonicError>({
+      errorKey: "BadRequestError",
+      errors: {
+        [name]: [errorMessage]
+      }
+    }))
   );
 }
 
-export function getMultipartText(name: string, index?: number): IOEither<EnonicError, string> {
-  return catchEnonicError<string>(
-    () => portal.getMultipartText(name, index)
+/**
+ * This function returns the multipart item data as text.
+ * If the item does not exist it returns `BadRequestError`.
+ */
+export function getMultipartText(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, string> {
+  return pipe(
+    catchEnonicError<string | null>(
+      () => portal.getMultipartText(name, index)
+    ),
+    chain(fromNullable<EnonicError>({
+      errorKey: "BadRequestError",
+      errors: {
+        [name]: [errorMessage]
+      }
+    }))
   );
 }
 
