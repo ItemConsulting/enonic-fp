@@ -6,23 +6,23 @@ import { catchEnonicError } from "./utils";
 const email = __non_webpack_require__("/lib/xp/mail");
 
 export interface EmailAttachment {
-  fileName: string;
-  data: any;
-  mimeType: string;
-  headers: { [key: string]: string };
+  readonly fileName: string;
+  readonly data: any;
+  readonly mimeType: string;
+  readonly headers: { [key: string]: string };
 }
 
 export interface EmailParams {
-  from: string;
-  to: string | Array<string>;
-  cc?: string | Array<string>;
-  bcc?: string | Array<string>;
-  replyTo?: string;
-  subject: string;
-  body: string;
-  contentType?: string;
-  headers?: string;
-  attachments?: Array<EmailAttachment>;
+  readonly from: string;
+  readonly to: string | ReadonlyArray<string>;
+  readonly cc?: string | ReadonlyArray<string>;
+  readonly bcc?: string | ReadonlyArray<string>;
+  readonly replyTo?: string;
+  readonly subject: string;
+  readonly body: string;
+  readonly contentType?: string;
+  readonly headers?: string;
+  readonly attachments?: ReadonlyArray<EmailAttachment>;
 }
 
 export function send(params: EmailParams): IOEither<EnonicError, void> {

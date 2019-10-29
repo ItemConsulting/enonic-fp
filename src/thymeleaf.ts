@@ -5,7 +5,7 @@ import { catchEnonicError } from "./utils";
 const thymeleaf = __non_webpack_require__("/lib/thymeleaf");
 
 export interface ThymeleafRenderOptions {
-  mode: "HTML" | "XML" | "TEXT" | "JAVASCRIPT" | "CSS" | "RAW";
+  readonly mode: "HTML" | "XML" | "TEXT" | "JAVASCRIPT" | "CSS" | "RAW";
 }
 
 export function renderUnsafe<A>(

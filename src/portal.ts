@@ -6,92 +6,92 @@ import { catchEnonicError, fromNullable } from "./utils";
 const portal = __non_webpack_require__("/lib/xp/portal");
 
 export interface IdProviderUrlParams {
-  idProvider?: string;
-  contextPath?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly idProvider?: string;
+  readonly contextPath?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface ImagePlaceHolderParams {
-  width: number;
-  height: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 export interface AssetUrlParams {
-  path: string;
-  application?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly path: string;
+  readonly application?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface AttachmentUrlParams {
-  id?: string;
-  path?: string;
-  name?: string;
-  label?: string; // source
-  download?: boolean;
-  params?: { [key: string]: string };
-  type?: "server" | "absolute";
+  readonly id?: string;
+  readonly path?: string;
+  readonly name?: string;
+  readonly label?: string; // source
+  readonly download?: boolean;
+  readonly params?: { readonly [key: string]: string };
+  readonly type?: "server" | "absolute";
 }
 
 export interface ComponentUrlParams {
-  id?: string;
-  path?: string;
-  component?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly id?: string;
+  readonly path?: string;
+  readonly component?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface ImageUrlParams {
-  id?: string;
-  path?: string;
-  scale: string;
-  quality?: number;
-  background?: string;
-  format?: string;
-  filter?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly id?: string;
+  readonly path?: string;
+  readonly scale: string;
+  readonly quality?: number;
+  readonly background?: string;
+  readonly format?: string;
+  readonly filter?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface PageUrlParams {
-  id?: string;
-  path?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly id?: string;
+  readonly path?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface LoginUrlParams {
-  idProvider?: string;
-  redirect?: string;
-  contextPath?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly idProvider?: string;
+  readonly redirect?: string;
+  readonly contextPath?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface LogoutUrlParams {
-  redirect?: string;
-  contextPath?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly redirect?: string;
+  readonly contextPath?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface ServiceUrlParams {
-  service: string;
-  application?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly service: string;
+  readonly application?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface UrlParams {
-  path?: string;
-  type?: "server" | "absolute";
-  params?: { [key: string]: string };
+  readonly path?: string;
+  readonly type?: "server" | "absolute";
+  readonly params?: { readonly [key: string]: string };
 }
 
 export interface ProcessHtmlParams {
-  value: string;
-  type?: "server" | "absolute";
+  readonly value: string;
+  readonly type?: "server" | "absolute";
 }
 
 export function getContent<A>(): IOEither<EnonicError, Content<A>> {

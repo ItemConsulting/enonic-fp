@@ -7,42 +7,42 @@ import {catchEnonicError, fromNullable } from "./utils";
 const repo = __non_webpack_require__("/lib/xp/repo");
 
 export interface IndexDefinition {
-  settings: any;
-  mapping: any;
+  readonly settings: any;
+  readonly mapping: any;
 }
 
 export interface CreateRepoParams {
-  id: string;
-  rootPermissions?: Array<PermissionsParams>;
-  settings?: {
-    definitions?: {
-      search?: IndexDefinition;
-      version?: IndexDefinition;
-      branch?: IndexDefinition;
+  readonly id: string;
+  readonly rootPermissions?: ReadonlyArray<PermissionsParams>;
+  readonly settings?: {
+    readonly definitions?: {
+      readonly search?: IndexDefinition;
+      readonly version?: IndexDefinition;
+      readonly branch?: IndexDefinition;
     };
   };
 }
 
 export interface CreateBranchParams {
-  branchId: string;
-  repoId: string;
+  readonly branchId: string;
+  readonly repoId: string;
 }
 
 export interface RepositoryConfig {
-  id: string;
-  branches: Array<string>;
-  settings: any;
+  readonly id: string;
+  readonly branches: ReadonlyArray<string>;
+  readonly settings: any;
 }
 
 export interface RefreshParams {
-  mode?: string;
-  repo?: string;
-  branch?: string;
+  readonly mode?: string;
+  readonly repo?: string;
+  readonly branch?: string;
 }
 
 export interface DeleteBranchParams {
-  branchId: string;
-  repoId: string;
+  readonly branchId: string;
+  readonly repoId: string;
 }
 
 export function create(
@@ -70,8 +70,8 @@ export function get(id: string): IOEither<EnonicError, RepositoryConfig> {
   );
 }
 
-export function list(): IOEither<EnonicError, Array<RepositoryConfig>> {
-  return catchEnonicError<Array<RepositoryConfig>>(
+export function list(): IOEither<EnonicError, ReadonlyArray<RepositoryConfig>> {
+  return catchEnonicError<ReadonlyArray<RepositoryConfig>>(
     () => repo.list()
   );
 }
@@ -93,8 +93,8 @@ export function deleteBranch(
 
 export function refresh(
   params: RefreshParams
-): IOEither<EnonicError, Array<RepositoryConfig>> {
-  return catchEnonicError<Array<RepositoryConfig>>(
+): IOEither<EnonicError, ReadonlyArray<RepositoryConfig>> {
+  return catchEnonicError<ReadonlyArray<RepositoryConfig>>(
     () => repo.refresh(params)
   );
 }

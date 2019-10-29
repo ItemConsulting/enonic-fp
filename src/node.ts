@@ -7,61 +7,61 @@ import { catchEnonicError } from "./utils";
 const node = __non_webpack_require__("/lib/xp/node");
 
 export interface Source {
-  repoId: string;
-  branch: string;
-  user?: {
-    login: string;
-    idProvider?: string;
+  readonly repoId: string;
+  readonly branch: string;
+  readonly user?: {
+    readonly login: string;
+    readonly idProvider?: string;
   };
-  principals?: Array<string>;
+  readonly principals?: ReadonlyArray<string>;
 }
 
 export interface NodeQueryHit {
-  id: string;
-  score: number;
+  readonly id: string;
+  readonly score: number;
 }
 
 export interface NodeQueryResponse {
-  total: number;
-  count: number;
-  hits: Array<NodeQueryHit>;
+  readonly total: number;
+  readonly count: number;
+  readonly hits: ReadonlyArray<NodeQueryHit>;
 }
 
 export interface NodeQueryParams {
   /**
    * Start index (used for paging).
    */
-  start?: number;
+  readonly start?: number;
 
   /**
    * Number of contents to fetch.
    */
-  count?: number;
+  readonly count?: number;
 
   /**
    * Query expression.
    */
-  query: string;
+  readonly query: string;
 
   /**
    * Query filters
    */
-  filters?: any;
+  readonly filters?: any;
 
   /**
    * Sorting expression.
    */
-  sort?: string;
+  readonly sort?: string;
 
   /**
    * Aggregations expression.
    */
-  aggregations?: string;
+  readonly aggregations?: string;
 
   /**
    * Return score calculation explanation.
    */
-  explain?: boolean;
+  readonly explain?: boolean;
 }
 
 export interface IndexConfigEntry {
@@ -69,35 +69,35 @@ export interface IndexConfigEntry {
    * If true, indexing is done based on valueType, according to the table above. I.e. numeric values are indexed as
    * both string and numeric.
    */
-  decideByType: boolean;
+  readonly decideByType: boolean;
 
   /**
    * If false, indexing will be disabled for the affected properties
    */
-  enabled: boolean;
+  readonly enabled: boolean;
 
   /**
    * Values are stored as 'ngram'
    */
-  nGram: boolean;
+  readonly nGram: boolean;
 
   /**
    * Values are stored as 'ngram', 'analyzed' and also added to the _allText system property
    */
-  fulltext: boolean;
+  readonly fulltext: boolean;
 
   /**
    * Affected values will be added to the _allText property
    */
-  includeInAllText: boolean;
+  readonly includeInAllText: boolean;
 
   /**
    * Values are stored as 'path' type and applicable for the pathMatch-function
    */
-  path: boolean;
+  readonly path: boolean;
 
-  indexValueProcessors: Array<any>;
-  languages: Array<any>;
+  readonly indexValueProcessors: ReadonlyArray<any>;
+  readonly languages: ReadonlyArray<any>;
 }
 
 export type IndexConfigTemplates =
@@ -108,10 +108,10 @@ export type IndexConfigTemplates =
   | "minimal";
 
 export interface IndexConfig {
-  default: IndexConfigEntry | IndexConfigTemplates;
-  configs?: Array<{
-    path: string;
-    config: IndexConfigEntry | IndexConfigTemplates;
+  readonly default: IndexConfigEntry | IndexConfigTemplates;
+  readonly configs?: ReadonlyArray<{
+    readonly path: string;
+    readonly config: IndexConfigEntry | IndexConfigTemplates;
   }>;
 }
 
@@ -119,53 +119,53 @@ export interface NodeCreateParams {
   /**
    * Name of content.
    */
-  _name?: string;
+  readonly _name?: string;
 
   /**
    * Path to place content under.
    */
-  _parentPath?: string;
+  readonly _parentPath?: string;
 
   /**
    * How the document should be indexed. A default value "byType" will be set if no value specified.
    */
-  _indexConfig?: IndexConfig;
+  readonly _indexConfig?: IndexConfig;
 
   /**
    * The access control list for the node. By default the creator will have full access
    */
-  _permissions?: Array<PermissionsParams>;
+  readonly _permissions?: ReadonlyArray<PermissionsParams>;
 
   /**
    * true if the permissions should be inherited from the node parent. Default is false.
    */
-  _inheritsPermissions?: boolean;
+  readonly _inheritsPermissions?: boolean;
 
   /**
    * Value used to order document when ordering by parent and child-order is set to manual
    */
-  _manualOrderValue?: number;
+  readonly _manualOrderValue?: number;
 
   /**
    * Default ordering of children when doing getChildren if no order is given in query
    */
-  _childOrder?: string;
+  readonly _childOrder?: string;
 }
 
 export interface RepoNode {
-  _id: string;
-  _childOrder: string;
-  _indexConfig: IndexConfig;
-  _inheritsPermissions: boolean;
-  _permissions: Array<PermissionsParams>;
-  _state: string;
-  _nodeType: string;
+  readonly _id: string;
+  readonly _childOrder: string;
+  readonly _indexConfig: IndexConfig;
+  readonly _inheritsPermissions: boolean;
+  readonly _permissions: ReadonlyArray<PermissionsParams>;
+  readonly _state: string;
+  readonly _nodeType: string;
 }
 
 export interface RepoConnection {
   create<A>(a: A & NodeCreateParams): A & RepoNode;
-  delete(keys: Array<string> | string): boolean;
-  get<A>(keys: string | Array<string>): Array<A & RepoNode>;
+  delete(keys: ReadonlyArray<string> | string): boolean;
+  get<A>(keys: string | ReadonlyArray<string>): ReadonlyArray<A & RepoNode>;
   query<A>(params: NodeQueryParams): NodeQueryResponse;
 }
 
@@ -183,10 +183,10 @@ export function connect(params: Source): IOEither<EnonicError, RepoConnection> {
  */
 export function get<A>(
   repo: RepoConnection,
-  keys: string | Array<string>
-): IOEither<EnonicError, Array<A & RepoNode>> {
+  keys: string | ReadonlyArray<string>
+): IOEither<EnonicError, ReadonlyArray<A & RepoNode>> {
   return pipe(
-    catchEnonicError<Array<A & RepoNode> | A & RepoNode>(
+    catchEnonicError<ReadonlyArray<A & RepoNode> | A & RepoNode>(
       () => repo.get(keys)
     ),
     map(data => (Array.isArray(data) ? data : [data]))
@@ -210,7 +210,7 @@ export function create<A>(
  */
 export function remove(
   repo: RepoConnection,
-  keys: Array<string>
+  keys: ReadonlyArray<string>
 ): IOEither<EnonicError, boolean> {
   return catchEnonicError<boolean>(
     () => repo.delete(keys)

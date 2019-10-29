@@ -6,81 +6,81 @@ import { catchEnonicError } from "./utils";
 const auth = __non_webpack_require__("/lib/xp/auth");
 
 export interface LoginParams {
-  user: string;
-  password?: string;
-  idProvider?: string;
-  skipAuth?: boolean;
-  sessionTimeout?: number;
+  readonly user: string;
+  readonly password?: string;
+  readonly idProvider?: string;
+  readonly skipAuth?: boolean;
+  readonly sessionTimeout?: number;
 }
 
 export interface LoginResult {
-  authenticated: boolean;
-  user: User;
+  readonly authenticated: boolean;
+  readonly user: User;
 }
 
 export interface Principal {
-  type: string;
-  key: string;
-  displayName: string;
-  modifiedTime: string;
+  readonly type: string;
+  readonly key: string;
+  readonly displayName: string;
+  readonly modifiedTime: string;
 }
 
 export interface User extends Principal {
-  disabled: boolean;
-  email: string;
-  login: string;
-  idProvider: string;
+  readonly disabled: boolean;
+  readonly email: string;
+  readonly login: string;
+  readonly idProvider: string;
 }
 
 export interface WithProfile<A> {
-  profile?: A;
+  readonly profile?: A;
 }
 
 export interface Role extends Principal {
-  description?: string;
+  readonly description?: string;
 }
 
 export interface Group extends Principal {
-  description?: string;
+  readonly description?: string;
 }
 
 export interface FindUsersParams {
-  start?: number;
-  count: number;
-  query: string;
-  sort?: string;
-  includeProfile?: boolean;
+  readonly start?: number;
+  readonly count: number;
+  readonly query: string;
+  readonly sort?: string;
+  readonly includeProfile?: boolean;
 }
 
 export interface UserQueryResult<A> {
-  total: number;
-  count: number;
-  hits: Array<User & WithProfile<A>>;
+  readonly total: number;
+  readonly count: number;
+  readonly hits: ReadonlyArray<User & WithProfile<A>>;
 }
 
 export interface ModifyUserParams {
-  key: string;
-  editor: (c: User) => User;
+  readonly key: string;
+  readonly editor: (c: User) => User;
 }
 
 export interface CreateUserParams {
-  idProvider: string;
-  name: string;
-  displayName: string;
-  email?: string;
+  readonly idProvider: string;
+  readonly name: string;
+  readonly displayName: string;
+  readonly email?: string;
 }
 
 export interface CreateRoleParams {
-  name: string;
-  displayName: string;
-  description?: string;
+  readonly name: string;
+  readonly displayName: string;
+  readonly description?: string;
 }
 
 export interface CreateGroupParams {
-  idProvider: string;
-  name: string;
-  displayName: string;
-  description: string;
+  readonly idProvider: string;
+  readonly name: string;
+  readonly displayName: string;
+  readonly description: string;
 }
 
 export function login(params: LoginParams): IOEither<EnonicError, LoginResult> {
@@ -129,7 +129,7 @@ export function createUser(
 
 export function addMembers(
   principalKey: string,
-  members: Array<string>
+  members: ReadonlyArray<string>
 ): IOEither<EnonicError, void> {
   return catchEnonicError<void>(
     () => auth.addMembers(principalKey, members)
@@ -138,7 +138,7 @@ export function addMembers(
 
 export function removeMembers(
   principalKey: string,
-  members: Array<string>
+  members: ReadonlyArray<string>
 ): IOEither<EnonicError, void> {
   return catchEnonicError<void>(
     () => auth.removeMembers(principalKey, members)
@@ -168,8 +168,8 @@ export function createGroup(
 export function getMemberships(
   principalKey: string,
   transitive?: boolean
-): IOEither<EnonicError, Array<Principal>> {
-  return catchEnonicError<Array<Principal>>(
+): IOEither<EnonicError, ReadonlyArray<Principal>> {
+  return catchEnonicError<ReadonlyArray<Principal>>(
     () => auth.getMemberships(principalKey, transitive)
   );
 }

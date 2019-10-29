@@ -6,40 +6,40 @@ import { catchEnonicError } from "./utils";
 const context = __non_webpack_require__("/lib/xp/context");
 
 export interface Context {
-  repository: string;
-  branch: string;
-  authInfo: AuthInfo;
+  readonly repository: string;
+  readonly branch: string;
+  readonly authInfo: AuthInfo;
 }
 
 interface AuthInfo {
-  user: User;
+  readonly user: User;
 }
 
 interface User {
-  type: string;
-  key: string;
-  displayName: string;
-  disabled: boolean;
-  email: string;
-  login: string;
-  idProvider: string;
+  readonly type: string;
+  readonly key: string;
+  readonly displayName: string;
+  readonly disabled: boolean;
+  readonly email: string;
+  readonly login: string;
+  readonly idProvider: string;
+}
+
+interface RunContext {
+  readonly repository?: string;
+  readonly branch?: string;
+  readonly user?: {
+    readonly login: string;
+    readonly idProvider?: string;
+  };
+  readonly principals?: ReadonlyArray<string>;
+  readonly attributes?: { readonly [key: string]: string | boolean | number };
 }
 
 export function get(): IOEither<EnonicError, Context> {
   return catchEnonicError<Context>(
     () => context.get()
   );
-}
-
-interface RunContext {
-  repository?: string;
-  branch?: string;
-  user?: {
-    login: string;
-    idProvider?: string;
-  };
-  principals?: Array<string>;
-  attributes?: { [key: string]: string | boolean | number };
 }
 
 export function runUnsafe<A>(runContext: RunContext, f: () => A): A {

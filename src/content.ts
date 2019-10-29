@@ -7,206 +7,206 @@ import { catchEnonicError } from "./utils";
 const content = __non_webpack_require__("/lib/xp/content");
 
 export interface Content<A> {
-  _id: string;
-  _name: string;
-  _path: string;
-  creator: string;
-  modifier: string;
-  createdTime: string;
-  modifiedTime: string;
-  owner: string;
-  type: string;
-  displayName: string;
-  hasChildren: boolean;
-  language: string;
-  valid: boolean;
-  childOrder: string;
-  data: A;
-  x: { [key: string]: string };
-  page: any;
-  attachments: Attachments;
-  publish: any;
+  readonly _id: string;
+  readonly _name: string;
+  readonly _path: string;
+  readonly creator: string;
+  readonly modifier: string;
+  readonly createdTime: string;
+  readonly modifiedTime: string;
+  readonly owner: string;
+  readonly type: string;
+  readonly displayName: string;
+  readonly hasChildren: boolean;
+  readonly language: string;
+  readonly valid: boolean;
+  readonly childOrder: string;
+  readonly data: A;
+  readonly x: { readonly [key: string]: string };
+  readonly page: any;
+  readonly attachments: Attachments;
+  readonly publish: any;
 }
 
 export interface Attachment {
-  name: string;
-  label?: string;
-  size: number;
-  mimeType: string;
+  readonly name: string;
+  readonly label?: string;
+  readonly size: number;
+  readonly mimeType: string;
 }
 
 export interface Attachments {
-  [key: string]: Attachment;
+  readonly [key: string]: Attachment;
 }
 
 export interface QueryContentParams {
-  start?: number;
-  count: number;
-  query: string;
-  filters?: object;
-  sort?: string;
-  aggregations?: string;
-  contentTypes?: Array<string>;
+  readonly start?: number;
+  readonly count: number;
+  readonly query: string;
+  readonly filters?: object;
+  readonly sort?: string;
+  readonly aggregations?: string;
+  readonly contentTypes?: ReadonlyArray<string>;
 }
 
 export interface QueryResponse<A> {
-  aggregations: object;
-  count: number;
-  hits: Array<Content<A>>;
-  total: number;
+  readonly aggregations: object;
+  readonly count: number;
+  readonly hits: ReadonlyArray<Content<A>>;
+  readonly total: number;
 }
 
 export interface GetContentParams {
-  key: string;
+  readonly key: string;
 }
 
 export interface DeleteContentParams {
-  key: string;
+  readonly key: string;
 }
 
 export interface CreateContentParams<A> {
-  name: string;
-  parentPath: string;
-  displayName?: string;
-  requireValid?: boolean;
-  refresh?: boolean;
-  contentType: string;
-  language?: string;
-  childOrder?: string;
-  data: A;
-  x?: string;
+  readonly name: string;
+  readonly parentPath: string;
+  readonly displayName?: string;
+  readonly requireValid?: boolean;
+  readonly refresh?: boolean;
+  readonly contentType: string;
+  readonly language?: string;
+  readonly childOrder?: string;
+  readonly data: A;
+  readonly x?: string;
 }
 
 export interface ModifyContentParams<A> {
-  key: string;
-  editor: (c: Content<A>) => Content<A>;
-  requireValid?: boolean;
+  readonly key: string;
+  readonly editor: (c: Content<A>) => Content<A>;
+  readonly requireValid?: boolean;
 }
 
 export interface PublishContentParams {
-  keys: Array<string>;
-  sourceBranch: string;
-  targetBranch: string;
-  schedule?: ScheduleParams;
-  excludeChildrenIds?: Array<string>;
-  includeDependencies?: boolean;
+  readonly keys: ReadonlyArray<string>;
+  readonly sourceBranch: string;
+  readonly targetBranch: string;
+  readonly schedule?: ScheduleParams;
+  readonly excludeChildrenIds?: ReadonlyArray<string>;
+  readonly includeDependencies?: boolean;
 }
 
 export interface ScheduleParams {
-  from: string;
-  to: string;
+  readonly from: string;
+  readonly to: string;
 }
 
 export interface PublishResponse {
-  pushedContents: Array<string>;
-  deletedContents: Array<string>;
-  failedContents: Array<string>;
+  readonly pushedContents: ReadonlyArray<string>;
+  readonly deletedContents: ReadonlyArray<string>;
+  readonly failedContents: ReadonlyArray<string>;
 }
 
 export interface UnpublishContentParams {
-  keys: Array<string>;
+  readonly keys: ReadonlyArray<string>;
 }
 
 export interface GetChildrenParams {
-  key: string;
-  start?: number;
-  count?: number;
-  sort?: string;
+  readonly key: string;
+  readonly start?: number;
+  readonly count?: number;
+  readonly sort?: string;
 }
 
 export interface MoveParams {
-  source: string;
-  target: string;
+  readonly source: string;
+  readonly target: string;
 }
 
 export interface GetSiteParams {
-  key: string;
+  readonly key: string;
 }
 
 export interface Site<A> {
-  _id: string;
-  _name: string;
-  _path: string;
-  type: string;
-  hasChildren: boolean;
-  valid: boolean;
-  data: {
-    siteConfig: SiteConfig<A>;
+  readonly _id: string;
+  readonly _name: string;
+  readonly _path: string;
+  readonly type: string;
+  readonly hasChildren: boolean;
+  readonly valid: boolean;
+  readonly data: {
+    readonly siteConfig: SiteConfig<A>;
   };
-  x: { [key: string]: string };
-  page: any;
-  attachments: object;
-  publish: any;
+  readonly x: { readonly [key: string]: string };
+  readonly page: any;
+  readonly attachments: object;
+  readonly publish: any;
 }
 
 export interface SiteConfig<A> {
-  applicationKey: string;
-  config: A;
+  readonly applicationKey: string;
+  readonly config: A;
 }
 
 export interface GetSiteConfigParams {
-  key: string;
-  applicationKey: string;
+  readonly key: string;
+  readonly applicationKey: string;
 }
 
 export interface AttachmentStreamParams {
-  key: string;
-  name: string;
+  readonly key: string;
+  readonly name: string;
 }
 
 export interface RemoveAttachmentParams {
-  key: string;
-  name: string | Array<string>;
+  readonly key: string;
+  readonly name: string | ReadonlyArray<string>;
 }
 
 export interface CreateMediaParams {
-  name?: string;
-  parentPath?: string;
-  mimeType?: string;
-  focalX?: number;
-  focalY?: number;
-  data: any; // stream
+  readonly name?: string;
+  readonly parentPath?: string;
+  readonly mimeType?: string;
+  readonly focalX?: number;
+  readonly focalY?: number;
+  readonly data: any; // stream
 }
 
 export interface GetPermissionsParams {
-  key: string;
+  readonly key: string;
 }
 
 export interface GetPermissionsResult {
-  inheritsPermissions: boolean;
-  permissions: Array<PermissionsParams>;
+  readonly inheritsPermissions: boolean;
+  readonly permissions: ReadonlyArray<PermissionsParams>;
 }
 
 export interface PermissionsParams {
-  principal: string;
-  allow: Array<string>;
-  deny: Array<string>;
+  readonly principal: string;
+  readonly allow: ReadonlyArray<string>;
+  readonly deny: ReadonlyArray<string>;
 }
 
 export interface SetPermissionsParams {
-  key: string;
-  inheritPermissions: boolean;
-  overwriteChildPermissions: boolean;
-  permissions: Array<PermissionsParams>;
+  readonly key: string;
+  readonly inheritPermissions: boolean;
+  readonly overwriteChildPermissions: boolean;
+  readonly permissions: ReadonlyArray<PermissionsParams>;
 }
 
 export interface IconType {
-  data?: any;
-  mimeType?: string;
-  modifiedTime?: string;
+  readonly data?: any;
+  readonly mimeType?: string;
+  readonly modifiedTime?: string;
 }
 
 export interface ContentType {
-  name: string;
-  displayName: string;
-  description: string;
-  superType: string;
-  abstract: boolean;
-  final: boolean;
-  allowChildContent: boolean;
-  displayNameExpression: string;
-  icon: Array<IconType>;
-  form: Array<any>;
+  readonly name: string;
+  readonly displayName: string;
+  readonly description: string;
+  readonly superType: string;
+  readonly abstract: boolean;
+  readonly final: boolean;
+  readonly allowChildContent: boolean;
+  readonly displayNameExpression: string;
+  readonly icon: ReadonlyArray<IconType>;
+  readonly form: ReadonlyArray<any>;
 }
 
 export function get<A>(
@@ -272,8 +272,8 @@ export function publish(
 
 export function unpublish(
   params: UnpublishContentParams
-): IOEither<EnonicError, Array<string>> {
-  return catchEnonicError<Array<string>>(
+): IOEither<EnonicError, ReadonlyArray<string>> {
+  return catchEnonicError<ReadonlyArray<string>>(
     () => content.unpublish(params),
     "PublishError"
   );
@@ -370,8 +370,8 @@ export function getType(name: string): IOEither<EnonicError, ContentType> {
   );
 }
 
-export function getTypes(): IOEither<EnonicError, Array<ContentType>> {
-  return catchEnonicError<Array<ContentType>>(
+export function getTypes(): IOEither<EnonicError, ReadonlyArray<ContentType>> {
+  return catchEnonicError<ReadonlyArray<ContentType>>(
     () => content.getTypes()
   );
 }
