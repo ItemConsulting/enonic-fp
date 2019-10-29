@@ -1,6 +1,6 @@
 import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
-import { Content, Site } from "./content";
+import { ByteSource, Content, Site } from "./content";
 import { catchEnonicError, fromNullable } from "./utils";
 
 const portal = __non_webpack_require__("/lib/xp/portal");
@@ -105,6 +105,37 @@ export function getIdProviderKey(): IOEither<EnonicError, string> {
     cause: "Missing id provider in context",
     errorKey: "InternalServerError"
   })(portal.getIdProviderKey());
+}
+
+export interface MultipartItem {
+  readonly name: string;
+  readonly fileName: string;
+  readonly contentType: string;
+  readonly size: number;
+}
+
+export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>> {
+  return catchEnonicError<ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>>(
+    () => portal.getMultipartForm()
+  );
+}
+
+export function getMultipartItem(name: string, index?: number): IOEither<EnonicError, MultipartItem> {
+  return catchEnonicError<MultipartItem>(
+    () => portal.getMultipartItem(name, index)
+  );
+}
+
+export function getMultipartStream(name: string, index?: number): IOEither<EnonicError, ByteSource> {
+  return catchEnonicError<ByteSource>(
+    () => portal.getMultipartStream(name, index)
+  );
+}
+
+export function getMultipartText(name: string, index?: number): IOEither<EnonicError, string> {
+  return catchEnonicError<string>(
+    () => portal.getMultipartText(name, index)
+  );
 }
 
 export function getSite<A>(): IOEither<EnonicError, Site<A>> {

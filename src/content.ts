@@ -159,13 +159,19 @@ export interface RemoveAttachmentParams {
   readonly name: string | ReadonlyArray<string>;
 }
 
+// com.google.common.io.ByteSource
+export interface ByteSource {
+  isEmpty(): boolean;
+  size(): number;
+}
+
 export interface CreateMediaParams {
   readonly name?: string;
   readonly parentPath?: string;
   readonly mimeType?: string;
   readonly focalX?: number;
   readonly focalY?: number;
-  readonly data: any; // stream
+  readonly data: ByteSource;
 }
 
 export interface GetPermissionsParams {
@@ -191,7 +197,7 @@ export interface SetPermissionsParams {
 }
 
 export interface IconType {
-  readonly data?: any;
+  readonly data?: ByteSource;
   readonly mimeType?: string;
   readonly modifiedTime?: string;
 }
@@ -331,9 +337,9 @@ export function getAttachments(
 // The return type is Java: com.google.common.io.ByteSource
 export function getAttachmentStream(
   params: AttachmentStreamParams
-): IOEither<EnonicError, any> {
+): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError<any>(
+    catchEnonicError<ByteSource>(
       () => content.getAttachmentStream(params)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))

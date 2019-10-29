@@ -1,6 +1,7 @@
 import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
 import {catchEnonicError} from "./utils";
+import {ByteSource} from "./content";
 const httpClient = __non_webpack_require__("/lib/http-client");
 
 interface HttpRequestParamsProxy {
@@ -45,7 +46,7 @@ export interface HttpRequestParams {
   readonly readTimeout?: number;
 
   /** Body content to send with the request, usually for POST or PUT requests. It can be of type string or stream. */
-  readonly body?: string | any;
+  readonly body?: string | ByteSource;
 
   /** Content type of the request. */
   readonly contentType?: string;
@@ -87,7 +88,7 @@ export interface HttpResponse {
   readonly body: string | null;
 
   /** Body of the response as a stream object. */
-  readonly bodyStream: any;
+  readonly bodyStream: ByteSource;
 }
 
 /**
