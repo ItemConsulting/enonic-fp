@@ -14,10 +14,10 @@ import {
 
 const portalLib: PortalLibrary = __non_webpack_require__("/lib/xp/portal");
 
-export function getContent<A>(): IOEither<EnonicError, Content<A>> {
+export function getContent<A, PageConfig = any>(): IOEither<EnonicError, Content<A, PageConfig>> {
   return pipe(
     catchEnonicError(
-      () => portalLib.getContent<A>()
+      () => portalLib.getContent<A, PageConfig>()
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
