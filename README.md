@@ -35,8 +35,9 @@ content to the user as json.
 import { io } from "fp-ts/lib/IO";
 import { pipe } from "fp-ts/lib/pipeable";
 import { fold } from "fp-ts/lib/Either";
-import { EnonicError, Request, Response }  from "enonic-fp/lib/common";
-import { Content, get as getContent } from 'enonic-fp/lib/content';
+import { EnonicError, Request, Response }  from "enonic-types/lib/common";
+import { Content } from 'enonic-types/lib/content';
+import { get as getContent } from 'enonic-fp/lib/content';
 
 
 export function get(req: Request): Response {
@@ -76,11 +77,12 @@ We will return a http error based on the type of error that happened (trough a l
 Or we return a http status `204`, indicating success.
 
 ```typescript
-import {IO, io} from "fp-ts/lib/IO";
-import {chain, fold, IOEither} from "fp-ts/lib/IOEither";
+import { IO, io } from "fp-ts/lib/IO";
+import { chain, fold, IOEither } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError, Request, Response } from "enonic-fp/lib/common";
-import {publish, PublishResponse, remove} from "enonic-fp/lib/context";
+import { EnonicError, Request, Response } from "enonic-types/lib/common";
+import { PublishResponse } from "enonic-types/lib/context";
+import { publish, remove } from "enonic-fp/lib/context";
 import { run } from "enonic-fp/lib/context";
 
 export function del(req: Request): Response {
@@ -149,8 +151,9 @@ import { parseJSON } from "fp-ts/lib/Either";
 import { io } from "fp-ts/lib/IO";
 import { chain, fold, fromEither, ioEither, IOEither, map } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError, Request, Response } from "enonic-fp/lib/common";
-import { get as getContent, query, QueryResponse } from "enonic-fp/lib/content";
+import { EnonicError, Request, Response } from "enonic-types/lib/common";
+import { QueryResponse } from "enonic-types/lib/content";
+import { get as getContent, query } from "enonic-fp/lib/content";
 import { request } from "enonic-fp/lib/http";
 
 export function get(req: Request): Response {

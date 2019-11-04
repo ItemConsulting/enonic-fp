@@ -1,19 +1,16 @@
 import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
 import { catchEnonicError } from "./utils";
+import { ThymeleafLibrary, ThymeleafRenderOptions } from "enonic-types/lib/thymeleaf";
 
-const thymeleaf = __non_webpack_require__("/lib/thymeleaf");
-
-export interface ThymeleafRenderOptions {
-  readonly mode: "HTML" | "XML" | "TEXT" | "JAVASCRIPT" | "CSS" | "RAW";
-}
+const thymeleafLib: ThymeleafLibrary = __non_webpack_require__("/lib/thymeleaf");
 
 export function renderUnsafe<A>(
   view: any,
   model?: A,
   options?: ThymeleafRenderOptions
 ): string {
-  return thymeleaf.render(view, model, options);
+  return thymeleafLib.render(view, model, options);
 }
 
 export function render<A>(

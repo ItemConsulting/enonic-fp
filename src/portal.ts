@@ -1,104 +1,25 @@
 import { IOEither } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./common";
-import { ByteSource, Content, Site } from "./content";
 import { catchEnonicError, fromNullable } from "./utils";
 import { pipe } from "fp-ts/lib/pipeable";
 import { chain } from "fp-ts/es6/IOEither";
+import { ByteSource, Content, Site } from "enonic-types/lib/content";
+import {
+  AssetUrlParams,
+  AttachmentUrlParams, ComponentUrlParams,
+  IdProviderUrlParams,
+  ImagePlaceHolderParams, ImageUrlParams, LoginUrlParams, LogoutUrlParams,
+  MultipartItem, PageUrlParams, PortalLibrary, ProcessHtmlParams, ServiceUrlParams, UrlParams
+} from "enonic-types/lib/portal";
 
-const portal = __non_webpack_require__("/lib/xp/portal");
-
-export interface IdProviderUrlParams {
-  readonly idProvider?: string;
-  readonly contextPath?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface ImagePlaceHolderParams {
-  readonly width: number;
-  readonly height: number;
-}
-
-export interface AssetUrlParams {
-  readonly path: string;
-  readonly application?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface AttachmentUrlParams {
-  readonly id?: string;
-  readonly path?: string;
-  readonly name?: string;
-  readonly label?: string; // source
-  readonly download?: boolean;
-  readonly params?: { readonly [key: string]: string };
-  readonly type?: "server" | "absolute";
-}
-
-export interface ComponentUrlParams {
-  readonly id?: string;
-  readonly path?: string;
-  readonly component?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface ImageUrlParams {
-  readonly id?: string;
-  readonly path?: string;
-  readonly scale: string;
-  readonly quality?: number;
-  readonly background?: string;
-  readonly format?: string;
-  readonly filter?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface PageUrlParams {
-  readonly id?: string;
-  readonly path?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface LoginUrlParams {
-  readonly idProvider?: string;
-  readonly redirect?: string;
-  readonly contextPath?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface LogoutUrlParams {
-  readonly redirect?: string;
-  readonly contextPath?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface ServiceUrlParams {
-  readonly service: string;
-  readonly application?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface UrlParams {
-  readonly path?: string;
-  readonly type?: "server" | "absolute";
-  readonly params?: { readonly [key: string]: string };
-}
-
-export interface ProcessHtmlParams {
-  readonly value: string;
-  readonly type?: "server" | "absolute";
-}
+const portalLib: PortalLibrary = __non_webpack_require__("/lib/xp/portal");
 
 export function getContent<A>(): IOEither<EnonicError, Content<A>> {
-  return catchEnonicError<Content<A>>(
-    () => portal.getContent()
+  return pipe(
+    catchEnonicError(
+      () => portalLib.getContent<A>()
+    ),
+    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
 }
 
@@ -106,14 +27,7 @@ export function getIdProviderKey(): IOEither<EnonicError, string> {
   return fromNullable<EnonicError>({
     cause: "Missing id provider in context",
     errorKey: "InternalServerError"
-  })(portal.getIdProviderKey());
-}
-
-export interface MultipartItem {
-  readonly name: string;
-  readonly fileName: string;
-  readonly contentType: string;
-  readonly size: number;
+  })(portalLib.getIdProviderKey());
 }
 
 /**
@@ -121,8 +35,8 @@ export interface MultipartItem {
  * If not a multipart request, then this function returns `BadRequestError`.
  */
 export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>> {
-  return catchEnonicError<ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>>(
-    () => portal.getMultipartForm()
+  return catchEnonicError(
+    () => portalLib.getMultipartForm()
   );
 }
 
@@ -132,8 +46,8 @@ export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<Multipar
  */
 export function getMultipartItem(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, MultipartItem> {
   return pipe(
-    catchEnonicError<MultipartItem | null>(
-      () => portal.getMultipartItem(name, index)
+    catchEnonicError(
+      () => portalLib.getMultipartItem(name, index)
     ),
     chain(fromNullable<EnonicError>({
       errorKey: "BadRequestError",
@@ -151,7 +65,7 @@ export function getMultipartItem(name: string, index = 0, errorMessage = "portal
 export function getMultipartStream(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, ByteSource> {
   return pipe(
     catchEnonicError<ByteSource | null>(
-      () => portal.getMultipartStream(name, index)
+      () => portalLib.getMultipartStream(name, index)
     ),
     chain(fromNullable<EnonicError>({
       errorKey: "BadRequestError",
@@ -169,7 +83,7 @@ export function getMultipartStream(name: string, index = 0, errorMessage = "port
 export function getMultipartText(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, string> {
   return pipe(
     catchEnonicError<string | null>(
-      () => portal.getMultipartText(name, index)
+      () => portalLib.getMultipartText(name, index)
     ),
     chain(fromNullable<EnonicError>({
       errorKey: "BadRequestError",
@@ -182,64 +96,64 @@ export function getMultipartText(name: string, index = 0, errorMessage = "portal
 
 export function getSite<A>(): IOEither<EnonicError, Site<A>> {
   return catchEnonicError<Site<A>>(
-    () => portal.getSite()
+    () => portalLib.getSite()
   );
 }
 
 export function getSiteConfig<A>(): IOEither<EnonicError, A> {
   return catchEnonicError<A>(
-    () => portal.getSiteConfig()
+    () => portalLib.getSiteConfig()
   );
 }
 
 export function idProviderUrl(params: IdProviderUrlParams): string {
-  return portal.idProviderUrl(params);
+  return portalLib.idProviderUrl(params);
 }
 
 export function imagePlaceholder(params: ImagePlaceHolderParams): string {
-  return portal.imagePlaceholder(params);
+  return portalLib.imagePlaceholder(params);
 }
 
 export function assetUrl(params: AssetUrlParams): string {
-  return portal.assetUrl(params);
+  return portalLib.assetUrl(params);
 }
 
 export function attachmentUrl(params: AttachmentUrlParams): string {
-  return portal.attachmentUrl(params);
+  return portalLib.attachmentUrl(params);
 }
 
 export function componentUrl(params: ComponentUrlParams): string {
-  return portal.componentUrl(params);
+  return portalLib.componentUrl(params);
 }
 
 export function serviceUrl(params: ServiceUrlParams): string {
-  return portal.serviceUrl(params);
+  return portalLib.serviceUrl(params);
 }
 
 export function imageUrl(params: ImageUrlParams): string {
-  return portal.imageUrl(params);
+  return portalLib.imageUrl(params);
 }
 
 export function loginUrl(params: LoginUrlParams): string {
-  return portal.loginUrl(params);
+  return portalLib.loginUrl(params);
 }
 
 export function logoutUrl(params: LogoutUrlParams): string {
-  return portal.imageUrl(params);
+  return portalLib.logoutUrl(params);
 }
 
 export function pageUrl(params: PageUrlParams): string {
-  return portal.pageUrl(params);
+  return portalLib.pageUrl(params);
 }
 
 export function url(params: UrlParams): string {
-  return portal.url(params);
+  return portalLib.url(params);
 }
 
 export function processHtml(params: ProcessHtmlParams): string {
-  return portal.processHtml(params);
+  return portalLib.processHtml(params);
 }
 
 export function sanitizeHtml(html: string): string {
-  return portal.processHtml(html);
+  return portalLib.sanitizeHtml(html);
 }
