@@ -6,7 +6,7 @@ import { chain } from "fp-ts/es6/IOEither";
 import { ByteSource, Content, Site } from "enonic-types/lib/content";
 import {
   AssetUrlParams,
-  AttachmentUrlParams, ComponentUrlParams,
+  AttachmentUrlParams, Component, ComponentUrlParams,
   IdProviderUrlParams,
   ImagePlaceHolderParams, ImageUrlParams, LoginUrlParams, LogoutUrlParams,
   MultipartItem, PageUrlParams, PortalLibrary, ProcessHtmlParams, ServiceUrlParams, UrlParams
@@ -18,6 +18,15 @@ export function getContent<A>(): IOEither<EnonicError, Content<A>> {
   return pipe(
     catchEnonicError(
       () => portalLib.getContent<A>()
+    ),
+    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
+  );
+}
+
+export function getComponent<A>(): IOEither<EnonicError, Component<A>> {
+  return pipe(
+    catchEnonicError(
+      () => portalLib.getComponent<A>()
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
