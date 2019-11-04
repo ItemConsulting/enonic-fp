@@ -24,12 +24,12 @@ import {
 
 const contentLib: ContentLibrary = __non_webpack_require__("/lib/xp/content");
 
-export function get<A>(
+export function get<A, PageConfig = any>(
   params: GetContentParams
-): IOEither<EnonicError, Content<A>> {
+): IOEither<EnonicError, Content<A, PageConfig>> {
   return pipe(
     catchEnonicError(
-      () => contentLib.get<A>(params)
+      () => contentLib.get<A, PageConfig>(params)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
@@ -108,11 +108,11 @@ export function move<A>(params: MoveParams): IOEither<EnonicError, Content<A>> {
   );
 }
 
-export function getSite<A>(
+export function getSite<A, PageConfig = any>(
   params: GetSiteParams
-): IOEither<EnonicError, Site<A>> {
+): IOEither<EnonicError, Site<A, PageConfig>> {
   return catchEnonicError(
-    () => contentLib.getSite<A>(params)
+    () => contentLib.getSite<A, PageConfig>(params)
   );
 }
 
@@ -143,7 +143,6 @@ export function getAttachments(
   );
 }
 
-// The return type is Java: com.google.common.io.ByteSource
 export function getAttachmentStream(
   params: AttachmentStreamParams
 ): IOEither<EnonicError, ByteSource> {
