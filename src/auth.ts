@@ -2,86 +2,17 @@ import { IOEither } from "fp-ts/lib/IOEither";
 import { fromNullable, Option } from "fp-ts/lib/Option";
 import { EnonicError } from "./common";
 import { catchEnonicError } from "./utils";
+import {
+  AuthLibrary, CreateGroupParams, CreateRoleParams, CreateUserParams,
+  FindUsersParams, Group,
+  LoginParams,
+  LoginResult,
+  ModifyUserParams, Principal, Role,
+  User,
+  UserQueryResult
+} from "enonic-types/lib/auth";
 
-const auth = __non_webpack_require__("/lib/xp/auth");
-
-export interface LoginParams {
-  readonly user: string;
-  readonly password?: string;
-  readonly idProvider?: string;
-  readonly skipAuth?: boolean;
-  readonly sessionTimeout?: number;
-}
-
-export interface LoginResult {
-  readonly authenticated: boolean;
-  readonly user: User;
-}
-
-export interface Principal {
-  readonly type: string;
-  readonly key: string;
-  readonly displayName: string;
-  readonly modifiedTime: string;
-}
-
-export interface User extends Principal {
-  readonly disabled: boolean;
-  readonly email: string;
-  readonly login: string;
-  readonly idProvider: string;
-}
-
-export interface WithProfile<A> {
-  readonly profile?: A;
-}
-
-export interface Role extends Principal {
-  readonly description?: string;
-}
-
-export interface Group extends Principal {
-  readonly description?: string;
-}
-
-export interface FindUsersParams {
-  readonly start?: number;
-  readonly count: number;
-  readonly query: string;
-  readonly sort?: string;
-  readonly includeProfile?: boolean;
-}
-
-export interface UserQueryResult<A> {
-  readonly total: number;
-  readonly count: number;
-  readonly hits: ReadonlyArray<User & WithProfile<A>>;
-}
-
-export interface ModifyUserParams {
-  readonly key: string;
-  readonly editor: (c: User) => User;
-}
-
-export interface CreateUserParams {
-  readonly idProvider: string;
-  readonly name: string;
-  readonly displayName: string;
-  readonly email?: string;
-}
-
-export interface CreateRoleParams {
-  readonly name: string;
-  readonly displayName: string;
-  readonly description?: string;
-}
-
-export interface CreateGroupParams {
-  readonly idProvider: string;
-  readonly name: string;
-  readonly displayName: string;
-  readonly description: string;
-}
+const auth: AuthLibrary = __non_webpack_require__("/lib/xp/auth");
 
 export function login(params: LoginParams): IOEither<EnonicError, LoginResult> {
   return catchEnonicError<LoginResult>(
