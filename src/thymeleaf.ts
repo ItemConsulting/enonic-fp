@@ -1,5 +1,5 @@
 import { IOEither } from "fp-ts/lib/IOEither";
-import { EnonicError } from "./common";
+import { EnonicError } from "./errors";
 import { catchEnonicError } from "./utils";
 import { ThymeleafLibrary, ThymeleafRenderOptions } from "enonic-types/lib/thymeleaf";
 

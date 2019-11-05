@@ -1,5 +1,5 @@
 import { IOEither } from "fp-ts/lib/IOEither";
-import { EnonicError } from "./common";
+import { EnonicError } from "./errors";
 import { catchEnonicError, fromNullable } from "./utils";
 import { pipe } from "fp-ts/lib/pipeable";
 import { chain } from "fp-ts/es6/IOEither";

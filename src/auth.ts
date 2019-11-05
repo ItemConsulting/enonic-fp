@@ -1,6 +1,6 @@
 import { IOEither } from "fp-ts/lib/IOEither";
 import { fromNullable, Option } from "fp-ts/lib/Option";
-import { EnonicError } from "./common";
+import { EnonicError } from "./errors";
 import { catchEnonicError } from "./utils";
 import {
   AuthLibrary, CreateGroupParams, CreateRoleParams, CreateUserParams,

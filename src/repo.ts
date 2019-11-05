@@ -1,6 +1,6 @@
 import { chain, IOEither } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError } from "./common";
+import { EnonicError } from "./errors";
 import {catchEnonicError, fromNullable } from "./utils";
 import {
   CreateBranchParams,

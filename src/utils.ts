@@ -1,6 +1,6 @@
 import * as EI from "fp-ts/lib/Either";
 import { fromEither, IOEither, tryCatch } from "fp-ts/lib/IOEither";
-import { EnonicError, GeneralEnonicErrorKey } from "./common";
+import { EnonicError, GeneralEnonicErrorKey } from "./errors";
 import { Lazy } from "fp-ts/lib/function";
 
 export interface Throwable {

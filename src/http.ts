@@ -1,5 +1,5 @@
 import { IOEither } from "fp-ts/lib/IOEither";
-import { EnonicError } from "./common";
+import { EnonicError } from "./errors";
 import { catchEnonicError } from "./utils";
 import { HttpLibrary, HttpRequestParams, HttpResponse } from "enonic-types/lib/http";
 const httpLib: HttpLibrary = __non_webpack_require__("/lib/http-client");
