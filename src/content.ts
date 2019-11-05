@@ -24,12 +24,12 @@ import {
 
 const contentLib: ContentLibrary = __non_webpack_require__("/lib/xp/content");
 
-export function get<A, PageConfig = any>(
+export function get<A>(
   params: GetContentParams
-): IOEither<EnonicError, Content<A, PageConfig>> {
+): IOEither<EnonicError, Content<A>> {
   return pipe(
     catchEnonicError(
-      () => contentLib.get<A, PageConfig>(params)
+      () => contentLib.get<A>(params)
     ),
     chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
   );
