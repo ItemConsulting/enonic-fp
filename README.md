@@ -6,7 +6,7 @@ Functional programming helpers for Enonic XP. This library provides [fp-ts](http
 
 ## Enonic-wizardry
 
-This library aims to _only_ provide functional wrappers for the standard libraries, and nothing else. So we recommend also installing [enonic-wizardry](https://github.com/ItemConsulting/enonic-wizardry). _Enonic-wizardry_ provides useful useful utilities and helper functions that every project needs.
+*Enonic-fp* aims to _only_ provide functional wrappers for the standard libraries, and nothing else. So we recommend also installing [enonic-wizardry](https://github.com/ItemConsulting/enonic-wizardry). *Enonic-wizardry* provides useful useful utilities and helper functions that every project needs.
 
 ## Code generation
 
