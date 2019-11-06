@@ -47,7 +47,7 @@ import { io } from "fp-ts/lib/IO";
 import { fold } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
 import { Request, Response } from "enonic-types/lib/controller";
-import { get as getContent } from "../content";
+import { get as getContent } from "enonic-fp/lib/content";
 import { Article } from "../../site/content-types/article/article"; // 1
 
 export function get(req: Request): Response { // 2
@@ -102,9 +102,9 @@ import { IO, io } from "fp-ts/lib/IO";
 import { chain, fold, IOEither, map } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
 import { Request, Response } from "enonic-types/lib/controller";
-import { publish, remove } from "../content";
-import { EnonicError } from "../errors";
-import { run } from "../context";
+import { publish, remove } from "enonic-fp/lib/content";
+import { EnonicError } from "enonic-fp/lib/errors";
+import { run } from "enonic-fp/lib/context";
 
 function del(req: Request): Response {
   const key = req.params.key!;
@@ -200,9 +200,9 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { Request, Response } from "enonic-types/lib/controller";
 import { QueryResponse } from "enonic-types/lib/content";
 import { HttpResponse } from "enonic-types/lib/http";
-import { EnonicError } from "../errors";
-import { get as getContent, query } from "../content";
-import { request } from "../http";
+import { EnonicError } from "enonic-fp/lib/errors";
+import { get as getContent, query } from "enonic-fp/lib/content";
+import { request } from "enonic-fp/lib/http";
 import { Article } from "../../site/content-types/article/article";
 import { Comment } from "../../site/content-types/comment/comment";
 
