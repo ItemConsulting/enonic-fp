@@ -1,47 +1,67 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {IO, io} from "fp-ts/lib/IO";
-import {chain, fold, IOEither} from "fp-ts/lib/IOEither";
+import { IO, io } from "fp-ts/lib/IO";
+import { chain, fold, IOEither, map } from "fp-ts/lib/IOEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError, Request, Response } from "../common";
-import {publish, PublishResponse, remove} from "../content";
+import { Request, Response } from "enonic-types/lib/controller";
+import { publish, remove } from "../content";
+import { EnonicError } from "../errors";
 import { run } from "../context";
 
-export function del(req: Request): Response {
-  const key = req.params.key!!;
+function del(req: Request): Response {
+  const key = req.params.key!;
 
-  return pipe(
-    runInDraftContext(remove({ key })),
-    chain(() => publishToMaster(key)),
-    fold<EnonicError, any, Response>(
-      (err: EnonicError) =>
-        io.of({
-          body: err,
-          contentType: "application/json",
-          status: errorKeyToStatus[err.errorKey]
-        }),
+  const program = pipe(
+    runInDraftContext(
+      remove({ key }) // 1
+    ),
+    chain(publishContentByKey(key)),  // 2
+    fold( // 3
+      (err) =>
+        io.of(
+          {
+            body: err,
+            contentType: "application/json",
+            status: errorKeyToStatus[err.errorKey]
+          } as Response
+        ),
       () =>
-        io.of({
-          body: "",
-          status: 204 // 204 = No content
-        })
+        io.of(
+          {
+            body: "",
+            status: 204 // 4
+          } as Response
+        )
     )
-  )();
+  );
+
+  return program();
 }
 
-function runInDraftContext<A>(f: IO<A>): IO<A> {
-  return run<A>(
-    {
-      branch: "draft"
-    }
-  )(f);
+export { del as delete }; // 4
+
+/**
+ * This function is found in the "enonic-wizardry" package
+ */
+function runInDraftContext<A>(a: IO<A>): IO<A> {
+  return run<A>({
+    branch: 'draft'
+  })(a);
 }
 
-function publishToMaster(key: string): IOEither<EnonicError, PublishResponse> {
-  return publish({
-    keys: [key],
-    sourceBranch: "draft",
-    targetBranch: "master"
-  });
+/**
+ * This function is found in the "enonic-wizardry" package
+ */
+export function publishContentByKey<A>(key: string): (a: A) => IOEither<EnonicError, A> {
+  return (a): IOEither<EnonicError, A> => {
+    return pipe(
+      publish({
+        keys: [key],
+        sourceBranch: 'draft',
+        targetBranch: 'master',
+      }),
+      map(() => a)
+    );
+  }
 }
 
 const errorKeyToStatus: { [key: string]: number } = {
