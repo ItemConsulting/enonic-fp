@@ -5,8 +5,17 @@ import { ThymeleafLibrary, ThymeleafRenderOptions } from "enonic-types/lib/thyme
 
 const thymeleafLib: ThymeleafLibrary = __non_webpack_require__("/lib/thymeleaf");
 
+export interface ResourceKey {
+  applicationKey: string;
+  path: string;
+  uri: string;
+  root: boolean;
+  name: string;
+  extension: string;
+}
+
 export function renderUnsafe<A>(
-  view: any,
+  view: ResourceKey,
   model?: A,
   options?: ThymeleafRenderOptions
 ): string {
@@ -14,7 +23,7 @@ export function renderUnsafe<A>(
 }
 
 export function render<A>(
-  view: any,
+  view: ResourceKey,
   model?: A,
   options?: ThymeleafRenderOptions
 ): IOEither<EnonicError, string> {
@@ -24,14 +33,14 @@ export function render<A>(
 }
 
 export function getUnsafeRenderer<A>(
-  view: any,
+  view: ResourceKey,
   options?: ThymeleafRenderOptions
 ): (model: A) => string {
   return (model: A): string => renderUnsafe(view, model, options);
 }
 
 export function getRenderer<A>(
-  view: any,
+  view: ResourceKey,
   options?: ThymeleafRenderOptions
 ): (model: A) => IOEither<EnonicError, string> {
   return (model: A): IOEither<EnonicError, string> => render(view, model, options);
