@@ -18,8 +18,9 @@ export function getMenuTree(levels: number): IOEither<EnonicError, ReadonlyArray
   );
 }
 
-export function getSubMenus(parentContent: Content<any>, levels: number): IOEither<EnonicError, ReadonlyArray<MenuItem>> {
-  return catchEnonicError(
-    () => menuLib.getSubMenus(parentContent, levels)
-  );
-}
+export function getSubMenus(levels: number): (parentContent: Content<any>) =>
+  IOEither<EnonicError, ReadonlyArray<MenuItem>> {
+    return (parentContent: Content<any>): IOEither<EnonicError, ReadonlyArray<MenuItem>> => catchEnonicError(
+      () => menuLib.getSubMenus(parentContent, levels)
+    );
+  }
