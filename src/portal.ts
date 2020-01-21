@@ -1,8 +1,7 @@
-import { IOEither } from "fp-ts/lib/IOEither";
+import { IOEither, chain } from "fp-ts/lib/IOEither";
 import { EnonicError } from "./errors";
 import { catchEnonicError, fromNullable } from "./utils";
 import { pipe } from "fp-ts/lib/pipeable";
-import { chain } from "fp-ts/es6/IOEither";
 import { ByteSource, Content, Site } from "enonic-types/lib/content";
 import {
   AssetUrlParams,
