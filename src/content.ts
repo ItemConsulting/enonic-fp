@@ -24,7 +24,7 @@ import {
 
 const contentLib: ContentLibrary = __non_webpack_require__("/lib/xp/content");
 
-export function get<A>(
+export function get<A extends object>(
   params: GetContentParams
 ): IOEither<EnonicError, Content<A>> {
   return pipe(
@@ -35,7 +35,7 @@ export function get<A>(
   );
 }
 
-export function query<A>(
+export function query<A extends object>(
   params: QueryContentParams
 ): IOEither<EnonicError, QueryResponse<A>> {
   return catchEnonicError(
@@ -43,7 +43,7 @@ export function query<A>(
   );
 }
 
-export function create<A>(
+export function create<A extends object>(
   params: CreateContentParams<A>
 ): IOEither<EnonicError, Content<A>> {
   return catchEnonicError(
@@ -51,7 +51,7 @@ export function create<A>(
   );
 }
 
-export function modify<A>(
+export function modify<A extends object>(
   params: ModifyContentParams<A>
 ): IOEither<EnonicError, Content<A>> {
   return catchEnonicError(
@@ -94,7 +94,7 @@ export function unpublish(
   );
 }
 
-export function getChildren<A>(
+export function getChildren<A extends object>(
   params: GetChildrenParams
 ): IOEither<EnonicError, QueryResponse<A>> {
   return catchEnonicError(
@@ -102,13 +102,13 @@ export function getChildren<A>(
   );
 }
 
-export function move<A>(params: MoveParams): IOEither<EnonicError, Content<A>> {
+export function move<A extends object>(params: MoveParams): IOEither<EnonicError, Content<A>> {
   return catchEnonicError(
     () => contentLib.move<A>(params)
   );
 }
 
-export function getSite<A, PageConfig = any>(
+export function getSite<A extends object, PageConfig extends object = never>(
   params: GetSiteParams
 ): IOEither<EnonicError, Site<A, PageConfig>> {
   return catchEnonicError(
@@ -116,7 +116,7 @@ export function getSite<A, PageConfig = any>(
   );
 }
 
-export function getSiteConfig<A>(
+export function getSiteConfig<A extends object>(
   params: GetSiteConfigParams
 ): IOEither<EnonicError, A> {
   return catchEnonicError(
@@ -124,7 +124,7 @@ export function getSiteConfig<A>(
   );
 }
 
-export function createMedia<A>(
+export function createMedia<A extends object>(
   params: CreateMediaParams
 ): IOEither<EnonicError, Content<A>> {
   return catchEnonicError(

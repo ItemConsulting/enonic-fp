@@ -13,7 +13,7 @@ import {
 
 const portalLib: PortalLibrary = __non_webpack_require__("/lib/xp/portal");
 
-export function getContent<A, PageConfig = any>(): IOEither<EnonicError, Content<A, PageConfig>> {
+export function getContent<A extends object, PageConfig extends object = never>(): IOEither<EnonicError, Content<A, PageConfig>> {
   return pipe(
     catchEnonicError(
       () => portalLib.getContent<A, PageConfig>()
@@ -102,13 +102,13 @@ export function getMultipartText(name: string, index = 0, errorMessage = "portal
   );
 }
 
-export function getSite<A>(): IOEither<EnonicError, Site<A>> {
+export function getSite<A extends object>(): IOEither<EnonicError, Site<A>> {
   return catchEnonicError<Site<A>>(
     () => portalLib.getSite()
   );
 }
 
-export function getSiteConfig<A>(): IOEither<EnonicError, A> {
+export function getSiteConfig<A extends object>(): IOEither<EnonicError, A> {
   return catchEnonicError<A>(
     () => portalLib.getSiteConfig()
   );
