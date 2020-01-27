@@ -1,6 +1,6 @@
 {
   "name": "enonic-fp",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "description": "Functional programming helpers for Enonic XP",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -25,8 +25,8 @@
   },
   "homepage": "https://github.com/ItemConsulting/enonic-fp#readme",
   "dependencies": {
-    "enonic-types": "^0.0.25",
-    "fp-ts": "^2.4.1"
+    "enonic-types": "^0.0.26",
+    "fp-ts": "^2.4.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.17.0",
