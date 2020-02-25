@@ -8,6 +8,7 @@ export type GeneralEnonicErrorKey =
   | "NotFoundError"
   | "MethodNotAllowedError"
   | "InternalServerError"
+  | "TooManyRequestsError"
   | "BadGatewayError"
   | "PublishError";
 
