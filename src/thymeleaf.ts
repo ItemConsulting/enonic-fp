@@ -1,11 +1,11 @@
-import { IOEither } from "fp-ts/lib/IOEither";
-import { EnonicError } from "./errors";
-import { catchEnonicError } from "./utils";
+import {IOEither} from "fp-ts/lib/IOEither";
+import {EnonicError} from "./errors";
+import {catchEnonicError} from "./utils";
 import {ResourceKey, ThymeleafLibrary, ThymeleafRenderOptions} from "enonic-types/lib/thymeleaf";
 
 const thymeleafLib: ThymeleafLibrary = __non_webpack_require__("/lib/thymeleaf");
 
-export function renderUnsafe<A>(
+export function renderUnsafe<A extends object>(
   view: ResourceKey,
   model?: A,
   options?: ThymeleafRenderOptions
@@ -13,7 +13,7 @@ export function renderUnsafe<A>(
   return thymeleafLib.render(view, model, options);
 }
 
-export function render<A>(
+export function render<A extends object>(
   view: ResourceKey,
   model?: A,
   options?: ThymeleafRenderOptions
@@ -23,14 +23,14 @@ export function render<A>(
   );
 }
 
-export function getUnsafeRenderer<A>(
+export function getUnsafeRenderer<A extends object>(
   view: ResourceKey,
   options?: ThymeleafRenderOptions
 ): (model: A) => string {
   return (model: A): string => renderUnsafe(view, model, options);
 }
 
-export function getRenderer<A>(
+export function getRenderer<A extends object>(
   view: ResourceKey,
   options?: ThymeleafRenderOptions
 ): (model: A) => IOEither<EnonicError, string> {
