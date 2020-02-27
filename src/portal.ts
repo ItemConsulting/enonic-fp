@@ -52,35 +52,19 @@ export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<Multipar
  * This function returns a JSON containing a named multipart item.
  * If the item does not exist it returns `BadRequestError`.
  */
-export function getMultipartItem(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, MultipartItem> {
-  return pipe(
-    catchEnonicError(
+export function getMultipartItem(name: string, index = 0): IOEither<EnonicError, MultipartItem | undefined> {
+  return catchEnonicError(
       () => portalLib.getMultipartItem(name, index)
-    ),
-    chain(fromNullable<EnonicError>({
-      errorKey: "BadRequestError",
-      errors: {
-        [name]: [errorMessage]
-      }
-    }))
-  );
+    )
 }
 
 /**
  * This function returns a data-stream for a named multipart item.
  * If the item does not exist it returns `BadRequestError`.
  */
-export function getMultipartStream(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, ByteSource> {
-  return pipe(
-    catchEnonicError<ByteSource | null>(
-      () => portalLib.getMultipartStream(name, index)
-    ),
-    chain(fromNullable<EnonicError>({
-      errorKey: "BadRequestError",
-      errors: {
-        [name]: [errorMessage]
-      }
-    }))
+export function getMultipartStream(name: string, index = 0): IOEither<EnonicError, ByteSource | undefined> {
+  return catchEnonicError(
+    () => portalLib.getMultipartStream(name, index)
   );
 }
 
@@ -88,17 +72,9 @@ export function getMultipartStream(name: string, index = 0, errorMessage = "port
  * This function returns the multipart item data as text.
  * If the item does not exist it returns `BadRequestError`.
  */
-export function getMultipartText(name: string, index = 0, errorMessage = "portal.error.multipartItem"): IOEither<EnonicError, string> {
-  return pipe(
-    catchEnonicError<string | null>(
-      () => portalLib.getMultipartText(name, index)
-    ),
-    chain(fromNullable<EnonicError>({
-      errorKey: "BadRequestError",
-      errors: {
-        [name]: [errorMessage]
-      }
-    }))
+export function getMultipartText(name: string, index = 0): IOEither<EnonicError, string | undefined> {
+  return catchEnonicError(
+    () => portalLib.getMultipartText(name, index)
   );
 }
 
