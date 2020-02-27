@@ -1,15 +1,24 @@
-import { chain, IOEither, left, right } from "fp-ts/lib/IOEither";
-import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError } from "./errors";
-import { fromNullable } from "./utils";
-import { catchEnonicError } from "./utils";
+import {chain, IOEither, left, right} from "fp-ts/lib/IOEither";
+import {pipe} from "fp-ts/lib/pipeable";
+import {EnonicError} from "./errors";
+import {catchEnonicError, fromNullable} from "./utils";
 import {
-  Attachments, AttachmentStreamParams, ByteSource,
-  Content, ContentLibrary, ContentType,
-  CreateContentParams, CreateMediaParams,
+  AddAttachmentParams,
+  Attachments,
+  AttachmentStreamParams,
+  ByteSource,
+  Content,
+  ContentLibrary,
+  ContentType,
+  CreateContentParams,
+  CreateMediaParams,
   DeleteContentParams,
+  ExistsParams,
   GetChildrenParams,
-  GetContentParams, GetPermissionsParams, GetPermissionsResult,
+  GetContentParams,
+  GetOutboundDependenciesParams,
+  GetPermissionsParams,
+  GetPermissionsResult,
   GetSiteConfigParams,
   GetSiteParams,
   ModifyContentParams,
@@ -17,7 +26,9 @@ import {
   PublishContentParams,
   PublishResponse,
   QueryContentParams,
-  QueryResponse, RemoveAttachmentParams, SetPermissionsParams,
+  QueryResponse,
+  RemoveAttachmentParams,
+  SetPermissionsParams,
   Site,
   UnpublishContentParams
 } from "enonic-types/lib/content";
@@ -76,6 +87,15 @@ export function remove(
   );
 }
 
+export function exists(
+  params: ExistsParams
+): IOEither<EnonicError, boolean> {
+  return catchEnonicError(
+    () => contentLib.exists(params),
+    "InternalServerError"
+  );
+}
+
 export function publish(
   params: PublishContentParams
 ): IOEither<EnonicError, PublishResponse> {
@@ -99,6 +119,14 @@ export function getChildren<A extends object>(
 ): IOEither<EnonicError, QueryResponse<A>> {
   return catchEnonicError(
     () => contentLib.getChildren<A>(params)
+  );
+}
+
+export function getOutboundDependencies(
+  params: GetOutboundDependenciesParams
+): IOEither<EnonicError, ReadonlyArray<string>> {
+  return catchEnonicError(
+    () => contentLib.getOutboundDependencies(params)
   );
 }
 
@@ -129,6 +157,14 @@ export function createMedia<A extends object>(
 ): IOEither<EnonicError, Content<A>> {
   return catchEnonicError(
     () => contentLib.createMedia<A>(params)
+  );
+}
+
+export function addAttachment(
+  params: AddAttachmentParams
+): IOEither<EnonicError, void> {
+  return catchEnonicError(
+    () => contentLib.addAttachment(params)
   );
 }
 
