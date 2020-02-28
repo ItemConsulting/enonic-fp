@@ -20,8 +20,10 @@ export function fromNullable<E>(
 export function isJavaThrowable(t: any): t is Throwable {
   const throwable = t as Throwable;
 
-  return throwable &&
-    throwable.getMessage() !== undefined
+  return throwable
+    && typeof throwable.getMessage === 'function'
+    && typeof throwable.getCause === 'function'
+    && throwable.getMessage() !== undefined
     && throwable.getCause() !== undefined;
 }
 
