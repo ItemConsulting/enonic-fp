@@ -4,7 +4,8 @@ import {catchEnonicError} from "./utils";
 import {EnonicError} from "./errors";
 import {filterOrElse, IOEither} from "fp-ts/lib/IOEither";
 import {identity} from "fp-ts/lib/function";
-import {Option, some, filter} from "fp-ts/lib/Option";
+import {Option, some, filter, getOrElse} from "fp-ts/lib/Option";
+import {localize} from "./i18n";
 
 const recaptchaLib: RecaptchaLibrary = __non_webpack_require__('/lib/recaptcha');
 
@@ -26,7 +27,13 @@ export function getSecretKey(): Option<string> {
   );
 }
 
-export function verify(res: string): IOEither<EnonicError, boolean> {
+function getCaptchaErrorMessage(key: string): string {
+  return getOrElse(
+    () => `Can not confirm that user is not a robot`
+  )(localize({ key }));
+}
+
+export function verify(res: string, errorI18nKey: string): IOEither<EnonicError, boolean> {
   return pipe(
     catchEnonicError(
       () => recaptchaLib.verify(res)
@@ -37,13 +44,14 @@ export function verify(res: string): IOEither<EnonicError, boolean> {
         {
           errorKey: "BadRequestError",
           errors: {
-            recaptcha: [`Can not confirm that user is not a robot`]
+            recaptcha: [getCaptchaErrorMessage(errorI18nKey)]
           }
         }
       )
     )
   );
 }
+
 
 export function isConfigured(): boolean {
   return recaptchaLib.isConfigured();
