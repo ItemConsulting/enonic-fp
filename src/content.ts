@@ -1,5 +1,6 @@
-import {chain, IOEither, left, right} from "fp-ts/lib/IOEither";
 import {pipe} from "fp-ts/lib/pipeable";
+import {chain, IOEither, left, right} from "fp-ts/lib/IOEither";
+import {Semigroup} from "fp-ts/lib/Semigroup";
 import {EnonicError} from "./errors";
 import {catchEnonicError, fromNullable} from "./utils";
 import {
@@ -68,6 +69,60 @@ export function modify<A extends object>(
   return catchEnonicError(
     () => contentLib.modify<A>(params)
   );
+}
+
+type PartialContent<A extends object> = Partial<Content<A>> & Pick<Content<A>, '_id' | 'data'>
+
+export interface ConcatContentParams<A extends object> {
+  readonly semigroup: Semigroup<PartialContent<A>>;
+  readonly key?: string;
+  readonly requireValid?: boolean;
+}
+
+/**
+ * Instead of taking an "editor" function like the original `modify()` this `modify()` takes a Semigroup
+ * (or Monoid) to combine the old and new content.
+ */
+export function modifyWithSemigroup<A extends object>(
+  params: ConcatContentParams<A>
+): (newContent: PartialContent<A>) => IOEither<EnonicError, Content<A>> {
+  return (newContent: PartialContent<A>): IOEither<EnonicError, Content<A>> => {
+    return catchEnonicError(
+      () => contentLib.modify<A>({
+        key: params.key ?? newContent._id,
+        requireValid: params.requireValid,
+        editor: (oldContent: Content<A>) => params.semigroup.concat(oldContent, newContent) as Content<A>
+      })
+    );
+  };
+}
+
+export function getContentSemigroup<A extends object>(dataMonoid: Semigroup<A>): Semigroup<PartialContent<A>> {
+  return {
+    concat: (x: PartialContent<A>, y: PartialContent<A>): PartialContent<A> => (
+      {
+        _id: x._id,
+        _name: x._name,
+        _path: x._path,
+        creator: y.creator ?? x.creator,
+        modifier: y.modifier ?? x.modifier,
+        createdTime: y.createdTime ?? x.createdTime,
+        modifiedTime: y.modifiedTime ?? x.modifiedTime,
+        owner: y.owner ?? x.owner,
+        type: y.type ?? x.type,
+        displayName: y.displayName ?? x.displayName,
+        hasChildren: y.hasChildren ?? x.hasChildren,
+        language: y.language ?? x.language,
+        valid: y.valid ?? x.valid,
+        childOrder: y.childOrder ?? x.childOrder,
+        data: dataMonoid.concat(x.data, y.data),
+        x: y.x ?? x.x,
+        page: y.page ?? x.page,
+        attachments: y.attachments ?? x.attachments,
+        publish: y.publish ?? x.publish,
+      }
+    )
+  }
 }
 
 export function remove(
