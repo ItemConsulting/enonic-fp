@@ -2,7 +2,7 @@ import {pipe} from "fp-ts/lib/pipeable";
 import {chain, IOEither, left, right} from "fp-ts/lib/IOEither";
 import {Semigroup} from "fp-ts/lib/Semigroup";
 import {EnonicError} from "./errors";
-import {catchEnonicError, fromNullable} from "./utils";
+import {catchEnonicError, fromNullable, stringToByKey} from "./utils";
 import {
   AddAttachmentParams,
   Attachments,
@@ -36,14 +36,15 @@ import {
 
 const contentLib: ContentLibrary = __non_webpack_require__("/lib/xp/content");
 
-export function get<A extends object>(
-  params: GetContentParams
-): IOEither<EnonicError, Content<A>> {
+export function get<A extends object>(params: GetContentParams): IOEither<EnonicError, Content<A>>;
+export function get<A extends object>(key: string): IOEither<EnonicError, Content<A>>;
+export function get<A extends object>(paramsOrKey: GetContentParams | string): IOEither<EnonicError, Content<A>> {
   return pipe(
-    catchEnonicError(
+    stringToByKey(paramsOrKey),
+    (params: GetContentParams) => catchEnonicError(
       () => contentLib.get<A>(params)
     ),
-    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
+    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
   );
 }
 
@@ -125,11 +126,12 @@ export function getContentSemigroup<A extends object>(dataMonoid: Semigroup<A>):
   }
 }
 
-export function remove(
-  params: DeleteContentParams
-): IOEither<EnonicError, void> {
+export function remove(params: DeleteContentParams): IOEither<EnonicError, void>;
+export function remove(key: string): IOEither<EnonicError, void>;
+export function remove(paramsOrKey: DeleteContentParams | string): IOEither<EnonicError, void> {
   return pipe(
-     catchEnonicError<boolean>(
+    stringToByKey<DeleteContentParams>(paramsOrKey),
+    (params: DeleteContentParams) => catchEnonicError<boolean>(
       () => contentLib.delete(params),
     ),
     chain((success: boolean) =>
@@ -142,12 +144,15 @@ export function remove(
   );
 }
 
-export function exists(
-  params: ExistsParams
-): IOEither<EnonicError, boolean> {
-  return catchEnonicError(
-    () => contentLib.exists(params),
-    "InternalServerError"
+export function exists(params: ExistsParams): IOEither<EnonicError, boolean>;
+export function exists(key: string): IOEither<EnonicError, boolean>;
+export function exists(paramsOrKey: ExistsParams | string): IOEither<EnonicError, boolean> {
+  return pipe(
+    stringToByKey<ExistsParams>(paramsOrKey),
+    (params: ExistsParams) => catchEnonicError(
+      () => contentLib.exists(params),
+      "InternalServerError"
+    )
   );
 }
 
@@ -169,19 +174,25 @@ export function unpublish(
   );
 }
 
-export function getChildren<A extends object>(
-  params: GetChildrenParams
-): IOEither<EnonicError, QueryResponse<A>> {
-  return catchEnonicError(
-    () => contentLib.getChildren<A>(params)
+export function getChildren<A extends object>(params: GetChildrenParams): IOEither<EnonicError, QueryResponse<A>>;
+export function getChildren<A extends object>(key: string): IOEither<EnonicError, QueryResponse<A>>;
+export function getChildren<A extends object>(paramsOrKey: GetChildrenParams | string): IOEither<EnonicError, QueryResponse<A>> {
+  return pipe(
+    stringToByKey<GetChildrenParams>(paramsOrKey),
+    (params: GetChildrenParams) => catchEnonicError(
+      () => contentLib.getChildren<A>(params)
+    )
   );
 }
 
-export function getOutboundDependencies(
-  params: GetOutboundDependenciesParams
-): IOEither<EnonicError, ReadonlyArray<string>> {
-  return catchEnonicError(
-    () => contentLib.getOutboundDependencies(params)
+export function getOutboundDependencies(params: GetOutboundDependenciesParams): IOEither<EnonicError, ReadonlyArray<string>>;
+export function getOutboundDependencies(key: string): IOEither<EnonicError, ReadonlyArray<string>>;
+export function getOutboundDependencies(paramsOrKey: GetOutboundDependenciesParams | string): IOEither<EnonicError, ReadonlyArray<string>> {
+  return pipe(
+    stringToByKey<GetOutboundDependenciesParams>(paramsOrKey),
+    (params: GetOutboundDependenciesParams) => catchEnonicError(
+      () => contentLib.getOutboundDependencies(params)
+    )
   );
 }
 
@@ -191,11 +202,14 @@ export function move<A extends object>(params: MoveParams): IOEither<EnonicError
   );
 }
 
-export function getSite<A extends object, PageConfig extends object = never>(
-  params: GetSiteParams
-): IOEither<EnonicError, Site<A, PageConfig>> {
-  return catchEnonicError(
-    () => contentLib.getSite<A, PageConfig>(params)
+export function getSite<A extends object, PageConfig extends object = never>(params: GetSiteParams): IOEither<EnonicError, Site<A, PageConfig>>;
+export function getSite<A extends object, PageConfig extends object = never>(key: string): IOEither<EnonicError, Site<A, PageConfig>>;
+export function getSite<A extends object, PageConfig extends object = never>(paramsOrKey: GetSiteParams | string): IOEither<EnonicError, Site<A, PageConfig>> {
+  return pipe(
+    stringToByKey<GetOutboundDependenciesParams>(paramsOrKey),
+    (params: GetOutboundDependenciesParams) => catchEnonicError(
+      () => contentLib.getSite<A, PageConfig>(params)
+    )
   );
 }
 
@@ -230,7 +244,7 @@ export function getAttachments(
     catchEnonicError(
       () => contentLib.getAttachments(key)
     ),
-    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
+    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
   );
 }
 
@@ -241,7 +255,7 @@ export function getAttachmentStream(
     catchEnonicError(
       () => contentLib.getAttachmentStream(params)
     ),
-    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
+    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
   );
 }
 
@@ -274,7 +288,7 @@ export function getType(name: string): IOEither<EnonicError, ContentType> {
     catchEnonicError(
       () => contentLib.getType(name)
     ),
-    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
+    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
   );
 }
 

@@ -2,6 +2,7 @@ import * as EI from "fp-ts/lib/Either";
 import { fromEither, IOEither, tryCatch } from "fp-ts/lib/IOEither";
 import { EnonicError, GeneralEnonicErrorKey } from "./errors";
 import { Lazy } from "fp-ts/lib/function";
+import {ById, ByKey, ByPath} from "enonic-types/lib/portal";
 
 export interface Throwable {
   getMessage​(): string;
@@ -65,4 +66,26 @@ export function catchEnonicError<A>(
   errorKey: GeneralEnonicErrorKey = "InternalServerError"
 ): IOEither<EnonicError, A> {
   return tryCatch<EnonicError, A>(f, (t) => handleJavaThrowable(errorKey, t));
+}
+
+export function isString<A>(a: A | string): a is string {
+  return (typeof a === 'string');
+}
+
+export function stringToByKey<A>(input: string | A): A | ByKey {
+  return isString(input)
+    ? { key: input }
+    : input;
+}
+
+export function stringToById<A>(input: string | A): A | ById {
+  return isString(input)
+    ? { id: input }
+    : input;
+}
+
+export function stringToByPath<A>(input: string | A): A | ByPath {
+  return isString(input)
+    ? { path: input }
+    : input;
 }
