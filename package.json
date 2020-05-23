@@ -1,6 +1,6 @@
 {
   "name": "enonic-fp",
-  "version": "0.2.38",
+  "version": "0.2.39",
   "description": "Functional programming helpers for Enonic XP",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
