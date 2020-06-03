@@ -1,12 +1,20 @@
-import { IOEither, map } from "fp-ts/lib/IOEither";
-import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError } from "./errors";
-import { catchEnonicError } from "./utils";
+import {IOEither} from "fp-ts/lib/IOEither";
+import {EnonicError} from "./errors";
+import {catchEnonicError, isString} from "./utils";
 import {
+  DiffParams,
+  DiffResponse,
+  FindVersionsParams,
+  MultiRepoConnection,
+  MultiRepoConnectParams,
   NodeCreateParams,
+  NodeFindChildrenParams,
   NodeLibrary,
+  NodeModifyParams,
   NodeQueryParams,
-  NodeQueryResponse, RepoConnection,
+  NodeQueryResponse,
+  NodeVersionQueryResult,
+  RepoConnection,
   RepoNode,
   Source
 } from "enonic-types/lib/node";
@@ -23,22 +31,17 @@ export function connect(params: Source): IOEither<EnonicError, RepoConnection> {
 }
 
 /**
- * This function fetches nodes.
+ * Creates a connection to several repositories with a given branch and authentication info.
  */
-export function get<A>(
-  repo: RepoConnection,
-  keys: string | ReadonlyArray<string>
-): IOEither<EnonicError, ReadonlyArray<A & RepoNode>> {
-  return pipe(
-    catchEnonicError<ReadonlyArray<A & RepoNode> | A & RepoNode>(
-      () => repo.get(keys)
-    ),
-    map(data => (Array.isArray(data) ? data : [data]))
+export function multiRepoConnect(params: MultiRepoConnectParams): IOEither<EnonicError, MultiRepoConnection> {
+  return catchEnonicError<MultiRepoConnection>(
+    () => nodeLib.multiRepoConnect(params)
   );
 }
 
 /**
- * This function creates a node.
+ * Creating a node. To create a content where the name is not important and there could be multiple instances under the
+ * same parent content, skip the name parameter and specify a displayName.
  */
 export function create<A>(
   repo: RepoConnection,
@@ -50,16 +53,65 @@ export function create<A>(
 }
 
 /**
- * This function deletes a node or nodes.
+ * Deleting a node or nodes.
  */
 export function remove(
   repo: RepoConnection,
-  keys: ReadonlyArray<string>
-): IOEither<EnonicError, boolean> {
-  return catchEnonicError<boolean>(
+  keys: string | ReadonlyArray<string>
+): IOEither<EnonicError, ReadonlyArray<string>> {
+  return catchEnonicError(
     () => repo.delete(keys)
   );
 }
+
+
+/**
+ * Resolves the differences for a node between current and given branch.
+ */
+export function diff(
+  repo: RepoConnection,
+  params: DiffParams
+): IOEither<EnonicError, DiffResponse> {
+  return catchEnonicError(
+    () => repo.diff(params)
+  );
+}
+
+/**
+ * Checking if a node or nodes exist for the current context.
+ */
+export function exists(
+  repo: RepoConnection,
+  keys: string | ReadonlyArray<string>
+): IOEither<EnonicError, ReadonlyArray<string>> {
+  return catchEnonicError(
+    () => repo.exists(keys)
+  );
+}
+
+/**
+ * Fetch the versions of a node.
+ */
+export function findVersions(
+  repo: RepoConnection,
+  params: FindVersionsParams
+): IOEither<EnonicError, NodeVersionQueryResult> {
+  return catchEnonicError(
+    () => repo.findVersions(params)
+  );
+}
+
+/**
+ * Fetches specific nodes by path or ID.
+ */
+export function get<A>(repo: RepoConnection, key: string): IOEither<EnonicError, A & RepoNode>;
+export function get<A>(repo: RepoConnection, keys: ReadonlyArray<string>): IOEither<EnonicError, ReadonlyArray<A & RepoNode>>;
+export function get<A>(repo: RepoConnection, keys: string | ReadonlyArray<string>): IOEither<EnonicError, A & RepoNode | ReadonlyArray<A & RepoNode>> {
+  return isString(keys)
+    ? catchEnonicError(() => repo.get<A>(keys))
+    : catchEnonicError(() => repo.get<A>(keys));
+}
+
 
 /**
  * This command queries nodes.
@@ -68,7 +120,31 @@ export function query(
   repo: RepoConnection,
   params: NodeQueryParams
 ): IOEither<EnonicError, NodeQueryResponse> {
-  return catchEnonicError<NodeQueryResponse>(
+  return catchEnonicError(
     () => repo.query(params)
+  );
+}
+
+/**
+ * This function modifies a node.
+ */
+export function modify<A>(
+  repo: RepoConnection,
+  params: NodeModifyParams<A>
+): IOEither<EnonicError, A & RepoNode> {
+  return catchEnonicError(
+    () => repo.modify(params)
+  );
+}
+
+/**
+ * Get children for given node.
+ */
+export function findChildren(
+  repo: RepoConnection,
+  params: NodeFindChildrenParams
+): IOEither<EnonicError, NodeQueryResponse> {
+  return catchEnonicError(
+    () => repo.findChildren(params)
   );
 }

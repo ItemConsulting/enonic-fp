@@ -18,7 +18,7 @@ export function fromNullable<E>(
   return <A>(a: A | null | undefined): IOEither<E, A> => fromEither(EI.fromNullable(e)(a));
 }
 
-export function isJavaThrowable(t: any): t is Throwable {
+export function isJavaThrowable(t: Throwable | unknown): t is Throwable {
   const throwable = t as Throwable;
 
   return throwable
