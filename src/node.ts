@@ -1,6 +1,6 @@
 import {IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";
-import {catchEnonicError, isString} from "./utils";
+import {catchEnonicError} from "./utils";
 import {
   DiffParams,
   DiffResponse,
@@ -9,6 +9,7 @@ import {
   MultiRepoConnectParams,
   NodeCreateParams,
   NodeFindChildrenParams,
+  NodeGetParams,
   NodeLibrary,
   NodeModifyParams,
   NodeQueryParams,
@@ -104,14 +105,18 @@ export function findVersions(
 /**
  * Fetches specific nodes by path or ID.
  */
-export function get<A>(repo: RepoConnection, key: string): IOEither<EnonicError, A & RepoNode>;
-export function get<A>(repo: RepoConnection, keys: ReadonlyArray<string>): IOEither<EnonicError, ReadonlyArray<A & RepoNode>>;
-export function get<A>(repo: RepoConnection, keys: string | ReadonlyArray<string>): IOEither<EnonicError, A & RepoNode | ReadonlyArray<A & RepoNode>> {
-  return isString(keys)
-    ? catchEnonicError(() => repo.get<A>(keys))
-    : catchEnonicError(() => repo.get<A>(keys));
-}
+export function get<A>(repo: RepoConnection, key: string | NodeGetParams): IOEither<EnonicError, A & RepoNode>;
+export function get<A>(
+  repo: RepoConnection,
+  keys: ReadonlyArray<string | NodeGetParams>
+): IOEither<EnonicError, ReadonlyArray<A & RepoNode>>;
 
+export function get<A>(
+  repo: RepoConnection,
+  keys: string | NodeGetParams | ReadonlyArray<string | NodeGetParams>
+): IOEither<EnonicError, A & RepoNode | ReadonlyArray<A & RepoNode>> {
+  return catchEnonicError(() => repo.get<A>(keys));
+}
 
 /**
  * This command queries nodes.
