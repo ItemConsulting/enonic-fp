@@ -1,6 +1,6 @@
 {
   "name": "enonic-fp",
-  "version": "0.2.44",
+  "version": "0.2.45",
   "description": "Functional programming helpers for Enonic XP",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/ItemConsulting/enonic-fp#readme",
   "dependencies": {
-    "enonic-types": "^0.0.66",
+    "enonic-types": "^0.0.67",
     "fp-ts": "^2.6.2"
   },
   "devDependencies": {
