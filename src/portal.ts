@@ -15,13 +15,12 @@ import {
   LogoutUrlParams,
   MultipartItem,
   PageUrlParams,
-  PortalLibrary,
   ProcessHtmlParams,
   ServiceUrlParams,
   UrlParams
 } from "enonic-types/lib/portal";
 
-const portalLib: PortalLibrary = __non_webpack_require__("/lib/xp/portal");
+const portalLib = __non_webpack_require__("/lib/xp/portal");
 
 export function getContent<A extends object, PageConfig extends object = never>(): IOEither<EnonicError, Content<A, PageConfig>> {
   return pipe(

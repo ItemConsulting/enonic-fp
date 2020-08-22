@@ -9,7 +9,6 @@ import {
   AttachmentStreamParams,
   ByteSource,
   Content,
-  ContentLibrary,
   ContentType,
   CreateContentParams,
   CreateMediaParams,
@@ -34,7 +33,7 @@ import {
   UnpublishContentParams
 } from "enonic-types/lib/content";
 
-const contentLib: ContentLibrary = __non_webpack_require__("/lib/xp/content");
+const contentLib = __non_webpack_require__("/lib/xp/content");
 
 export function get<A extends object>(params: GetContentParams): IOEither<EnonicError, Content<A>>;
 export function get<A extends object>(key: string): IOEither<EnonicError, Content<A>>;

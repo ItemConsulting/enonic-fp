@@ -1,11 +1,10 @@
-import {EncodingLibrary} from "enonic-types/lib/encoding";
 import {ByteSource} from "enonic-types/lib/content";
 import {chain, IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";
 import {catchEnonicError, fromNullable} from "./utils";
 import {pipe} from "fp-ts/lib/pipeable";
 
-const encodingLib: EncodingLibrary = __non_webpack_require__("/lib/text-encoding");
+const encodingLib = __non_webpack_require__("/lib/text-encoding");
 
 export function base64Encode(stream: ByteSource | string): string {
   return encodingLib.base64Encode(stream);

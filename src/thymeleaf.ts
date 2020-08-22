@@ -1,9 +1,9 @@
 import {IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";
 import {catchEnonicError} from "./utils";
-import {ResourceKey, ThymeleafLibrary, ThymeleafRenderOptions} from "enonic-types/lib/thymeleaf";
+import {ResourceKey, ThymeleafRenderOptions} from "enonic-types/lib/thymeleaf";
 
-const thymeleafLib: ThymeleafLibrary = __non_webpack_require__("/lib/thymeleaf");
+const thymeleafLib = __non_webpack_require__("/lib/thymeleaf");
 
 export function renderUnsafe<A extends object>(
   view: ResourceKey,

@@ -1,9 +1,9 @@
 import {fromNullable, map, Option} from "fp-ts/lib/Option";
 import {pipe} from "fp-ts/lib/pipeable";
-import {I18nLibrary, LocalizeParams} from "enonic-types/lib/i18n";
+import {LocalizeParams} from "enonic-types/lib/i18n";
 import {stringToByKey} from "./utils";
 
-const i18nLib: I18nLibrary = __non_webpack_require__("/lib/xp/i18n");
+const i18nLib = __non_webpack_require__("/lib/xp/i18n");
 const NOT_TRANSLATED_MESSAGE = "NOT_TRANSLATED";
 
 export function getPhrases(

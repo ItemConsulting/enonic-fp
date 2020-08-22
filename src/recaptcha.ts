@@ -1,13 +1,12 @@
-import {RecaptchaLibrary} from "enonic-types/lib/recaptcha";
 import {pipe} from "fp-ts/lib/pipeable";
 import {catchEnonicError} from "./utils";
 import {EnonicError} from "./errors";
 import {filterOrElse, IOEither} from "fp-ts/lib/IOEither";
 import {identity} from "fp-ts/lib/function";
-import {Option, some, filter, getOrElse} from "fp-ts/lib/Option";
+import {filter, getOrElse, Option, some} from "fp-ts/lib/Option";
 import {localize} from "./i18n";
 
-const recaptchaLib: RecaptchaLibrary = __non_webpack_require__('/lib/recaptcha');
+const recaptchaLib = __non_webpack_require__('/lib/recaptcha');
 
 function notEmptyString(str: string): boolean {
   return str.length > 0;
@@ -30,7 +29,7 @@ export function getSecretKey(): Option<string> {
 function getCaptchaErrorMessage(key: string): string {
   return getOrElse(
     () => `Can not confirm that user is not a robot`
-  )(localize({ key }));
+  )(localize({key}));
 }
 
 export function verify(res: string, errorI18nKey: string): IOEither<EnonicError, boolean> {

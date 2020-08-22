@@ -1,4 +1,4 @@
-import { IO } from "fp-ts/lib/IO";
+import {IO} from "fp-ts/lib/IO";
 
 declare const log: {
   readonly info: (...args: ReadonlyArray<any>) => void;

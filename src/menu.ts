@@ -1,10 +1,10 @@
-import {BreadcrumbMenu, GetBreadcrumbMenuParams, MenuItem, MenuLibrary} from "enonic-types/lib/menu";
+import {BreadcrumbMenu, GetBreadcrumbMenuParams, MenuItem} from "enonic-types/lib/menu";
 import {Content} from "enonic-types/lib/content";
 import {catchEnonicError} from "./utils";
 import {IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";
 
-const menuLib: MenuLibrary = __non_webpack_require__('/lib/menu');
+const menuLib = __non_webpack_require__('/lib/menu');
 
 export function getBreadcrumbMenu(params: GetBreadcrumbMenuParams): IOEither<EnonicError, BreadcrumbMenu> {
   return catchEnonicError(
@@ -20,7 +20,7 @@ export function getMenuTree(levels: number): IOEither<EnonicError, ReadonlyArray
 
 export function getSubMenus(levels: number): (parentContent: Content<any>) =>
   IOEither<EnonicError, ReadonlyArray<MenuItem>> {
-    return (parentContent: Content<any>): IOEither<EnonicError, ReadonlyArray<MenuItem>> => catchEnonicError(
-      () => menuLib.getSubMenus(parentContent, levels)
-    );
-  }
+  return (parentContent: Content<any>): IOEither<EnonicError, ReadonlyArray<MenuItem>> => catchEnonicError(
+    () => menuLib.getSubMenus(parentContent, levels)
+  );
+}

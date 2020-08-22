@@ -1,12 +1,14 @@
 import * as EI from "fp-ts/lib/Either";
-import { fromEither, IOEither, tryCatch } from "fp-ts/lib/IOEither";
-import { EnonicError, GeneralEnonicErrorKey } from "./errors";
-import { Lazy } from "fp-ts/lib/function";
+import {fromEither, IOEither, tryCatch} from "fp-ts/lib/IOEither";
+import {EnonicError, GeneralEnonicErrorKey} from "./errors";
+import {Lazy} from "fp-ts/lib/function";
 import {ById, ByKey, ByPath} from "enonic-types/lib/portal";
 
 export interface Throwable {
-  getMessage​(): string;
-  getLocalizedMessage​(): string;
+  getMessage(): string;
+
+  getLocalizedMessage(): string;
+
   getCause(): Throwable;
 }
 
@@ -30,7 +32,7 @@ export function isJavaThrowable(t: Throwable | unknown): t is Throwable {
 
 export function getMessage(t: Throwable | unknown): string | undefined {
   return isJavaThrowable(t)
-    ? t.getMessage​()
+    ? t.getMessage()
     : undefined;
 }
 
@@ -74,18 +76,18 @@ export function isString<A>(a: A | string): a is string {
 
 export function stringToByKey<A>(input: string | A): A | ByKey {
   return isString(input)
-    ? { key: input }
+    ? {key: input}
     : input;
 }
 
 export function stringToById<A>(input: string | A): A | ById {
   return isString(input)
-    ? { id: input }
+    ? {id: input}
     : input;
 }
 
 export function stringToByPath<A>(input: string | A): A | ByPath {
   return isString(input)
-    ? { path: input }
+    ? {path: input}
     : input;
 }

@@ -10,7 +10,6 @@ import {
   NodeCreateParams,
   NodeFindChildrenParams,
   NodeGetParams,
-  NodeLibrary,
   NodeModifyParams,
   NodeQueryParams,
   NodeQueryResponse,
@@ -20,7 +19,7 @@ import {
   Source
 } from "enonic-types/lib/node";
 
-const nodeLib: NodeLibrary = __non_webpack_require__("/lib/xp/node");
+const nodeLib = __non_webpack_require__("/lib/xp/node");
 
 /**
  * Creates a connection to a repository with a given branch and authentication info.

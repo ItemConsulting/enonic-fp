@@ -1,8 +1,9 @@
-import { IOEither } from "fp-ts/lib/IOEither";
-import { EnonicError } from "./errors";
-import { catchEnonicError } from "./utils";
-import { HttpLibrary, HttpRequestParams, HttpResponse } from "enonic-types/lib/http";
-const httpLib: HttpLibrary = __non_webpack_require__("/lib/http-client");
+import {IOEither} from "fp-ts/lib/IOEither";
+import {EnonicError} from "./errors";
+import {catchEnonicError} from "./utils";
+import {HttpRequestParams, HttpResponse} from "enonic-types/lib/http";
+
+const httpLib = __non_webpack_require__("/lib/http-client");
 
 /**
  * Sends an HTTP request and returns the response received from the remote server.
@@ -12,7 +13,7 @@ export function request(
   params: HttpRequestParams
 ): IOEither<EnonicError, HttpResponse> {
   return catchEnonicError<HttpResponse>(
-    () =>  httpLib.request(params),
+    () => httpLib.request(params),
     "BadGatewayError"
   );
 }

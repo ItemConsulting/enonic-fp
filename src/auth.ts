@@ -3,7 +3,6 @@ import {fromNullable, Option} from "fp-ts/lib/Option";
 import {EnonicError} from "./errors";
 import {catchEnonicError} from "./utils";
 import {
-  AuthLibrary,
   ChangePasswordParams,
   CreateGroupParams,
   CreateRoleParams,
@@ -26,7 +25,7 @@ import {
 } from "enonic-types/lib/auth";
 
 
-const auth: AuthLibrary = __non_webpack_require__("/lib/xp/auth");
+const auth = __non_webpack_require__("/lib/xp/auth");
 
 /**
  * Login a user through the specified idProvider, with userName and password.
@@ -58,7 +57,7 @@ export function changePassword(params: ChangePasswordParams): IOEither<EnonicErr
 /**
  * Generates a random secure password that may be suggested to a user.
  */
-export function generatePassword(): string{
+export function generatePassword(): string {
   return auth.generatePassword();
 }
 

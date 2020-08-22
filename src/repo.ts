@@ -1,16 +1,16 @@
-import { chain, IOEither } from "fp-ts/lib/IOEither";
-import { pipe } from "fp-ts/lib/pipeable";
-import { EnonicError } from "./errors";
-import {catchEnonicError, fromNullable } from "./utils";
+import {chain, IOEither} from "fp-ts/lib/IOEither";
+import {pipe} from "fp-ts/lib/pipeable";
+import {EnonicError} from "./errors";
+import {catchEnonicError, fromNullable} from "./utils";
 import {
   CreateBranchParams,
   CreateRepoParams,
   DeleteBranchParams,
-  RefreshParams, RepoLibrary,
+  RefreshParams,
   RepositoryConfig
 } from "enonic-types/lib/repo";
 
-const repoLib: RepoLibrary = __non_webpack_require__("/lib/xp/repo");
+const repoLib = __non_webpack_require__("/lib/xp/repo");
 
 export function create(
   params: CreateRepoParams
@@ -33,7 +33,7 @@ export function get(id: string): IOEither<EnonicError, RepositoryConfig> {
     catchEnonicError(
       () => repoLib.get(id)
     ),
-    chain(fromNullable<EnonicError>({ errorKey: "NotFoundError" }))
+    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
   );
 }
 
@@ -52,7 +52,7 @@ export function remove(id: string): IOEither<EnonicError, boolean> {
 export function deleteBranch(
   params: DeleteBranchParams
 ): IOEither<EnonicError, any> {
-   return catchEnonicError(
+  return catchEnonicError(
     () => repoLib.deleteBranch(params)
   );
 }
