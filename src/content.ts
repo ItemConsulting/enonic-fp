@@ -47,11 +47,11 @@ export function get<A extends object>(paramsOrKey: GetContentParams | string): I
   );
 }
 
-export function query<A extends object>(
-  params: QueryContentParams
-): IOEither<EnonicError, QueryResponse<A>> {
+export function query<A extends object, B extends string = never>(
+  params: QueryContentParams<B>
+): IOEither<EnonicError, QueryResponse<A, B>> {
   return catchEnonicError(
-    () => contentLib.query<A>(params)
+    () => contentLib.query<A, B>(params)
   );
 }
 
@@ -63,11 +63,11 @@ export function create<A extends object>(
   );
 }
 
-export function modify<A extends object>(
-  params: ModifyContentParams<A>
-): IOEither<EnonicError, Content<A>> {
+export function modify<A extends object, PageConfig extends object = object, XData extends object = object>(
+  params: ModifyContentParams<A, PageConfig, XData>
+): IOEither<EnonicError, Content<A, PageConfig, XData>> {
   return catchEnonicError(
-    () => contentLib.modify<A>(params)
+    () => contentLib.modify<A, PageConfig, XData>(params)
   );
 }
 
