@@ -31,7 +31,7 @@ import {
   SetPermissionsParams,
   Site,
   UnpublishContentParams
-} from "enonic-types/lib/content";
+} from "enonic-types/content";
 
 const contentLib = __non_webpack_require__("/lib/xp/content");
 
@@ -130,7 +130,7 @@ export function remove(key: string): IOEither<EnonicError, void>;
 export function remove(paramsOrKey: DeleteContentParams | string): IOEither<EnonicError, void> {
   return pipe(
     stringToByKey<DeleteContentParams>(paramsOrKey),
-    (params: DeleteContentParams) => catchEnonicError<boolean>(
+    (params: DeleteContentParams) => catchEnonicError(
       () => contentLib.delete(params),
     ),
     chain((success: boolean) =>

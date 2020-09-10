@@ -1,5 +1,5 @@
-import {BreadcrumbMenu, GetBreadcrumbMenuParams, MenuItem} from "enonic-types/lib/menu";
-import {Content} from "enonic-types/lib/content";
+import {BreadcrumbMenu, GetBreadcrumbMenuParams, MenuItem} from "enonic-types/menu";
+import {Content} from "enonic-types/content";
 import {catchEnonicError} from "./utils";
 import {IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";

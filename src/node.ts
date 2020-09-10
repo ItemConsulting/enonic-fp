@@ -17,7 +17,7 @@ import {
   RepoConnection,
   RepoNode,
   Source
-} from "enonic-types/lib/node";
+} from "enonic-types/node";
 
 const nodeLib = __non_webpack_require__("/lib/xp/node");
 
@@ -25,7 +25,7 @@ const nodeLib = __non_webpack_require__("/lib/xp/node");
  * Creates a connection to a repository with a given branch and authentication info.
  */
 export function connect(params: Source): IOEither<EnonicError, RepoConnection> {
-  return catchEnonicError<RepoConnection>(
+  return catchEnonicError(
     () => nodeLib.connect(params)
   );
 }
@@ -34,7 +34,7 @@ export function connect(params: Source): IOEither<EnonicError, RepoConnection> {
  * Creates a connection to several repositories with a given branch and authentication info.
  */
 export function multiRepoConnect(params: MultiRepoConnectParams): IOEither<EnonicError, MultiRepoConnection> {
-  return catchEnonicError<MultiRepoConnection>(
+  return catchEnonicError(
     () => nodeLib.multiRepoConnect(params)
   );
 }
@@ -47,8 +47,8 @@ export function create<A>(
   repo: RepoConnection,
   params: A & NodeCreateParams
 ): IOEither<EnonicError, A & RepoNode> {
-  return catchEnonicError<A & RepoNode>(
-    () => repo.create(params)
+  return catchEnonicError(
+    () => repo.create<A>(params)
   );
 }
 
@@ -114,7 +114,9 @@ export function get<A>(
   repo: RepoConnection,
   keys: string | NodeGetParams | ReadonlyArray<string | NodeGetParams>
 ): IOEither<EnonicError, A & RepoNode | ReadonlyArray<A & RepoNode>> {
-  return catchEnonicError(() => repo.get<A>(keys));
+  return catchEnonicError(
+    () => repo.get<A>(keys)
+  );
 }
 
 /**

@@ -1,4 +1,4 @@
-import {EnonicEventData, ListenerParams, SendParams} from "enonic-types/lib/event";
+import {EnonicEventData, ListenerParams, SendParams} from "enonic-types/event";
 
 const eventLib = __non_webpack_require__("/lib/xp/event");
 

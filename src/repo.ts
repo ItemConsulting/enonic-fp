@@ -8,7 +8,7 @@ import {
   DeleteBranchParams,
   RefreshParams,
   RepositoryConfig
-} from "enonic-types/lib/repo";
+} from "enonic-types/repo";
 
 const repoLib = __non_webpack_require__("/lib/xp/repo");
 

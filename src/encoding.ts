@@ -1,4 +1,4 @@
-import {ByteSource} from "enonic-types/lib/content";
+import {ByteSource} from "enonic-types/content";
 import {chain, IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";
 import {catchEnonicError, fromNullable} from "./utils";
@@ -12,7 +12,7 @@ export function base64Encode(stream: ByteSource | string): string {
 
 export function base64Decode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError<ByteSource | null>(
+    catchEnonicError(
       () => encodingLib.base64Decode(text)
     ),
     chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
@@ -25,7 +25,7 @@ export function base64UrlEncode(stream: ByteSource | string): string {
 
 export function base64UrlDecode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError<ByteSource | null>(
+    catchEnonicError(
       () => encodingLib.base64UrlDecode(text)
     ),
     chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
@@ -38,7 +38,7 @@ export function base32Encode(stream: ByteSource | string): string {
 
 export function base32Decode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError<ByteSource | null>(
+    catchEnonicError(
       () => encodingLib.base32Decode(text)
     ),
     chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
@@ -51,7 +51,7 @@ export function hexEncode(stream: ByteSource | string): string {
 
 export function hexDecode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError<ByteSource | null>(
+    catchEnonicError(
       () => encodingLib.hexDecode(text)
     ),
     chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))

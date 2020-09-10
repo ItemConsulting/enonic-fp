@@ -2,7 +2,7 @@ import {chain, IOEither} from "fp-ts/lib/IOEither";
 import {EnonicError} from "./errors";
 import {catchEnonicError, fromNullable, isString, stringToById, stringToByPath} from "./utils";
 import {pipe} from "fp-ts/lib/pipeable";
-import {ByteSource, Content, Site} from "enonic-types/lib/content";
+import {ByteSource, Content, Site} from "enonic-types/content";
 import {
   AssetUrlParams,
   AttachmentUrlParams,
@@ -18,7 +18,7 @@ import {
   ProcessHtmlParams,
   ServiceUrlParams,
   UrlParams
-} from "enonic-types/lib/portal";
+} from "enonic-types/portal";
 
 const portalLib = __non_webpack_require__("/lib/xp/portal");
 
@@ -88,14 +88,14 @@ export function getMultipartText(name: string, index = 0): IOEither<EnonicError,
 }
 
 export function getSite<A extends object>(): IOEither<EnonicError, Site<A>> {
-  return catchEnonicError<Site<A>>(
-    () => portalLib.getSite()
+  return catchEnonicError(
+    () => portalLib.getSite<A>()
   );
 }
 
 export function getSiteConfig<A extends object>(): IOEither<EnonicError, A> {
-  return catchEnonicError<A>(
-    () => portalLib.getSiteConfig()
+  return catchEnonicError(
+    () => portalLib.getSiteConfig<A>()
   );
 }
 
