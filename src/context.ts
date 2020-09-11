@@ -1,10 +1,16 @@
 import {IO} from "fp-ts/lib/IO";
 import {IOEither} from "fp-ts/lib/IOEither";
-import {EnonicError} from "./errors";
-import {catchEnonicError} from "./utils";
-import {Context, RunContext} from "enonic-types/context";
+import {Context, ContextLibrary, RunContext} from "enonic-types/context";
+import {catchEnonicError, EnonicError} from "./errors";
 
-const contextLib = __non_webpack_require__("/lib/xp/context");
+let contextLib = __non_webpack_require__("/lib/xp/context");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: ContextLibrary) {
+  contextLib = library;
+}
 
 export function get(): IOEither<EnonicError, Context> {
   return catchEnonicError(
@@ -16,6 +22,6 @@ export function runUnsafe<A>(runContext: RunContext, f: () => A): A {
   return contextLib.run(runContext, f);
 }
 
-export function run<A>(runContext: RunContext): (a: IO<A>) => IO<A> {
-  return (a: IO<A>) => (): A => runUnsafe(runContext, a);
+export function run(runContext: RunContext): <A>(a: IO<A>) => IO<A> {
+  return <A>(a: IO<A>) => (): A => runUnsafe<A>(runContext, a);
 }

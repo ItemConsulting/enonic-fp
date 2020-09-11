@@ -1,10 +1,17 @@
 import {ByteSource} from "enonic-types/content";
 import {chain, IOEither} from "fp-ts/lib/IOEither";
-import {EnonicError} from "./errors";
-import {catchEnonicError, fromNullable} from "./utils";
+import {fromNullable} from "./utils";
 import {pipe} from "fp-ts/lib/pipeable";
+import {catchEnonicError, EnonicError, notFoundError} from "./errors";
 
-const encodingLib = __non_webpack_require__("/lib/text-encoding");
+let encodingLib = __non_webpack_require__("/lib/text-encoding");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: any) {
+  encodingLib = library;
+}
 
 export function base64Encode(stream: ByteSource | string): string {
   return encodingLib.base64Encode(stream);
@@ -15,7 +22,7 @@ export function base64Decode(text: string): IOEither<EnonicError, ByteSource> {
     catchEnonicError(
       () => encodingLib.base64Decode(text)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -28,7 +35,7 @@ export function base64UrlDecode(text: string): IOEither<EnonicError, ByteSource>
     catchEnonicError(
       () => encodingLib.base64UrlDecode(text)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -41,7 +48,7 @@ export function base32Decode(text: string): IOEither<EnonicError, ByteSource> {
     catchEnonicError(
       () => encodingLib.base32Decode(text)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -54,7 +61,7 @@ export function hexDecode(text: string): IOEither<EnonicError, ByteSource> {
     catchEnonicError(
       () => encodingLib.hexDecode(text)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 

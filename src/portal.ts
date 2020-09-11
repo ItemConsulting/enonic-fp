@@ -1,6 +1,6 @@
 import {chain, IOEither} from "fp-ts/lib/IOEither";
-import {EnonicError} from "./errors";
-import {catchEnonicError, fromNullable, isString, stringToById, stringToByPath} from "./utils";
+import {catchEnonicError, EnonicError, missingIdProviderError, notFoundError} from "./errors";
+import {fromNullable, isString, stringToById, stringToByPath} from "./utils";
 import {pipe} from "fp-ts/lib/pipeable";
 import {ByteSource, Content, Site} from "enonic-types/content";
 import {
@@ -14,20 +14,27 @@ import {
   LoginUrlParams,
   LogoutUrlParams,
   MultipartItem,
-  PageUrlParams,
+  PageUrlParams, PortalLibrary,
   ProcessHtmlParams,
   ServiceUrlParams,
   UrlParams
 } from "enonic-types/portal";
 
-const portalLib = __non_webpack_require__("/lib/xp/portal");
+let portalLib = __non_webpack_require__("/lib/xp/portal");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: PortalLibrary) {
+  portalLib = library;
+}
 
 export function getContent<A extends object, PageConfig extends object = never>(): IOEither<EnonicError, Content<A, PageConfig>> {
   return pipe(
     catchEnonicError(
       () => portalLib.getContent<A, PageConfig>()
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -36,15 +43,12 @@ export function getComponent<A>(): IOEither<EnonicError, Component<A>> {
     catchEnonicError(
       () => portalLib.getComponent<A>()
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
 export function getIdProviderKey(): IOEither<EnonicError, string> {
-  return fromNullable<EnonicError>({
-    cause: "Missing id provider in context",
-    errorKey: "InternalServerError"
-  })(portalLib.getIdProviderKey());
+  return fromNullable(missingIdProviderError)(portalLib.getIdProviderKey());
 }
 
 /**

@@ -1,11 +1,22 @@
-import {fromNullable, map, Option} from "fp-ts/lib/Option";
+import {fromPredicate, Option} from "fp-ts/lib/Option";
 import {pipe} from "fp-ts/lib/pipeable";
-import {LocalizeParams} from "enonic-types/i18n";
+import {I18nLibrary, LocalizeParams} from "enonic-types/i18n";
 import {stringToByKey} from "./utils";
+import {findFirstMap} from "fp-ts/Array";
 
-const i18nLib = __non_webpack_require__("/lib/xp/i18n");
+let i18nLib = __non_webpack_require__("/lib/xp/i18n");
 const NOT_TRANSLATED_MESSAGE = "NOT_TRANSLATED";
 
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: I18nLibrary) {
+  i18nLib = library;
+}
+
+/**
+ * Returns an object of key/value-pairs for all phrases with the given locales in the specified bundles.
+ */
 export function getPhrases(
   locale: string | ReadonlyArray<string>,
   bundles: ReadonlyArray<string>
@@ -13,21 +24,52 @@ export function getPhrases(
   return i18nLib.getPhrases(locale, bundles);
 }
 
+/**
+ * Returns the list of supported locale codes for the specified bundles.
+ */
 export function getSupportedLocales(bundles: ReadonlyArray<string>): ReadonlyArray<string> {
   return i18nLib.getSupportedLocales(bundles);
 }
 
+/**
+ * Localizes a phrase searching through the list of passed in locales in the given order, to find a translation for the
+ * phrase-key.
+ *
+ * If no translation is found, the default phrase will be used.
+ *
+ * Some phrases will have placeholders for values that may be inserted into the phrase. These must be provided in the
+ * function call for those phrases.
+ */
+export function localizeUnsafe(params: LocalizeParams): string;
+export function localizeUnsafe(key: string): string;
+export function localizeUnsafe(paramsOrKey: LocalizeParams | string): string;
+export function localizeUnsafe(paramsOrKey: LocalizeParams | string): string {
+  const params = stringToByKey(paramsOrKey);
+  return i18nLib.localize(params);
+}
+
+/**
+ * Localizes a phrase searching through the list of passed in locales in the given order, to find a translation for the
+ * phrase-key.
+ *
+ * If no translation is found, `none` is returned.
+ *
+ * Some phrases will have placeholders for values that may be inserted into the phrase. These must be provided in the
+ * function call for those phrases.
+ */
 export function localize(params: LocalizeParams): Option<string>;
 export function localize(key: string): Option<string>;
+export function localize(paramsOrKey: LocalizeParams | string): Option<string>;
 export function localize(paramsOrKey: LocalizeParams | string): Option<string> {
-  const params = stringToByKey(paramsOrKey);
-
   return pipe(
-    params,
-    i18nLib.localize,
-    fromNullable,
-    map((result: string) =>
-      result === NOT_TRANSLATED_MESSAGE ? params.key : result
-    )
+    localizeUnsafe(paramsOrKey),
+    fromPredicate((result: string) => result !== NOT_TRANSLATED_MESSAGE)
   );
+}
+
+/**
+ * Returns the first hit of a list of localized strings
+ */
+export function localizeFirst(keys: Array<string | LocalizeParams>): Option<string> {
+  return findFirstMap(localize)(keys);
 }

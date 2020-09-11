@@ -1,14 +1,13 @@
-import {pipe} from "fp-ts/lib/pipeable";
-import {chain, IOEither, left, right} from "fp-ts/lib/IOEither";
-import {Semigroup} from "fp-ts/lib/Semigroup";
-import {EnonicError} from "./errors";
-import {catchEnonicError, fromNullable, stringToByKey} from "./utils";
+import {pipe} from "fp-ts/pipeable";
+import {chain, IOEither, left, right} from "fp-ts/IOEither";
+import {getLastSemigroup, Semigroup} from "fp-ts/Semigroup";
+import {fromNullable, isString, stringToByKey} from "./utils";
 import {
   AddAttachmentParams,
   Attachments,
   AttachmentStreamParams,
   ByteSource,
-  Content,
+  Content, ContentLibrary,
   ContentType,
   CreateContentParams,
   CreateMediaParams,
@@ -23,6 +22,7 @@ import {
   GetSiteParams,
   ModifyContentParams,
   MoveParams,
+  Page,
   PublishContentParams,
   PublishResponse,
   QueryContentParams,
@@ -32,8 +32,23 @@ import {
   Site,
   UnpublishContentParams
 } from "enonic-types/content";
+import {
+  catchEnonicError,
+  EnonicError,
+  internalServerError,
+  notFoundError,
+  publishError,
+  unPublishError
+} from "./errors";
 
-const contentLib = __non_webpack_require__("/lib/xp/content");
+let contentLib = __non_webpack_require__("/lib/xp/content");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: ContentLibrary) {
+  contentLib = library;
+}
 
 export function get<A extends object>(params: GetContentParams): IOEither<EnonicError, Content<A>>;
 export function get<A extends object>(key: string): IOEither<EnonicError, Content<A>>;
@@ -43,7 +58,7 @@ export function get<A extends object>(paramsOrKey: GetContentParams | string): I
     (params: GetContentParams) => catchEnonicError(
       () => contentLib.get<A>(params)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -71,10 +86,14 @@ export function modify<A extends object, PageConfig extends object = object, XDa
   );
 }
 
-type PartialContent<A extends object> = Partial<Content<A>> & Pick<Content<A>, '_id' | 'data'>
+/**
+ * Require only Content._id and Content.data
+ */
+type PartialContent<A extends object, PageConfig extends object = object, XData extends object = object>
+  = Partial<Content<A, PageConfig, XData>> & Pick<Content<A, PageConfig, XData>, '_id' | 'data'>
 
-export interface ConcatContentParams<A extends object> {
-  readonly semigroup: Semigroup<PartialContent<A>>;
+export interface ConcatContentParams<A extends object, PageConfig extends object = object, XData extends object = object> {
+  readonly semigroup: Semigroup<PartialContent<A, PageConfig, XData>>;
   readonly key?: string;
   readonly requireValid?: boolean;
 }
@@ -83,23 +102,30 @@ export interface ConcatContentParams<A extends object> {
  * Instead of taking an "editor" function like the original `modify()` this `modify()` takes a Semigroup
  * (or Monoid) to combine the old and new content.
  */
-export function modifyWithSemigroup<A extends object>(
-  params: ConcatContentParams<A>
-): (newContent: PartialContent<A>) => IOEither<EnonicError, Content<A>> {
-  return (newContent: PartialContent<A>): IOEither<EnonicError, Content<A>> => {
+export function modifyWithSemigroup<A extends object, PageConfig extends object = object, XData extends object = object>(
+  params: ConcatContentParams<A, PageConfig, XData>
+): (newContent: PartialContent<A, PageConfig, XData>) => IOEither<EnonicError, Content<A, PageConfig, XData>> {
+  return (newContent: PartialContent<A, PageConfig, XData>): IOEither<EnonicError, Content<A, PageConfig, XData>> => {
     return catchEnonicError(
-      () => contentLib.modify<A>({
+      () => contentLib.modify<A, PageConfig, XData>({
         key: params.key ?? newContent._id,
         requireValid: params.requireValid,
-        editor: (oldContent: Content<A>) => params.semigroup.concat(oldContent, newContent) as Content<A>
+        editor: (oldContent: Content<A, PageConfig, XData>) => params.semigroup.concat(oldContent, newContent) as Content<A, PageConfig, XData>
       })
     );
   };
 }
 
-export function getContentSemigroup<A extends object>(dataMonoid: Semigroup<A>): Semigroup<PartialContent<A>> {
+export function getContentSemigroup<A extends object, PageConfig extends object, XData extends object>(
+  dataSemigroup: Semigroup<A>,
+  pageConfigSemigroup: Semigroup<Page<PageConfig> | undefined> = getLastSemigroup(),
+  xDataSemigroup: Semigroup<Record<string, Record<string, XData>> | undefined> = getLastSemigroup(),
+): Semigroup<PartialContent<A, PageConfig, XData>> {
   return {
-    concat: (x: PartialContent<A>, y: PartialContent<A>): PartialContent<A> => (
+    concat: (
+      x: PartialContent<A, PageConfig, XData>,
+      y: PartialContent<A, PageConfig, XData>
+    ): PartialContent<A, PageConfig, XData> => (
       {
         _id: x._id,
         _name: x._name,
@@ -115,9 +141,9 @@ export function getContentSemigroup<A extends object>(dataMonoid: Semigroup<A>):
         language: y.language ?? x.language,
         valid: y.valid ?? x.valid,
         childOrder: y.childOrder ?? x.childOrder,
-        data: dataMonoid.concat(x.data, y.data),
-        x: y.x ?? x.x,
-        page: y.page ?? x.page,
+        data: dataSemigroup.concat(x.data, y.data),
+        x: xDataSemigroup.concat(y.x, x.x),
+        page: pageConfigSemigroup.concat(y.page, x.page),
         attachments: y.attachments ?? x.attachments,
         publish: y.publish ?? x.publish,
       }
@@ -136,9 +162,7 @@ export function remove(paramsOrKey: DeleteContentParams | string): IOEither<Enon
     chain((success: boolean) =>
       success
         ? right(undefined)
-        : left({
-          errorKey: "NotFoundError"
-        })
+        : left(notFoundError)
     )
   );
 }
@@ -150,26 +174,45 @@ export function exists(paramsOrKey: ExistsParams | string): IOEither<EnonicError
     stringToByKey<ExistsParams>(paramsOrKey),
     (params: ExistsParams) => catchEnonicError(
       () => contentLib.exists(params),
-      "InternalServerError"
+      internalServerError
     )
   );
 }
 
-export function publish(
-  params: PublishContentParams
-): IOEither<EnonicError, PublishResponse> {
+export function publish(key: string): IOEither<EnonicError, PublishResponse>;
+export function publish(content: Content): IOEither<EnonicError, PublishResponse>;
+export function publish(params: PublishContentParams): IOEither<EnonicError, PublishResponse>;
+export function publish(paramsOrKey: PublishContentParams | Content | string): IOEither<EnonicError, PublishResponse> {
+  const params = isString(paramsOrKey)
+    ? {
+      keys: [paramsOrKey],
+      sourceBranch: 'draft',
+      targetBranch: 'master',
+    }
+    : isContent(paramsOrKey)
+      ? {
+        keys: [paramsOrKey._id],
+        sourceBranch: 'draft',
+        targetBranch: 'master',
+      }
+      : paramsOrKey;
+
   return catchEnonicError(
     () => contentLib.publish(params),
-    "PublishError"
+    publishError
   );
 }
 
-export function unpublish(
-  params: UnpublishContentParams
-): IOEither<EnonicError, ReadonlyArray<string>> {
+export function unpublish(key: string): IOEither<EnonicError, ReadonlyArray<string>>;
+export function unpublish(params: UnpublishContentParams): IOEither<EnonicError, ReadonlyArray<string>>;
+export function unpublish(paramsOrKey: UnpublishContentParams | string): IOEither<EnonicError, ReadonlyArray<string>> {
+  const params = isString(paramsOrKey)
+    ? {keys: [paramsOrKey]}
+    : paramsOrKey;
+
   return catchEnonicError(
     () => contentLib.unpublish(params),
-    "PublishError"
+    unPublishError
   );
 }
 
@@ -243,7 +286,7 @@ export function getAttachments(
     catchEnonicError(
       () => contentLib.getAttachments(key)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -254,7 +297,7 @@ export function getAttachmentStream(
     catchEnonicError(
       () => contentLib.getAttachmentStream(params)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -287,7 +330,7 @@ export function getType(name: string): IOEither<EnonicError, ContentType> {
     catchEnonicError(
       () => contentLib.getType(name)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 
@@ -295,4 +338,9 @@ export function getTypes(): IOEither<EnonicError, ReadonlyArray<ContentType>> {
   return catchEnonicError(
     () => contentLib.getTypes()
   );
+}
+
+export function isContent(value: any): value is Content {
+  const content = value as Content;
+  return content._id !== undefined && content.data !== undefined;
 }

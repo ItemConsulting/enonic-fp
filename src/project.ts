@@ -1,7 +1,7 @@
 import {chain, IOEither} from "fp-ts/IOEither";
-import {EnonicError} from "./errors";
+import {catchEnonicError, EnonicError, notFoundError} from "./errors";
 import {pipe} from "fp-ts/pipeable";
-import {catchEnonicError, fromNullable, stringToById} from "./utils";
+import {fromNullable, stringToById} from "./utils";
 import {
   AddPermissionsParams,
   CreateProjectParams,
@@ -10,11 +10,18 @@ import {
   ModifyProjectParams,
   ModifyReadAccessParams,
   ModifyReadAccessResult,
-  Project,
+  Project, ProjectLibrary,
   RemovePermissionsParams
 } from "enonic-types/project";
 
-const projectLib = __non_webpack_require__("/lib/xp/project");
+let projectLib = __non_webpack_require__("/lib/xp/project");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: ProjectLibrary) {
+  projectLib = library;
+}
 
 export function addPermissions(params: AddPermissionsParams): IOEither<EnonicError, boolean> {
   return catchEnonicError(
@@ -49,7 +56,7 @@ export function get(paramsOrId: GetProjectParams | string): IOEither<EnonicError
     (params: GetProjectParams) => catchEnonicError(
       () => projectLib.get(params)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 

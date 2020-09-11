@@ -1,6 +1,4 @@
 import {IOEither} from "fp-ts/lib/IOEither";
-import {EnonicError} from "./errors";
-import {catchEnonicError} from "./utils";
 import {
   DiffParams,
   DiffResponse,
@@ -18,8 +16,16 @@ import {
   RepoNode,
   Source
 } from "enonic-types/node";
+import {catchEnonicError, EnonicError} from "./errors";
 
-const nodeLib = __non_webpack_require__("/lib/xp/node");
+let nodeLib = __non_webpack_require__("/lib/xp/node");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: any) {
+  nodeLib = library;
+}
 
 /**
  * Creates a connection to a repository with a given branch and authentication info.

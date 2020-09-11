@@ -1,16 +1,23 @@
 import {chain, IOEither} from "fp-ts/lib/IOEither";
 import {pipe} from "fp-ts/lib/pipeable";
-import {EnonicError} from "./errors";
-import {catchEnonicError, fromNullable} from "./utils";
+import {catchEnonicError, EnonicError, notFoundError} from "./errors";
+import {fromNullable} from "./utils";
 import {
   CreateBranchParams,
   CreateRepoParams,
   DeleteBranchParams,
-  RefreshParams,
+  RefreshParams, RepoLibrary,
   RepositoryConfig
 } from "enonic-types/repo";
 
-const repoLib = __non_webpack_require__("/lib/xp/repo");
+let repoLib = __non_webpack_require__("/lib/xp/repo");
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: RepoLibrary) {
+  repoLib = library;
+}
 
 export function create(
   params: CreateRepoParams
@@ -33,7 +40,7 @@ export function get(id: string): IOEither<EnonicError, RepositoryConfig> {
     catchEnonicError(
       () => repoLib.get(id)
     ),
-    chain(fromNullable<EnonicError>({errorKey: "NotFoundError"}))
+    chain(fromNullable(notFoundError))
   );
 }
 

@@ -1,12 +1,18 @@
 import {pipe} from "fp-ts/lib/pipeable";
-import {catchEnonicError} from "./utils";
-import {EnonicError} from "./errors";
 import {filterOrElse, IOEither} from "fp-ts/lib/IOEither";
 import {identity} from "fp-ts/lib/function";
-import {filter, getOrElse, Option, some} from "fp-ts/lib/Option";
-import {localize} from "./i18n";
+import {filter, Option, some} from "fp-ts/lib/Option";
+import {badRequestError, catchEnonicError, EnonicError} from "./errors";
+import {RecaptchaLibrary} from "enonic-types/recaptcha";
 
-const recaptchaLib = __non_webpack_require__('/lib/recaptcha');
+let recaptchaLib = __non_webpack_require__('/lib/recaptcha');
+
+/**
+ * Replace the library with a mocked version
+ */
+export function setLibrary(library: RecaptchaLibrary) {
+  recaptchaLib = library;
+}
 
 function notEmptyString(str: string): boolean {
   return str.length > 0;
@@ -26,31 +32,17 @@ export function getSecretKey(): Option<string> {
   );
 }
 
-function getCaptchaErrorMessage(key: string): string {
-  return getOrElse(
-    () => `Can not confirm that user is not a robot`
-  )(localize({key}));
-}
-
-export function verify(res: string, errorI18nKey: string): IOEither<EnonicError, boolean> {
+export function verify(res: string): IOEither<EnonicError, boolean> {
   return pipe(
     catchEnonicError(
       () => recaptchaLib.verify(res)
     ),
     filterOrElse<EnonicError, boolean>(
-      identity,
-      () => (
-        {
-          errorKey: "BadRequestError",
-          errors: {
-            recaptcha: [getCaptchaErrorMessage(errorI18nKey)]
-          }
-        }
-      )
+      identity, // fails on false
+      () => badRequestError
     )
   );
 }
-
 
 export function isConfigured(): boolean {
   return recaptchaLib.isConfigured();
