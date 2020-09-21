@@ -64,49 +64,49 @@ export function isEnonicError(value: unknown): value is EnonicError {
 }
 
 export const badRequestError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/bad-request-error",
+  type: "https://problem.item.no/xp/bad-request-error",
   title: "Bad Request Error",
   status: 400
 }
 
 export const notFoundError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/not-found",
+  type: "https://problem.item.no/xp/not-found",
   title: "Not Found",
   status: 404
 }
 
 export const internalServerError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/internal-server-error",
+  type: "https://problem.item.no/xp/internal-server-error",
   title: "Internal Server Error",
   status: 500
 }
 
 export const brokenTemplateError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/broken-template-error",
+  type: "https://problem.item.no/xp/broken-template-error",
   title: "Broken Template Error",
   status: 500
 }
 
 export const missingIdProviderError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/missing-id-provider",
+  type: "https://problem.item.no/xp/missing-id-provider",
   title: "Missing id provider in context",
   status: 500
 }
 
 export const publishError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/publish-error",
+  type: "https://problem.item.no/xp/publish-error",
   title: "Can't publish content",
   status: 500
 }
 
 export const unPublishError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/unpublish-error",
+  type: "https://problem.item.no/xp/unpublish-error",
   title: "Can't unpublish content",
   status: 500
 }
 
 export const badGatewayError: EnonicError = {
-  type: "https://problem.item.no/enonic-fp/problems/bad-gateway",
+  type: "https://problem.item.no/xp/bad-gateway",
   title: "Bad Gateway Error",
   status: 502
 }
