@@ -3,8 +3,8 @@
 [![npm version](https://badge.fury.io/js/enonic-fp.svg)](https://badge.fury.io/js/enonic-fp)
 
 Functional programming helpers for Enonic XP. This library provides [fp-ts](https://github.com/gcanti/fp-ts) wrappers 
-around the Enonic-interfaces provided by [enonic-types](https://github.com/ItemConsulting/enonic-types) and the official 
-standard libraries.
+around the Enonic-interfaces provided by [enonic-types](https://github.com/ItemConsulting/enonic-types), which again 
+wraps the official standard libraries (in jars).
 
 ## Code generation
 
@@ -14,7 +14,7 @@ We recommend using this library together with its sister library:
 
 ## Requirements
 
- 1. Enonic 7 setup with Webpack
+ 1. [Enonic 7 setup with Webpack](https://github.com/enonic/starter-webpack)
  2. Individual Enonic client libraries installed (this library only contains wrappers around the interfaces) 
 
 ## Motivation
@@ -26,17 +26,17 @@ This gives us two things:
 
  1. It forces the developer to handle the error case using `fold`
  2. It allows us to `pipe` the results from one operation into the next using `chain` (or `map`). Chain expects another
-    `IOEither<EnonicError, A>` to be returned, and when the first `left<EnonicError>` is returned, the pipe will short 
+    `IOEither<EnonicError, A>` to be returned. When the first `left<EnonicError>` is returned, the pipe will short 
     circuit to the error case in `fold`.
 
 This style of programming encourages us to write re-usable functions that we can compose together using `pipe`.
 
 ## Usage
 
-### Get content by key service
+### Example 1: Get content by key service
 
-In this example we have a service that returns an article by the `key` as json. Or if something goes wrong, we return 
-an _Internal Server Error_ instead.
+In this example we have a service that returns Article content – that has a `key` as id – as json. Or if something goes 
+wrong, we return an _Internal Server Error_ instead.
 
 ```typescript
 import {fold} from "fp-ts/IOEither";
@@ -50,12 +50,12 @@ export function get(req: Request): Response { // 2
   const program = pipe( // 3
     getContent<Article>(req.params.key!), // 4
     fold( // 5
-      internalServerError, // 6
-      ok // 7
+      internalServerError,
+      ok
     )
   );
 
-  return program(); // 8
+  return program(); // 6
 }
 ```
 
@@ -66,16 +66,15 @@ export function get(req: Request): Response { // 2
  4. We use the `get` function from `content` – here renamed `getContent` so it won't collide with the `get` function in 
     the controller – to return some content where the type is `IOEither<EnonicError, Content<Article>>`.
  5. The last thing we usually do in a controller is to unpack the `IOEither`. This is done with 
-    `fold(handleError, handleSuccess)`. We create two functions (`handleError`, and `handleSuccess`), that both return 
-    `IO<Response>`.
- 6. We create the `Response` object for the error case
- 7. We create the `Response` object for the success case
- 8. We have so far constructed a constant `program` of type `IO<Response>`, but we have not yet performed a single 
+    `fold(handleError, handleSuccess)`. _enonic-fp_ comes with a set of functions that creates an `IO<Response>` with
+    the data. There are pre-configured functions that can be used in `fold` for some of the most common http status 
+    numbers. Like `ok()` and `internalServerError()`.
+ 6. We have so far constructed a constant `program` of type `IO<Response>`, but we have not yet performed a single 
     side effect. It's time to perform those side effects, so we run the `IO` by calling it, and return the `Response` we
     get back.
 
 
-### Delete content by key and publish
+### Example 2: Delete content by key and publish
 
 In this example we delete come content by `key`. We are first doing this on the `draft` branch. And then we `publish` it
 to the `master` branch. 
@@ -98,42 +97,45 @@ function del(req: Request): Response {
     ),
     chain(() => publish(req.params.key!)),  // 2
     fold( // 3
-      errorResponse(req),
-      noContent // 4
+      errorResponse({ req, i18nPrefix: "articleErrors" }), // 4
+      noContent // 5
     )
   );
 
   return program();
 }
 
-export {del as delete}; // 5
+export {del as delete}; // 6
 
-const runOnBranchDraft = run({ branch: 'draft' });
+const runOnBranchDraft = run({ branch: 'draft' }); // 7
 ```
 
  1. We call the `remove` function with the `key` to delete some content. We want to do this on the _draft_ branch, so we 
-    wrap the call in `runInDraftContext` (which I have copied in from the *enonic-wizardry* package for this example). 
-    Remove returns `IOEither<EnonicError, void>`. If the content didn't exist, it will return a `EnonicError` with 
-    `errorKey="NotFoundError"`, that can be handled in the `fold`.
- 2. We want to publish our change from the _draft_ branch to the _master_ branch. So we call another function that we 
-    have copied in from *enonic-wizardry*, called `publishContentByKey`.
+    wrap the call in  the `runInDraftContext` function that is defined below. 
+    Remove returns `IOEither<EnonicError, void>`. If the content didn't exist, it will return an `EnonicError` with of
+    type "[https://problem.item.no/xp/not-found](https://problem.item.no/xp/not-found)", that can be handled in the 
+    `fold()`.
+ 2. We want to publish our change from the _draft_ branch to the _master_ branch. The `publish()` function in 
+    _enonic-fp_ has an overload that only takes the `key` as a `string` and defaults to publish from _draft_ to 
+    _master_.
  3. To create our `Response` we call `fold`, where we handle the error and success cases, and return `IO<Response>`.
- 4. Since this is a delete operation we return a `204` on the success case, which means "no content".
- 5. Since delete is a keyword in JavaScript and TypeScript, we have to do this hack to return the `delete` function.
+ 4. The `errorResponse()` function use the `HttpError.status` field to know which http status number to use on the 
+    `Response`. It can optionally take the `Request` and a `i18nPrefix` as parameters. 
+      * The `Request` adds the `HttpError.instance` on the return object, and it will check if `req.mode !== 'live'`,
+        and if yes, return more details about the error (this is to prevent exploits based on the error messages).
+      * The usage of `i18nPrefix` is detailed  the [i18n for error messages](#i18n-for-error-messages) chapter. 
+ 5. Since this is a delete operation we return a 
+    [https status 204](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204) on the success case, which means 
+    "no content".
+ 6. Since delete is a keyword in JavaScript and TypeScript, we have to do this hack to return the `delete` function.
+ 7. This is a curried version of `ContextLib.run`. It returns a new function – here assigned to the constant 
+    `runOnBranchDraft` – that takes an `IO` as parameter (which all the wrapped functions already return as `IOEither`).
 
-### Multiple queries, and http request
+### Example 3: Thymeleaf, multiple queries, and http request
 
-In this example we do 3 queries. First we look up an article by `key`, then we search for comments related to that 
+In this example we do three queries. First we look up an article by `key`, then we search for comments related to that 
 article based on the articles key. And then we get a list of open positions in the company, that we want to display on
 the web page.
-
-The first two are queries in Enonic, and the last one is over http. We do a `sequenceT` taking the 3 `Either<Error, T>`
-as input, and getting an Either with the results in a tuple (`Either<Error, [Content, QueryResponse, any]>`).
-
-We then `map` over the tuple, and create an object with all the data, that can be returned to the user.
-
-In the `fold` we either return the an error, with the correct http status (`404`, `500` or `502`), or we return the
-result with the http status `200`.
 
 ```typescript
 import {sequenceT} from "fp-ts/Apply";
@@ -142,32 +144,40 @@ import {chain, fold, ioEither, IOEither, map} from "fp-ts/IOEither";
 import {pipe} from "fp-ts/pipeable";
 import {Request, Response} from "enonic-types/controller";
 import {Content, QueryResponse} from "enonic-types/content";
+import {getRenderer} from "enonic-fp/thymeleaf";
 import {EnonicError} from "enonic-fp/errors";
 import {get as getContent, query} from "enonic-fp/content";
 import {bodyAsJson, request} from "enonic-fp/http";
 import {Article} from "../../site/content-types/article/article";
 import {Comment} from "../../site/content-types/comment/comment";
-import {errorResponse, ok} from "enonic-fp/controller";
+import {ok, unsafeRenderErrorPage} from "enonic-fp/controller";
 import {tupled} from "fp-ts/function";
+
+const view = resolve('./article.html');
+const errorView = resolve('../../templates/error.html');
+const renderer = getRenderer<ThymeleafParams>(view); // 1
 
 export function get(req: Request): Response {
   const articleId = req.params.key!;
 
   return pipe(
-    sequenceT(ioEither)(
+    sequenceT(ioEither)( // 2
       getContent<Article>(articleId),
       getCommentsByArticleKey(articleId),
       getOpenPositionsOverHttp()
     ),
-    map(tupled(createResponse)),
+    map(tupled(createThymeleafParams)), // 3
+    chain(renderer), // 4
     fold(
-      errorResponse({ req, i18nPrefix: "articleErrors" }),
+      unsafeRenderErrorPage(errorView), // 5
       ok
     )
   )();
 }
 
-function getCommentsByArticleKey(articleId: string): IOEither<EnonicError, QueryResponse<Comment>> {
+function getCommentsByArticleKey(articleId: string)
+  : IOEither<EnonicError, QueryResponse<Comment>> {
+
   return query<Comment>({
     contentTypes: ["com.example:comment"],
     count: 100,
@@ -177,30 +187,58 @@ function getCommentsByArticleKey(articleId: string): IOEither<EnonicError, Query
 
 function getOpenPositionsOverHttp(): IOEither<EnonicError, Json> {
   return pipe(
-    request("https://example.com/api/open-positions"),
+    request("https://example.com/api/open-positions"), // 6
     chain(bodyAsJson)
   );
 }
 
-function createResponse(
+function createThymeleafParams( // 7
   article: Content<Article>,
   comments: QueryResponse<Comment>,
   openPositions: Json
-) {
+): ThymeleafParams {
   return {
-    ...article,
+    id: article._id,
+    data: article.data,
     comments: comments.hits,
     openPositions
   };
 }
+
+interface ThymeleafParams {
+  readonly id: string;
+  readonly data: Article;
+  readonly comments: ReadonlyArray<Comment>;
+  readonly openPositions: Json
+}
 ```
 
+ 1. `getRenderer()` is a curried version of `ThymeleafLib.render()`. It takes `ThymeleafParams` (defined below) as a 
+    type parameter and the `view` as a parameter, and returns a function with this signature:  
+    `(params: ThymeleafParams) => IOEither<EnonicError, string>`, where the string is the finished rendered page.
+ 2. We do a `sequenceT` taking the three `IOEither<EnonicError, A>` as input, and getting an `IOEither` with the results 
+    in a tuple (`IOEither<EnonicError, [Content<Article>, QueryResponse<Comment>, Json]>`). The first two are queries in 
+    Enonic, and the last one is over http.
+ 3. We then `map` over the tuple, using `createThymeleafParams()`. But first we use the `tupled` function on 
+    `createThymeleafParams()` to give us _a new version_ of `createThymeleafParams` that takes the parameters as a 
+    tuple, instead of as individual arguments. A good rule of thumb is to always use `tupled` together with `sequenceT`!
+ 4. We use the `render()` function in a `chain()`, since it returns an `IOEither<EnonicError, string>`.
+ 5. If any of the functions in the `pipe` has returned a `Left<EnonicError>`, we need to handle the `EnonicError`. In
+    this case we want to render an error page. The `unsafeRenderErrorPage()` takes the `errorView` (html page) as 
+    parameter, which should be a template for `EnonicError`. If the templating succeeds, an `IO<Response>` is created
+    with the page as the `body`, and with the http status from the `EnonicError`. But if it fails, we just need to let
+    it fail completely and handled by Enonic XP, because we don't want an infinite loop of failing templating.
+ 6. We use an overloaded version of `HttpLib.request`, which only takes the url as parameter. We then `pipe` it into the
+    `bodyAsJson` function that parses the json in the `Request.body` and returns an `EnonicError` if it fails. 
+ 7. The `createThymeleafParams` function gathers all the data and creates one new object that the Thymeleaf-renderer
+    will take as input.
+ 
 ## i18n for error messages
 
 ### Custom error messages for every endpoint
 
 There is support for adding internationalization for error-messages. This is done, when you generate the `Response`
-using the `errorResponse(req: Request, i18nPrefix: string)` method.
+using the `errorResponse({ req: Request, i18nPrefix: string})` method.
 
 The i18n-key to use to look up the message has the following shape: `${i18nPrefix}.title.${typeString}` where 
 `typeString` is the last section of `EnonicError.type`. To support every error in *enonic-fp*, `typeString` can only be 
