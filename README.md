@@ -8,8 +8,8 @@ wraps the official standard libraries (in jars).
 
 ## Code generation
 
-We recommend using this library together with its sister library: 
-[enonic-ts-codegen](https://github.com/ItemConsulting/enonic-ts-codegen). *enonic-ts-codegen* will create TypeScript 
+We recommend using this library together with the 
+[xp-codegen-plugin](https://github.com/ItemConsulting/xp-codegen-plugin) Gradle plugin. *xp-codegen-plugin* will create TypeScript 
 `interfaces` for your content-types. Those interfaces will be very useful together with this library.
 
 ## Requirements
