@@ -1,5 +1,5 @@
-import {fromPredicate, Option} from "fp-ts/lib/Option";
-import {pipe} from "fp-ts/lib/pipeable";
+import {fromPredicate, Option} from "fp-ts/Option";
+import {pipe} from "fp-ts/pipeable";
 import {I18nLibrary, LocalizeParams} from "enonic-types/i18n";
 import {stringToByKey} from "./utils";
 import {findFirstMap} from "fp-ts/Array";
@@ -10,7 +10,7 @@ const NOT_TRANSLATED_MESSAGE = "NOT_TRANSLATED";
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: I18nLibrary) {
+export function setLibrary(library: I18nLibrary): void {
   i18nLib = library;
 }
 

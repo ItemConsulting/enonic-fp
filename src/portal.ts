@@ -1,7 +1,7 @@
-import {chain, IOEither} from "fp-ts/lib/IOEither";
+import {chain, IOEither} from "fp-ts/IOEither";
 import {catchEnonicError, EnonicError, missingIdProviderError, notFoundError} from "./errors";
 import {fromNullable, isString, stringToById, stringToByPath} from "./utils";
-import {pipe} from "fp-ts/lib/pipeable";
+import {pipe} from "fp-ts/pipeable";
 import {ByteSource, Content, Site} from "enonic-types/content";
 import {
   AssetUrlParams,
@@ -25,7 +25,7 @@ let portalLib = __non_webpack_require__("/lib/xp/portal");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: PortalLibrary) {
+export function setLibrary(library: PortalLibrary): void {
   portalLib = library;
 }
 

@@ -19,7 +19,7 @@ let projectLib = __non_webpack_require__("/lib/xp/project");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: ProjectLibrary) {
+export function setLibrary(library: ProjectLibrary): void {
   projectLib = library;
 }
 

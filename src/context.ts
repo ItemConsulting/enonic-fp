@@ -1,5 +1,5 @@
-import {IO} from "fp-ts/lib/IO";
-import {IOEither} from "fp-ts/lib/IOEither";
+import {IO} from "fp-ts/IO";
+import {IOEither} from "fp-ts/IOEither";
 import {Context, ContextLibrary, RunContext} from "enonic-types/context";
 import {catchEnonicError, EnonicError} from "./errors";
 
@@ -8,7 +8,7 @@ let contextLib = __non_webpack_require__("/lib/xp/context");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: ContextLibrary) {
+export function setLibrary(library: ContextLibrary): void {
   contextLib = library;
 }
 

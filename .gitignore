@@ -65,3 +65,5 @@ lib
 # Buildt files
 *.js
 *.d.ts
+
+!src/*.d.ts

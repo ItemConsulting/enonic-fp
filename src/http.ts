@@ -1,15 +1,16 @@
-import {IOEither} from "fp-ts/lib/IOEither";
+import {chain, IOEither} from "fp-ts/IOEither";
 import {HttpLibrary, HttpRequestParams, HttpResponse} from "enonic-types/http";
 import {badGatewayError, catchEnonicError, EnonicError} from "./errors";
-import {isString, parseJSON} from "./utils";
+import {fromNullable, isString, parseJSON} from "./utils";
 import {Json} from "fp-ts/Either";
+import {pipe} from "fp-ts/pipeable";
 
 let httpLib = __non_webpack_require__("/lib/http-client");
 
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: HttpLibrary) {
+export function setLibrary(library: HttpLibrary): void {
   httpLib = library;
 }
 
@@ -31,14 +32,18 @@ export function request(paramsOrUrl: HttpRequestParams | string): IOEither<Enoni
 }
 
 export function bodyAsJson(res: HttpResponse): IOEither<EnonicError, Json> {
-  return parseJSON(res.body!, (reason: unknown) =>
-    (
-      {
-        type: "https://itemconsulting.github.io/problems/bad-gateway",
-        title: "Bad Gateway Error",
-        status: 502,
-        detail: String(reason),
-      }
-    )
-  )
+  return pipe(
+    res.body,
+    fromNullable(badGatewayError),
+    chain((str) => parseJSON<EnonicError>(str, (reason: unknown) =>
+      (
+        {
+          type: "https://itemconsulting.github.io/problems/bad-gateway",
+          title: "Bad Gateway Error",
+          status: 502,
+          detail: String(reason),
+        }
+      )
+    ))
+  );
 }

@@ -1,15 +1,16 @@
 import {ByteSource} from "enonic-types/content";
-import {chain, IOEither} from "fp-ts/lib/IOEither";
+import {chain, IOEither} from "fp-ts/IOEither";
 import {fromNullable} from "./utils";
-import {pipe} from "fp-ts/lib/pipeable";
+import {pipe} from "fp-ts/pipeable";
 import {catchEnonicError, EnonicError, notFoundError} from "./errors";
+import {EncodingLibrary} from "enonic-types/encoding";
 
 let encodingLib = __non_webpack_require__("/lib/text-encoding");
 
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: any) {
+export function setLibrary(library: EncodingLibrary): void {
   encodingLib = library;
 }
 

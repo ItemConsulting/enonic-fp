@@ -1,5 +1,5 @@
-import {chain, IOEither} from "fp-ts/lib/IOEither";
-import {pipe} from "fp-ts/lib/pipeable";
+import {chain, IOEither} from "fp-ts/IOEither";
+import {pipe} from "fp-ts/pipeable";
 import {catchEnonicError, EnonicError, notFoundError} from "./errors";
 import {fromNullable} from "./utils";
 import {
@@ -15,7 +15,7 @@ let repoLib = __non_webpack_require__("/lib/xp/repo");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: RepoLibrary) {
+export function setLibrary(library: RepoLibrary): void {
   repoLib = library;
 }
 

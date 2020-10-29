@@ -1,4 +1,4 @@
-import {IOEither} from "fp-ts/lib/IOEither";
+import {IOEither} from "fp-ts/IOEither";
 import {
   DiffParams,
   DiffResponse,
@@ -8,6 +8,7 @@ import {
   NodeCreateParams,
   NodeFindChildrenParams,
   NodeGetParams,
+  NodeLibrary,
   NodeModifyParams,
   NodeQueryParams,
   NodeQueryResponse,
@@ -23,7 +24,7 @@ let nodeLib = __non_webpack_require__("/lib/xp/node");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: any) {
+export function setLibrary(library: NodeLibrary): void {
   nodeLib = library;
 }
 
@@ -128,12 +129,12 @@ export function get<A>(
 /**
  * This command queries nodes.
  */
-export function query(
+export function query<B extends string>(
   repo: RepoConnection,
-  params: NodeQueryParams
-): IOEither<EnonicError, NodeQueryResponse> {
+  params: NodeQueryParams<B>
+): IOEither<EnonicError, NodeQueryResponse<B>> {
   return catchEnonicError(
-    () => repo.query(params)
+    () => repo.query<B>(params)
   );
 }
 
@@ -155,7 +156,7 @@ export function modify<A>(
 export function findChildren(
   repo: RepoConnection,
   params: NodeFindChildrenParams
-): IOEither<EnonicError, NodeQueryResponse> {
+): IOEither<EnonicError, NodeQueryResponse<never>> {
   return catchEnonicError(
     () => repo.findChildren(params)
   );

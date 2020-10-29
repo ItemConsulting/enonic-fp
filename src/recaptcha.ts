@@ -1,7 +1,7 @@
-import {pipe} from "fp-ts/lib/pipeable";
-import {filterOrElse, IOEither} from "fp-ts/lib/IOEither";
-import {identity} from "fp-ts/lib/function";
-import {filter, Option, some} from "fp-ts/lib/Option";
+import {pipe} from "fp-ts/pipeable";
+import {filterOrElse, IOEither} from "fp-ts/IOEither";
+import {identity} from "fp-ts/function";
+import {filter, Option, some} from "fp-ts/Option";
 import {badRequestError, catchEnonicError, EnonicError} from "./errors";
 import {RecaptchaLibrary} from "enonic-types/recaptcha";
 
@@ -10,7 +10,7 @@ let recaptchaLib = __non_webpack_require__('/lib/recaptcha');
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: RecaptchaLibrary) {
+export function setLibrary(library: RecaptchaLibrary): void {
   recaptchaLib = library;
 }
 

@@ -1,5 +1,5 @@
-import {IOEither} from "fp-ts/lib/IOEither";
-import {fromNullable, Option} from "fp-ts/lib/Option";
+import {IOEither} from "fp-ts/IOEither";
+import {fromNullable, Option} from "fp-ts/Option";
 import {
   AuthLibrary,
   ChangePasswordParams,
@@ -30,7 +30,7 @@ let authLib = __non_webpack_require__("/lib/xp/auth");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: AuthLibrary) {
+export function setLibrary(library: AuthLibrary): void {
   authLib = library;
 }
 

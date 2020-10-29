@@ -1,4 +1,4 @@
-import {IOEither} from "fp-ts/lib/IOEither";
+import {IOEither} from "fp-ts/IOEither";
 import {ResourceKey, ThymeleafLibrary, ThymeleafRenderOptions} from "enonic-types/thymeleaf";
 import {catchEnonicError, EnonicError} from "./errors";
 
@@ -7,7 +7,7 @@ let thymeleafLib = __non_webpack_require__("/lib/thymeleaf");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: ThymeleafLibrary) {
+export function setLibrary(library: ThymeleafLibrary): void {
   thymeleafLib = library;
 }
 

@@ -46,7 +46,7 @@ let contentLib = __non_webpack_require__("/lib/xp/content");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: ContentLibrary) {
+export function setLibrary(library: ContentLibrary): void {
   contentLib = library;
 }
 
@@ -340,7 +340,7 @@ export function getTypes(): IOEither<EnonicError, ReadonlyArray<ContentType>> {
   );
 }
 
-export function isContent(value: any): value is Content {
+export function isContent(value: unknown): value is Content {
   const content = value as Content;
   return content._id !== undefined && content.data !== undefined;
 }

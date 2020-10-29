@@ -5,7 +5,7 @@ let commonLib = __non_webpack_require__("/lib/xp/common");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: CommonLibrary) {
+export function setLibrary(library: CommonLibrary): void {
   commonLib = library;
 }
 

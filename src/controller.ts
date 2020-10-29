@@ -1,11 +1,11 @@
 import {Request, Response, ResponseType} from "enonic-types/controller";
 import {localizeFirst} from "./i18n";
-import {getOrElse} from 'fp-ts/lib/Option'
-import {IO, io} from "fp-ts/lib/IO";
+import {getOrElse} from 'fp-ts/Option'
+import {IO, io} from "fp-ts/IO";
 import {getUnsafeRenderer} from "./thymeleaf";
 import {ResourceKey} from "enonic-types/thymeleaf";
 import {EnonicError, isEnonicError} from "./errors";
-import {pipe} from "fp-ts/lib/function";
+import {pipe} from "fp-ts/function";
 import {substringAfter} from "./utils";
 
 export type AsResponse = (body: ResponseType, extras?: Partial<Response>) => IO<Response>;

@@ -5,7 +5,7 @@ let eventLib = __non_webpack_require__("/lib/xp/event");
 /**
  * Replace the library with a mocked version
  */
-export function setLibrary(library: EventLibrary) {
+export function setLibrary(library: EventLibrary): void {
   eventLib = library;
 }
 

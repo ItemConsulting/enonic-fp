@@ -1,5 +1,5 @@
-import * as EI from "fp-ts/lib/Either";
-import {fromEither, IOEither} from "fp-ts/lib/IOEither";
+import * as EI from "fp-ts/Either";
+import {fromEither, IOEither} from "fp-ts/IOEither";
 import {ById, ByKey, ByPath} from "enonic-types/portal";
 import {EnonicError} from "./errors";
 
