@@ -77,10 +77,13 @@ function isRequest(value: unknown): value is Request {
   return req.method !== undefined && req.url !== undefined;
 }
 
+export type LocalizeWithPrefixParams = Omit<LocalizeParams, 'key'> & {
+  readonly i18nPrefix?: string;
+};
+
 export interface ErrorResponseParams {
   readonly req?: Request;
-  readonly i18nPrefix?: string;
-  readonly localizeParams?: Partial<LocalizeParams>;
+  readonly localizeParams?: LocalizeWithPrefixParams;
 }
 
 function translateField<FieldName extends ('title' | 'detail')>(
@@ -89,7 +92,7 @@ function translateField<FieldName extends ('title' | 'detail')>(
   params?: ErrorResponseParams,
 ): EnonicError[FieldName] {
   const typeString = substringAfter(err.type, "/");
-  const i18nPrefix = params?.i18nPrefix ?? "errors";
+  const i18nPrefix = params?.localizeParams?.i18nPrefix ?? "errors";
 
   // keys to try to look up in order
   const titleKeys = [
