@@ -7,6 +7,7 @@ import {ResourceKey} from "enonic-types/thymeleaf";
 import {EnonicError, isEnonicError} from "./errors";
 import {pipe} from "fp-ts/function";
 import {substringAfter} from "./utils";
+import {LocalizeParams} from "enonic-types/i18n";
 
 export type AsResponse = (body: ResponseType, extras?: Partial<Response>) => IO<Response>;
 export type AsErrorResponse = (err: EnonicError, extras?: Partial<Response>) => IO<Response>;
@@ -49,17 +50,17 @@ export const badGateway: AsResponse = asResponseFromStatus(502);
 export function errorResponse(req?: Request): AsErrorResponse;
 export function errorResponse(params: ErrorResponseParams): AsErrorResponse;
 export function errorResponse(paramsOrReq?: Request | ErrorResponseParams): AsErrorResponse {
-  const params = isRequest(paramsOrReq)
+  const params: ErrorResponseParams | undefined = isRequest(paramsOrReq)
     ? {req: paramsOrReq}
     : paramsOrReq;
 
   return (err: EnonicError, extras: Partial<Response> = {}): IO<Response> => {
     const result: EnonicError = {
       type: err.type,
-      title: translateField("title", err, params?.i18nPrefix),
+      title: translateField("title", err, params),
       instance: params?.req?.path,
       status: err.status,
-      detail: translateField("detail", err, params?.i18nPrefix),
+      detail: translateField("detail", err, params),
 
       // don't expose server internals on live site
       errors: (err.status >= 500 && params?.req?.mode !== 'live')
@@ -79,14 +80,16 @@ function isRequest(value: unknown): value is Request {
 export interface ErrorResponseParams {
   readonly req?: Request;
   readonly i18nPrefix?: string;
+  readonly localizeParams?: Partial<LocalizeParams>;
 }
 
 function translateField<FieldName extends ('title' | 'detail')>(
   fieldName: FieldName,
   err: EnonicError,
-  i18nPrefix = "errors"
+  params?: ErrorResponseParams,
 ): EnonicError[FieldName] {
   const typeString = substringAfter(err.type, "/");
+  const i18nPrefix = params?.i18nPrefix ?? "errors";
 
   // keys to try to look up in order
   const titleKeys = [
@@ -101,7 +104,12 @@ function translateField<FieldName extends ('title' | 'detail')>(
   ];
 
   return pipe(
-    titleKeys,
+    titleKeys.map((key) => (
+      {
+        ...params?.localizeParams,
+        key
+      }
+    )),
     localizeFirst,
     getOrElse(() => err[fieldName])
   );
