@@ -2,11 +2,16 @@ import * as EI from "fp-ts/Either";
 import {fromEither, IOEither} from "fp-ts/IOEither";
 import {ById, ByKey, ByPath} from "enonic-types/portal";
 import {EnonicError} from "./errors";
+import * as O from "fp-ts/Option";
 
 export function fromNullable<E = EnonicError>(
   e: E
 ): <A>(a: A | null | undefined) => IOEither<E, A> {
   return <A>(a: A | null | undefined): IOEither<E, A> => fromEither(EI.fromNullable(e)(a));
+}
+
+export function fromIOEither<E, A>(ma: IOEither<E, A>): O.Option<A> {
+  return O.fromEither<E, A>(ma());
 }
 
 export function parseJSON<E = EnonicError>(s: string, onError: (reason: unknown) => E): IOEither<E, EI.Json> {

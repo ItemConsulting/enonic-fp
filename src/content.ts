@@ -52,6 +52,7 @@ export function setLibrary(library: ContentLibrary): void {
 
 export function get<A extends object>(params: GetContentParams): IOEither<EnonicError, Content<A>>;
 export function get<A extends object>(key: string): IOEither<EnonicError, Content<A>>;
+export function get<A extends object>(paramsOrKey: GetContentParams | string): IOEither<EnonicError, Content<A>>;
 export function get<A extends object>(paramsOrKey: GetContentParams | string): IOEither<EnonicError, Content<A>> {
   return pipe(
     stringToByKey(paramsOrKey),
