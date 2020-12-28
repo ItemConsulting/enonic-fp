@@ -20,7 +20,7 @@ import {
   Principal,
   Role,
   User,
-  UserQueryResult
+  UserQueryResult, UserWithProfile
 } from "enonic-types/auth";
 import {catchEnonicError, EnonicError} from "./errors";
 
@@ -104,14 +104,25 @@ export function getIdProviderConfig<A>(): Option<A> {
   return fromNullable(authLib.getIdProviderConfig());
 }
 
+/*function findUsers2<A>(params: FindUsersParams & { includeProfile: true }): UserQueryResult<UserWithProfile<A>>;
+function findUsers2(params: FindUsersParams  & { includeProfile?: false }): UserQueryResult<User>;
+function findUsers2<A>(params: FindUsersParams  & { includeProfile?: boolean }): UserQueryResult<UserWithProfile<A> | User> {
+  return null;
+}*/
+
+
 /**
  * Search for users matching the specified query.
  */
+export function findUsers<A>(params: FindUsersParams & { includeProfile: true }): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>>>;
+export function findUsers(params: FindUsersParams  & { includeProfile?: false }): IOEither<EnonicError, UserQueryResult<User>>;
 export function findUsers<A>(
-  params: FindUsersParams
-): IOEither<EnonicError, UserQueryResult<A>> {
+  params: FindUsersParams & ({ includeProfile: true } | { includeProfile?: false } )
+): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>> | UserQueryResult<User>> {
   return catchEnonicError(
-    () => authLib.findUsers(params)
+    () => params.includeProfile
+       ? authLib.findUsers(params)
+       : authLib.findUsers(params)
   );
 }
 

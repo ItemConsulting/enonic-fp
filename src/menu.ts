@@ -1,5 +1,12 @@
-import {BreadcrumbMenu, GetBreadcrumbMenuParams, MenuItem, MenuLibrary} from "enonic-types/menu";
-import {Content} from "enonic-types/content";
+import {
+  BreadcrumbMenu,
+  GetBreadcrumbMenuParams, GetMenuParams,
+  GetMenuTreeParams,
+  MenuItem,
+  MenuLibrary,
+  MenuTree
+} from "enonic-types/menu";
+import {Content, Site} from "enonic-types/content";
 import {IOEither} from "fp-ts/IOEither";
 import {catchEnonicError, EnonicError} from "./errors";
 
@@ -18,15 +25,15 @@ export function getBreadcrumbMenu(params: GetBreadcrumbMenuParams): IOEither<Eno
   );
 }
 
-export function getMenuTree(levels: number): IOEither<EnonicError, ReadonlyArray<MenuItem>> {
+export function getMenuTree(levels: number, params?: GetMenuTreeParams): IOEither<EnonicError, MenuTree> {
   return catchEnonicError(
-    () => menuLib.getMenuTree(levels)
+    () => menuLib.getMenuTree(levels, params)
   );
 }
 
-export function getSubMenus(levels: number): (parentContent: Content) =>
+export function getSubMenus(levels?: number, params?: GetMenuParams): (parentContent: Content) =>
   IOEither<EnonicError, ReadonlyArray<MenuItem>> {
-  return (parentContent: Content): IOEither<EnonicError, ReadonlyArray<MenuItem>> => catchEnonicError(
-    () => menuLib.getSubMenus(parentContent, levels)
+  return (parentContent: Content<any> | Site<any>): IOEither<EnonicError, ReadonlyArray<MenuItem>> => catchEnonicError(
+    () => menuLib.getSubMenus(parentContent, levels, params)
   );
 }

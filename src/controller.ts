@@ -1,4 +1,4 @@
-import {Request, Response, ResponseType} from "enonic-types/controller";
+import {HttpResponse, Request, Response, ResponseType} from "enonic-types/controller";
 import {localizeFirst} from "./i18n";
 import {getOrElse} from 'fp-ts/Option'
 import {IO, io} from "fp-ts/IO";
@@ -16,7 +16,7 @@ export const ok: AsResponse = asResponseFromStatus(200);
 
 export const created: AsResponse = asResponseFromStatus(201);
 
-export const noContent: AsResponse = (body: ResponseType, extras: Partial<Response> = {}): IO<Response> => io.of<Response>({
+export const noContent: AsResponse = (body: ResponseType, extras: Partial<HttpResponse> = {}): IO<Response> => io.of<Response>({
   ...extras,
   status: 204,
   body: ''
@@ -139,9 +139,9 @@ function contentType(body: ResponseType): string {
 /**
  * Create a Response based on a http-status/ErrorMessage, body, and extra parameters
  */
-export function status(httpStatus: number, body?: ResponseType, extras?: Partial<Response>): IO<Response>;
-export function status(error: EnonicError, body?: ResponseType, extras?: Partial<Response>): IO<Response>;
-export function status(httpStatusOrError: number | EnonicError, body: ResponseType = '', extras: Partial<Response> = {}): IO<Response> {
+export function status(httpStatus: number, body?: ResponseType, extras?: Partial<HttpResponse>): IO<Response>;
+export function status(error: EnonicError, body?: ResponseType, extras?: Partial<HttpResponse>): IO<Response>;
+export function status(httpStatusOrError: number | EnonicError, body: ResponseType = '', extras: Partial<HttpResponse> = {}): IO<Response> {
   const httpStatus = (typeof httpStatusOrError == 'number')
     ? httpStatusOrError
     : httpStatusOrError.status;
