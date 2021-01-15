@@ -7,7 +7,9 @@ import {ResourceKey} from "enonic-types/thymeleaf";
 import {EnonicError, isEnonicError} from "./errors";
 import {pipe} from "fp-ts/function";
 import {substringAfter} from "./utils";
+import {serialize as serializeTurboStream, getTurboStreamsMimetype, isTurboStreamAction} from "./turbo";
 import {LocalizeParams} from "enonic-types/i18n";
+import {TurboStreamAction} from "enonic-types/turbo";
 
 export type AsResponse = (body: ResponseType, extras?: Partial<Response>) => IO<Response>;
 export type AsErrorResponse = (err: EnonicError, extras?: Partial<Response>) => IO<Response>;
@@ -146,14 +148,26 @@ export function status(httpStatusOrError: number | EnonicError, body: ResponseTy
     ? httpStatusOrError
     : httpStatusOrError.status;
 
-  return io.of({
-    contentType: contentType(body),
-    ...extras,
-    status: httpStatus,
-    body
-  });
+  // automatic serialization of turbo streams
+  return isTurboStream(body)
+    ? io.of({
+      contentType: getTurboStreamsMimetype(),
+      ...extras,
+      status: httpStatus,
+      body: serializeTurboStream(body)
+    })
+    : io.of({
+      contentType: contentType(body),
+      ...extras,
+      status: httpStatus,
+      body
+    });
 }
 
 function asResponseFromStatus(httpStatus: number): AsResponse {
   return (body: ResponseType, extras: Partial<Response> = {}) => status(httpStatus, body, extras);
+}
+
+function isTurboStream(v: unknown): v is TurboStreamAction | ReadonlyArray<TurboStreamAction> {
+  return isTurboStreamAction((v instanceof Array) ? v[0] : v);
 }

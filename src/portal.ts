@@ -38,10 +38,10 @@ export function getContent<A extends object, PageConfig extends object = never>(
   );
 }
 
-export function getComponent<A>(): IOEither<EnonicError, Component<A>> {
+export function getComponent<Config extends object = never>(): IOEither<EnonicError, Component<Config>> {
   return pipe(
     catchEnonicError(
-      () => portalLib.getComponent<A>()
+      () => portalLib.getComponent<Config>()
     ),
     chain(fromNullable(notFoundError))
   );
