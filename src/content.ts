@@ -25,8 +25,8 @@ import {
   Page,
   PublishContentParams,
   PublishResponse,
-  QueryContentParams,
-  QueryResponse,
+  QueryContentParams, QueryContentParamsWithSort,
+  QueryResponse, QueryResponseMetaDataScore, QueryResponseMetaDataSort,
   RemoveAttachmentParams,
   SetPermissionsParams,
   Site,
@@ -63,11 +63,13 @@ export function get<A extends object>(paramsOrKey: GetContentParams | string): I
   );
 }
 
-export function query<A extends object, B extends string = never>(
-  params: QueryContentParams<B>
-): IOEither<EnonicError, QueryResponse<A, B>> {
+export function query<Data extends object, AggregationKeys extends string = never>(params: QueryContentParams<AggregationKeys>): IOEither<EnonicError, QueryResponse<Data, AggregationKeys, QueryResponseMetaDataScore>> ;
+export function query<Data extends object, AggregationKeys extends string = never>(params: QueryContentParamsWithSort<AggregationKeys>): IOEither<EnonicError, QueryResponse<Data, AggregationKeys, QueryResponseMetaDataSort>> ;
+export function query<Data extends object, AggregationKeys extends string = never>(
+  params: QueryContentParams<AggregationKeys> | QueryContentParamsWithSort<AggregationKeys>
+): IOEither<EnonicError, QueryResponse<Data, AggregationKeys, QueryResponseMetaDataScore | QueryResponseMetaDataSort>> {
   return catchEnonicError(
-    () => contentLib.query<A, B>(params)
+    () => contentLib.query<Data, AggregationKeys>(params)
   );
 }
 
