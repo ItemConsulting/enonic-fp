@@ -217,14 +217,9 @@ export function unpublish(paramsOrKey: UnpublishContentParams | string): IOEithe
   );
 }
 
-export function getChildren<A extends object>(params: GetChildrenParams): IOEither<EnonicError, QueryResponse<A>>;
-export function getChildren<A extends object>(key: string): IOEither<EnonicError, QueryResponse<A>>;
-export function getChildren<A extends object>(paramsOrKey: GetChildrenParams | string): IOEither<EnonicError, QueryResponse<A>> {
-  return pipe(
-    stringToByKey<GetChildrenParams>(paramsOrKey),
-    (params: GetChildrenParams) => catchEnonicError(
-      () => contentLib.getChildren<A>(params)
-    )
+export function getChildren<A extends object>(params: GetChildrenParams): IOEither<EnonicError, QueryResponse<A>> {
+  return catchEnonicError(
+    () => contentLib.getChildren<A>(params)
   );
 }
 
