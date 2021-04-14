@@ -2,8 +2,8 @@ import {chain, IOEither} from "fp-ts/IOEither";
 import {HttpLibrary, HttpRequestParams, HttpResponse} from "enonic-types/http";
 import {badGatewayError, catchEnonicError, EnonicError} from "./errors";
 import {fromNullable, isString, parseJSON} from "./utils";
-import {Json} from "fp-ts/Either";
-import {pipe} from "fp-ts/pipeable";
+import {Json} from "fp-ts/Json";
+import {pipe} from "fp-ts/function";
 
 let httpLib = __non_webpack_require__("/lib/http-client");
 

@@ -1,5 +1,5 @@
 import {fromPredicate, Option} from "fp-ts/Option";
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {I18nLibrary, LocalizeParams} from "enonic-types/i18n";
 import {stringToByKey} from "./utils";
 import {findFirstMap} from "fp-ts/Array";

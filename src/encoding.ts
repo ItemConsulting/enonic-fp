@@ -1,7 +1,7 @@
 import {ByteSource} from "enonic-types/content";
 import {chain, IOEither} from "fp-ts/IOEither";
 import {fromNullable} from "./utils";
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {catchEnonicError, EnonicError, notFoundError} from "./errors";
 import {EncodingLibrary} from "enonic-types/encoding";
 

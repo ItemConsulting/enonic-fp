@@ -1,7 +1,7 @@
 import {chain, IOEither} from "fp-ts/IOEither";
 import {catchEnonicError, EnonicError, missingIdProviderError, notFoundError} from "./errors";
 import {fromNullable, isString, stringToById, stringToByPath} from "./utils";
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {ByteSource, Content, Site} from "enonic-types/content";
 import {
   AssetUrlParams,

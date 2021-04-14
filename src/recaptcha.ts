@@ -1,4 +1,4 @@
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {filterOrElse, IOEither} from "fp-ts/IOEither";
 import {identity} from "fp-ts/function";
 import {filter, Option, some} from "fp-ts/Option";

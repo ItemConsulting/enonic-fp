@@ -1,7 +1,7 @@
 import {Request, Response, ResponseType} from "enonic-types/controller";
 import {localizeFirst} from "./i18n";
 import {getOrElse} from 'fp-ts/Option'
-import {IO, io} from "fp-ts/IO";
+import {IO, of} from "fp-ts/IO";
 import {getUnsafeRenderer} from "./thymeleaf";
 import {ResourceKey} from "enonic-types/thymeleaf";
 import {EnonicError, isEnonicError} from "./errors";
@@ -18,13 +18,13 @@ export const ok: AsResponse = asResponseFromStatus(200);
 
 export const created: AsResponse = asResponseFromStatus(201);
 
-export const noContent: AsResponse = (body: ResponseType, extras: Partial<Response> = {}): IO<Response> => io.of<Response>({
+export const noContent: AsResponse = (body: ResponseType, extras: Partial<Response> = {}): IO<Response> => of<Response>({
   ...extras,
   status: 204,
   body: ''
 });
 
-export const redirect = (redirect: string): IO<Response> => io.of<Response>({
+export const redirect = (redirect: string): IO<Response> => of<Response>({
   applyFilters: false,
   postProcess: false,
   redirect,
@@ -150,13 +150,13 @@ export function status(httpStatusOrError: number | EnonicError, body: ResponseTy
 
   // automatic serialization of turbo streams
   return isTurboStream(body)
-    ? io.of({
+    ? of({
       contentType: getTurboStreamsMimetype(),
       ...extras,
       status: httpStatus,
       body: serializeTurboStream(body)
     })
-    : io.of({
+    : of({
       contentType: contentType(body),
       ...extras,
       status: httpStatus,

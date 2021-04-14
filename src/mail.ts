@@ -1,5 +1,5 @@
 import {chain, IOEither, left, right} from "fp-ts/IOEither";
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {EmailParams, MailLibrary} from "enonic-types/mail";
 import {catchEnonicError, EnonicError, internalServerError} from "./errors";
 

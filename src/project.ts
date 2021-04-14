@@ -1,6 +1,6 @@
 import {chain, IOEither} from "fp-ts/IOEither";
 import {catchEnonicError, EnonicError, notFoundError} from "./errors";
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {fromNullable, stringToById} from "./utils";
 import {
   AddPermissionsParams,

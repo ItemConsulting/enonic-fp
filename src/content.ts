@@ -1,6 +1,6 @@
-import {pipe} from "fp-ts/pipeable";
+import {pipe} from "fp-ts/function";
 import {chain, IOEither, left, right} from "fp-ts/IOEither";
-import {getLastSemigroup, Semigroup} from "fp-ts/Semigroup";
+import {last, Semigroup} from "fp-ts/Semigroup";
 import {fromNullable, isString, stringToByKey} from "./utils";
 import {
   AddAttachmentParams,
@@ -121,8 +121,8 @@ export function modifyWithSemigroup<A extends object, PageConfig extends object 
 
 export function getContentSemigroup<A extends object, PageConfig extends object, XData extends object>(
   dataSemigroup: Semigroup<A>,
-  pageConfigSemigroup: Semigroup<Page<PageConfig> | undefined> = getLastSemigroup(),
-  xDataSemigroup: Semigroup<Record<string, Record<string, XData>> | undefined> = getLastSemigroup(),
+  pageConfigSemigroup: Semigroup<Page<PageConfig> | undefined> = last(),
+  xDataSemigroup: Semigroup<Record<string, Record<string, XData>> | undefined> = last(),
 ): Semigroup<PartialContent<A, PageConfig, XData>> {
   return {
     concat: (
