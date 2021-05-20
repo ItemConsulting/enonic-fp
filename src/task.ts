@@ -1,6 +1,6 @@
-import {ListParams, ProgressParams, SubmitNamedParams, SubmitParams, TaskInfo, TaskLibrary} from "enonic-types/task";
-import {catchEnonicError, EnonicError} from "./errors";
-import {IOEither} from "fp-ts/IOEither";
+import { ListParams, ProgressParams, SubmitNamedParams, SubmitParams, TaskInfo, TaskLibrary } from "enonic-types/task";
+import { catchEnonicError, EnonicError } from "./errors";
+import { IOEither } from "fp-ts/IOEither";
 
 let taskLib = __non_webpack_require__("/lib/xp/task");
 
@@ -15,27 +15,21 @@ export function setLibrary(library: TaskLibrary): void {
  * Returns the current state and progress details for the specified task.
  */
 export function get(taskId: string): IOEither<EnonicError, TaskInfo> {
-  return catchEnonicError(
-    () => taskLib.get(taskId)
-  );
+  return catchEnonicError(() => taskLib.get(taskId));
 }
 
 /**
  * Checks if any task with the given name or id is currently running.
  */
 export function isRunning(task: string): IOEither<EnonicError, boolean> {
-  return catchEnonicError(
-    () => taskLib.isRunning(task)
-  );
+  return catchEnonicError(() => taskLib.isRunning(task));
 }
 
 /**
  * Returns the list of running tasks with their current state and progress details.
  */
 export function list(params?: ListParams): IOEither<EnonicError, ReadonlyArray<TaskInfo>> {
-  return catchEnonicError(
-    () => taskLib.list(params)
-  );
+  return catchEnonicError(() => taskLib.list(params));
 }
 
 /**
@@ -44,9 +38,7 @@ export function list(params?: ListParams): IOEither<EnonicError, ReadonlyArray<T
  * otherwise it will fail and throw an exception.
  */
 export function progress(params: Partial<ProgressParams>): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => taskLib.progress(params)
-  );
+  return catchEnonicError(() => taskLib.progress(params));
 }
 
 /**
@@ -54,9 +46,7 @@ export function progress(params: Partial<ProgressParams>): IOEither<EnonicError,
  * for the specified number of milliseconds.
  */
 export function sleep(timeMillis: number): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => taskLib.sleep(timeMillis)
-  );
+  return catchEnonicError(() => taskLib.sleep(timeMillis));
 }
 
 /**
@@ -64,9 +54,7 @@ export function sleep(timeMillis: number): IOEither<EnonicError, void> {
  * This function returns immediately. The callback function will be executed asynchronously.
  */
 export function submit(params: SubmitParams): IOEither<EnonicError, string> {
-  return catchEnonicError(
-    () => taskLib.submit(params)
-  );
+  return catchEnonicError(() => taskLib.submit(params));
 }
 
 /**
@@ -74,7 +62,5 @@ export function submit(params: SubmitParams): IOEither<EnonicError, string> {
  * This function returns immediately. The callback function will be executed asynchronously.
  */
 export function submitNamed<A extends object = never>(params: SubmitNamedParams<A>): IOEither<EnonicError, string> {
-  return catchEnonicError(
-    () => taskLib.submitNamed<A>(params)
-  );
+  return catchEnonicError(() => taskLib.submitNamed<A>(params));
 }

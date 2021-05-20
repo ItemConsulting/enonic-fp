@@ -1,4 +1,4 @@
-import {Request} from "enonic-types/controller";
+import { Request } from "enonic-types/controller";
 import {
   GetWebSocketUrlParams,
   TurboStreamAction,
@@ -6,13 +6,13 @@ import {
   TurboStreamsParams,
   TurboStreamsRemoveParams,
 } from "enonic-types/turbo";
-import {IOEither} from "fp-ts/IOEither";
-import {catchEnonicError, EnonicError} from "./errors";
+import { IOEither } from "fp-ts/IOEither";
+import { catchEnonicError, EnonicError } from "./errors";
 
 let lib: TurboStreamsLibrary;
 
 export function getLibrary(): TurboStreamsLibrary {
-  return lib ?? __non_webpack_require__('/lib/turbo-streams');
+  return lib ?? __non_webpack_require__("/lib/turbo-streams");
 }
 
 /**
@@ -26,36 +26,28 @@ export function setLibrary(library: TurboStreamsLibrary): void {
  * Append some markup to a target id in the dom
  */
 export function append(params: TurboStreamsParams): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => getLibrary().append(params)
-  );
+  return catchEnonicError(() => getLibrary().append(params));
 }
 
 /**
  * Prepend some markup to a target id in the dom
  */
 export function prepend(params: TurboStreamsParams): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => getLibrary().prepend(params)
-  );
+  return catchEnonicError(() => getLibrary().prepend(params));
 }
 
 /**
  * Replace some markup at a target id in the dom
  */
 export function replace(params: TurboStreamsParams): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => getLibrary().replace(params)
-  );
+  return catchEnonicError(() => getLibrary().replace(params));
 }
 
 /**
  * Remove an element with a target id from the dom
  */
 export function remove(params: TurboStreamsRemoveParams): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => getLibrary().remove(params)
-  );
+  return catchEnonicError(() => getLibrary().remove(params));
 }
 
 /**
@@ -69,9 +61,7 @@ export function getWebSocketUrl(params?: GetWebSocketUrlParams): string {
  * Returns a websocket group name specific for the user, based on the user session number
  */
 export function getUsersPersonalGroupName(): IOEither<EnonicError, string> {
-  return catchEnonicError(
-    () => getLibrary().getUsersPersonalGroupName()
-  );
+  return catchEnonicError(() => getLibrary().getUsersPersonalGroupName());
 }
 
 /**
@@ -79,18 +69,22 @@ export function getUsersPersonalGroupName(): IOEither<EnonicError, string> {
  */
 export function isTurboStreamAction(v: unknown): v is TurboStreamAction {
   // Copy of implementation, so that it can be used without importing library
-  const value = (v as TurboStreamAction);
-  return v !== undefined && v !== null && ["append",  "prepend", "replace", "update", "remove"].indexOf(value.action) !== -1
-    && typeof value.target === "string";
+  const value = v as TurboStreamAction;
+  return (
+    v !== undefined &&
+    v !== null &&
+    ["append", "prepend", "replace", "update", "remove"].indexOf(value.action) !== -1 &&
+    typeof value.target === "string"
+  );
 }
 
 /**
  * Serializes actions to frames that can be sent over the wire
  */
 export function serialize(action: TurboStreamAction): string;
-export function serialize(actions: ReadonlyArray<TurboStreamAction>): string;
-export function serialize(actions: TurboStreamAction | ReadonlyArray<TurboStreamAction>): string;
-export function serialize(actions: TurboStreamAction | ReadonlyArray<TurboStreamAction>): string {
+export function serialize(actions: Array<TurboStreamAction>): string;
+export function serialize(actions: TurboStreamAction | Array<TurboStreamAction>): string;
+export function serialize(actions: TurboStreamAction | Array<TurboStreamAction>): string {
   return getLibrary().serialize(actions);
 }
 

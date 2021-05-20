@@ -1,8 +1,8 @@
-import {fromPredicate, Option} from "fp-ts/Option";
-import {pipe} from "fp-ts/function";
-import {I18nLibrary, LocalizeParams} from "enonic-types/i18n";
-import {stringToByKey} from "./utils";
-import {findFirstMap} from "fp-ts/Array";
+import { fromPredicate, Option } from "fp-ts/Option";
+import { pipe } from "fp-ts/function";
+import { I18nLibrary, LocalizeParams } from "enonic-types/i18n";
+import { stringToByKey } from "./utils";
+import { findFirstMap } from "fp-ts/Array";
 
 let i18nLib = __non_webpack_require__("/lib/xp/i18n");
 const NOT_TRANSLATED_MESSAGE = "NOT_TRANSLATED";

@@ -1,8 +1,8 @@
-import {chain, IOEither} from "fp-ts/IOEither";
-import {catchEnonicError, EnonicError, missingIdProviderError, notFoundError} from "./errors";
-import {fromNullable, isString, stringToById, stringToByPath} from "./utils";
-import {pipe} from "fp-ts/function";
-import {ByteSource, Content, Site} from "enonic-types/content";
+import { chain, IOEither } from "fp-ts/IOEither";
+import { catchEnonicError, EnonicError, missingIdProviderError, notFoundError } from "./errors";
+import { fromNullable, isString, stringToById, stringToByPath } from "./utils";
+import { pipe } from "fp-ts/function";
+import { ByteSource, Content, Site } from "enonic-types/content";
 import {
   AssetUrlParams,
   AttachmentUrlParams,
@@ -14,10 +14,11 @@ import {
   LoginUrlParams,
   LogoutUrlParams,
   MultipartItem,
-  PageUrlParams, PortalLibrary,
+  PageUrlParams,
+  PortalLibrary,
   ProcessHtmlParams,
   ServiceUrlParams,
-  UrlParams
+  UrlParams,
 } from "enonic-types/portal";
 
 let portalLib = __non_webpack_require__("/lib/xp/portal");
@@ -29,20 +30,19 @@ export function setLibrary(library: PortalLibrary): void {
   portalLib = library;
 }
 
-export function getContent<A extends object, PageConfig extends object = never>(): IOEither<EnonicError, Content<A, PageConfig>> {
+export function getContent<A extends object, PageConfig extends object = never>(): IOEither<
+  EnonicError,
+  Content<A, PageConfig>
+> {
   return pipe(
-    catchEnonicError(
-      () => portalLib.getContent<A, PageConfig>()
-    ),
+    catchEnonicError(() => portalLib.getContent<A, PageConfig>()),
     chain(fromNullable(notFoundError))
   );
 }
 
 export function getComponent<Config extends object = never>(): IOEither<EnonicError, Component<Config>> {
   return pipe(
-    catchEnonicError(
-      () => portalLib.getComponent<Config>()
-    ),
+    catchEnonicError(() => portalLib.getComponent<Config>()),
     chain(fromNullable(notFoundError))
   );
 }
@@ -56,9 +56,7 @@ export function getIdProviderKey(): IOEither<EnonicError, string> {
  * If not a multipart request, then this function returns `BadRequestError`.
  */
 export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>> {
-  return catchEnonicError(
-    () => portalLib.getMultipartForm()
-  );
+  return catchEnonicError(() => portalLib.getMultipartForm());
 }
 
 /**
@@ -66,9 +64,7 @@ export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<Multipar
  * If the item does not exist it returns `BadRequestError`.
  */
 export function getMultipartItem(name: string, index = 0): IOEither<EnonicError, MultipartItem | undefined> {
-  return catchEnonicError(
-    () => portalLib.getMultipartItem(name, index)
-  )
+  return catchEnonicError(() => portalLib.getMultipartItem(name, index));
 }
 
 /**
@@ -76,9 +72,7 @@ export function getMultipartItem(name: string, index = 0): IOEither<EnonicError,
  * If the item does not exist it returns `BadRequestError`.
  */
 export function getMultipartStream(name: string, index = 0): IOEither<EnonicError, ByteSource | undefined> {
-  return catchEnonicError(
-    () => portalLib.getMultipartStream(name, index)
-  );
+  return catchEnonicError(() => portalLib.getMultipartStream(name, index));
 }
 
 /**
@@ -86,21 +80,15 @@ export function getMultipartStream(name: string, index = 0): IOEither<EnonicErro
  * If the item does not exist it returns `BadRequestError`.
  */
 export function getMultipartText(name: string, index = 0): IOEither<EnonicError, string | undefined> {
-  return catchEnonicError(
-    () => portalLib.getMultipartText(name, index)
-  );
+  return catchEnonicError(() => portalLib.getMultipartText(name, index));
 }
 
 export function getSite<A extends object>(): IOEither<EnonicError, Site<A>> {
-  return catchEnonicError(
-    () => portalLib.getSite<A>()
-  );
+  return catchEnonicError(() => portalLib.getSite<A>());
 }
 
 export function getSiteConfig<A extends object>(): IOEither<EnonicError, A> {
-  return catchEnonicError(
-    () => portalLib.getSiteConfig<A>()
-  );
+  return catchEnonicError(() => portalLib.getSiteConfig<A>());
 }
 
 export function idProviderUrl(params: IdProviderUrlParams): string {
@@ -114,37 +102,26 @@ export function imagePlaceholder(params: ImagePlaceHolderParams): string {
 export function assetUrl(params: AssetUrlParams): string;
 export function assetUrl(path: string): string;
 export function assetUrl(paramsOrPath: AssetUrlParams | string): string {
-  return pipe(
-    stringToByPath(paramsOrPath),
-    portalLib.assetUrl
-  );
+  return pipe(stringToByPath(paramsOrPath), portalLib.assetUrl);
 }
 
 export function attachmentUrl(params: AttachmentUrlParams): string;
 export function attachmentUrl(id: string): string;
 export function attachmentUrl(paramsOrId: AttachmentUrlParams | string): string {
-  return pipe(
-    stringToById<AttachmentUrlParams>(paramsOrId),
-    portalLib.attachmentUrl
-  );
+  return pipe(stringToById<AttachmentUrlParams>(paramsOrId), portalLib.attachmentUrl);
 }
 
 export function componentUrl(params: ComponentUrlParams): string;
 export function componentUrl(id: string): string;
 export function componentUrl(paramsOrId: ComponentUrlParams | string): string {
-  return pipe(
-    stringToById<ComponentUrlParams>(paramsOrId),
-    portalLib.componentUrl
-  );
+  return pipe(stringToById<ComponentUrlParams>(paramsOrId), portalLib.componentUrl);
 }
 
 export function serviceUrl(params: ServiceUrlParams): string;
 export function serviceUrl(serviceKey: string): string;
 export function serviceUrl(paramsOrServiceKey: ServiceUrlParams | string): string {
   return pipe(
-    isString(paramsOrServiceKey)
-      ? {service: paramsOrServiceKey}
-      : paramsOrServiceKey,
+    isString(paramsOrServiceKey) ? { service: paramsOrServiceKey } : paramsOrServiceKey,
     portalLib.serviceUrl
   );
 }
@@ -164,10 +141,7 @@ export function logoutUrl(params: LogoutUrlParams): string {
 export function pageUrl(params: PageUrlParams): string;
 export function pageUrl(id: string): string;
 export function pageUrl(paramsOrId: PageUrlParams | string): string {
-  return pipe(
-    stringToById<PageUrlParams>(paramsOrId),
-    portalLib.pageUrl
-  );
+  return pipe(stringToById<PageUrlParams>(paramsOrId), portalLib.pageUrl);
 }
 
 export function url(params: UrlParams): string {
@@ -177,12 +151,7 @@ export function url(params: UrlParams): string {
 export function processHtml(params: ProcessHtmlParams): string;
 export function processHtml(value: string): string;
 export function processHtml(paramsOrValue: ProcessHtmlParams | string): string {
-  return pipe(
-    isString(paramsOrValue)
-      ? {value: paramsOrValue}
-      : paramsOrValue,
-    portalLib.processHtml
-  );
+  return pipe(isString(paramsOrValue) ? { value: paramsOrValue } : paramsOrValue, portalLib.processHtml);
 }
 
 export function sanitizeHtml(html: string): string {

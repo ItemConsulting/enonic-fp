@@ -1,9 +1,9 @@
-import {ByteSource} from "enonic-types/content";
-import {chain, IOEither} from "fp-ts/IOEither";
-import {fromNullable} from "./utils";
-import {pipe} from "fp-ts/function";
-import {catchEnonicError, EnonicError, notFoundError} from "./errors";
-import {EncodingLibrary} from "enonic-types/encoding";
+import { ByteSource } from "enonic-types/content";
+import { chain, IOEither } from "fp-ts/IOEither";
+import { fromNullable } from "./utils";
+import { pipe } from "fp-ts/function";
+import { catchEnonicError, EnonicError, notFoundError } from "./errors";
+import { EncodingLibrary } from "enonic-types/encoding";
 
 let encodingLib = __non_webpack_require__("/lib/text-encoding");
 
@@ -20,9 +20,7 @@ export function base64Encode(stream: ByteSource | string): string {
 
 export function base64Decode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError(
-      () => encodingLib.base64Decode(text)
-    ),
+    catchEnonicError(() => encodingLib.base64Decode(text)),
     chain(fromNullable(notFoundError))
   );
 }
@@ -33,9 +31,7 @@ export function base64UrlEncode(stream: ByteSource | string): string {
 
 export function base64UrlDecode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError(
-      () => encodingLib.base64UrlDecode(text)
-    ),
+    catchEnonicError(() => encodingLib.base64UrlDecode(text)),
     chain(fromNullable(notFoundError))
   );
 }
@@ -46,9 +42,7 @@ export function base32Encode(stream: ByteSource | string): string {
 
 export function base32Decode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError(
-      () => encodingLib.base32Decode(text)
-    ),
+    catchEnonicError(() => encodingLib.base32Decode(text)),
     chain(fromNullable(notFoundError))
   );
 }
@@ -59,9 +53,7 @@ export function hexEncode(stream: ByteSource | string): string {
 
 export function hexDecode(text: string): IOEither<EnonicError, ByteSource> {
   return pipe(
-    catchEnonicError(
-      () => encodingLib.hexDecode(text)
-    ),
+    catchEnonicError(() => encodingLib.hexDecode(text)),
     chain(fromNullable(notFoundError))
   );
 }

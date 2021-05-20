@@ -1,4 +1,4 @@
-import {CommonLibrary} from "enonic-types/common";
+import { CommonLibrary } from "enonic-types/common";
 
 let commonLib = __non_webpack_require__("/lib/xp/common");
 

@@ -1,5 +1,5 @@
-import {Lazy} from "fp-ts/function";
-import {IOEither, tryCatch} from "fp-ts/IOEither";
+import { Lazy } from "fp-ts/function";
+import { IOEither, tryCatch } from "fp-ts/IOEither";
 
 // Implementation of RFC 7807
 export interface EnonicError {
@@ -37,7 +37,7 @@ export interface EnonicError {
    * This optional array contains a list of error messages. Messages also have a key, so that each message can be
    * associated with a field in a 400 (Bad Request) error case.
    */
-  readonly errors?: ReadonlyArray<ErrorDetail>
+  readonly errors?: ReadonlyArray<ErrorDetail>;
 }
 
 /**
@@ -58,65 +58,63 @@ export interface ErrorDetail {
 
 export function isEnonicError(value: unknown): value is EnonicError {
   const valueError = value as EnonicError;
-  return valueError.type !== undefined
-    && valueError.title !== undefined
-    && valueError.status !== undefined;
+  return valueError.type !== undefined && valueError.title !== undefined && valueError.status !== undefined;
 }
 
 export const badRequestError: EnonicError = {
   type: "https://problem.item.no/xp/bad-request-error",
   title: "Bad Request Error",
-  status: 400
-}
+  status: 400,
+};
 
 export const notFoundError: EnonicError = {
   type: "https://problem.item.no/xp/not-found",
   title: "Not Found",
-  status: 404
-}
+  status: 404,
+};
 
 export const internalServerError: EnonicError = {
   type: "https://problem.item.no/xp/internal-server-error",
   title: "Internal Server Error",
-  status: 500
-}
+  status: 500,
+};
 
 export const brokenTemplateError: EnonicError = {
   type: "https://problem.item.no/xp/broken-template-error",
   title: "Broken Template Error",
-  status: 500
-}
+  status: 500,
+};
 
 export const missingIdProviderError: EnonicError = {
   type: "https://problem.item.no/xp/missing-id-provider",
   title: "Missing id provider in context",
-  status: 500
-}
+  status: 500,
+};
 
 export const publishError: EnonicError = {
   type: "https://problem.item.no/xp/publish-error",
   title: "Can't publish content",
-  status: 500
-}
+  status: 500,
+};
 
 export const unPublishError: EnonicError = {
   type: "https://problem.item.no/xp/unpublish-error",
   title: "Can't unpublish content",
-  status: 500
-}
+  status: 500,
+};
 
 export const badGatewayError: EnonicError = {
   type: "https://problem.item.no/xp/bad-gateway",
   title: "Bad Gateway Error",
-  status: 502
-}
+  status: 502,
+};
 
-const Throwables = Java.type('com.google.common.base.Throwables');
+const Throwables = Java.type("com.google.common.base.Throwables");
 
 const JAVA_EXCEPTION_MAP: { [className: string]: EnonicError | undefined } = {
   "com.enonic.xp.node.NodeNotFoundException": notFoundError,
-  "org.thymeleaf.exceptions.TemplateInputException": brokenTemplateError
-}
+  "org.thymeleaf.exceptions.TemplateInputException": brokenTemplateError,
+};
 
 export interface Throwable {
   getMessage(): string;
@@ -130,11 +128,13 @@ export interface Throwable {
 export function isJavaThrowable(t: Throwable | unknown): t is Throwable {
   const throwable = t as Throwable;
 
-  return throwable
-    && typeof throwable.getMessage === 'function'
-    && typeof throwable.getCause === 'function'
-    && throwable.getMessage() !== undefined
-    && throwable.getCause() !== undefined;
+  return (
+    throwable &&
+    typeof throwable.getMessage === "function" &&
+    typeof throwable.getCause === "function" &&
+    throwable.getMessage() !== undefined &&
+    throwable.getCause() !== undefined
+  );
 }
 
 export function catchEnonicError<A>(
@@ -142,9 +142,7 @@ export function catchEnonicError<A>(
   defaultError: EnonicError = internalServerError
 ): IOEither<EnonicError, ReturnType<typeof f>> {
   return tryCatch<EnonicError, ReturnType<typeof f>>(f, (t) => {
-    return isJavaThrowable(t)
-      ? throwableToEnonicError(t, defaultError)
-      : defaultError;
+    return isJavaThrowable(t) ? throwableToEnonicError(t, defaultError) : defaultError;
   });
 }
 
@@ -155,13 +153,10 @@ export function throwableToEnonicError(t: Throwable, defaultError: EnonicError):
   return {
     ...baseError,
     detail: getRootCause(t).getMessage(),
-    errors: getCausalChain(t)
-      .map((ex) => (
-        {
-          key: ex.getClass().getName(),
-          message: ex.getMessage()
-        }
-      ))
+    errors: getCausalChain(t).map((ex) => ({
+      key: ex.getClass().getName(),
+      message: ex.getMessage(),
+    })),
   };
 }
 

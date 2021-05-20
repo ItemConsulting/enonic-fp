@@ -1,5 +1,5 @@
-import {IOEither} from "fp-ts/IOEither";
-import {fromNullable, Option} from "fp-ts/Option";
+import { IOEither } from "fp-ts/IOEither";
+import { fromNullable, Option } from "fp-ts/Option";
 import {
   AuthLibrary,
   ChangePasswordParams,
@@ -20,10 +20,10 @@ import {
   Principal,
   Role,
   User,
-  UserQueryResult, UserWithProfile
+  UserQueryResult,
+  UserWithProfile,
 } from "enonic-types/auth";
-import {catchEnonicError, EnonicError} from "./errors";
-
+import { catchEnonicError, EnonicError } from "./errors";
 
 let authLib = __non_webpack_require__("/lib/xp/auth");
 
@@ -38,27 +38,21 @@ export function setLibrary(library: AuthLibrary): void {
  * Login a user through the specified idProvider, with userName and password.
  */
 export function login(params: LoginParams): IOEither<EnonicError, LoginResult> {
-  return catchEnonicError(
-    () => authLib.login(params)
-  );
+  return catchEnonicError(() => authLib.login(params));
 }
 
 /**
  * Logout the currently logged-in user.
  */
 export function logout(): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => authLib.logout()
-  );
+  return catchEnonicError(() => authLib.logout());
 }
 
 /**
  * Changes password for specified user.
  */
 export function changePassword(params: ChangePasswordParams): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => authLib.changePassword(params)
-  );
+  return catchEnonicError(() => authLib.changePassword(params));
 }
 
 /**
@@ -78,23 +72,15 @@ export function getUser(): Option<User> {
 /**
  * Returns the profile of a user.
  */
-export function getProfile<A>(
-  params: GetProfileParams
-): IOEither<EnonicError, A> {
-  return catchEnonicError(
-    () => authLib.getProfile<A>(params)
-  );
+export function getProfile<A>(params: GetProfileParams): IOEither<EnonicError, A> {
+  return catchEnonicError(() => authLib.getProfile<A>(params));
 }
 
 /**
  * This function retrieves the profile of a user and updates it.
  */
-export function modifyProfile<A>(
-  params: ModifyProfileParams<A>
-): IOEither<EnonicError, A> {
-  return catchEnonicError(
-    () => authLib.modifyProfile<A>(params)
-  );
+export function modifyProfile<A>(params: ModifyProfileParams<A>): IOEither<EnonicError, A> {
+  return catchEnonicError(() => authLib.modifyProfile<A>(params));
 }
 
 /**
@@ -110,84 +96,61 @@ function findUsers2<A>(params: FindUsersParams  & { includeProfile?: boolean }):
   return null;
 }*/
 
-
 /**
  * Search for users matching the specified query.
  */
-export function findUsers<A>(params: FindUsersParams & { includeProfile: true }): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>>>;
-export function findUsers(params: FindUsersParams  & { includeProfile?: false }): IOEither<EnonicError, UserQueryResult<User>>;
 export function findUsers<A>(
-  params: FindUsersParams & ({ includeProfile: true } | { includeProfile?: false } )
+  params: FindUsersParams & { includeProfile: true }
+): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>>>;
+export function findUsers(
+  params: FindUsersParams & { includeProfile?: false }
+): IOEither<EnonicError, UserQueryResult<User>>;
+export function findUsers<A>(
+  params: FindUsersParams & ({ includeProfile: true } | { includeProfile?: false })
 ): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>> | UserQueryResult<User>> {
-  return catchEnonicError(
-    () => params.includeProfile
-       ? authLib.findUsers(params)
-       : authLib.findUsers(params)
-  );
+  return catchEnonicError(() => (params.includeProfile ? authLib.findUsers(params) : authLib.findUsers(params)));
 }
 
 /**
  * Retrieves the user specified and updates it with the changes applied through the editor.
  */
-export function modifyUser(
-  params: ModifyUserParams
-): IOEither<EnonicError, User> {
-  return catchEnonicError(
-    () => authLib.modifyUser(params)
-  );
+export function modifyUser(params: ModifyUserParams): IOEither<EnonicError, User> {
+  return catchEnonicError(() => authLib.modifyUser(params));
 }
 
 /**
  * Creates a user.
  */
-export function createUser(
-  params: CreateUserParams
-): IOEither<EnonicError, User> {
-  return catchEnonicError(
-    () => authLib.createUser(params)
-  );
+export function createUser(params: CreateUserParams): IOEither<EnonicError, User> {
+  return catchEnonicError(() => authLib.createUser(params));
 }
 
 /**
  * Adds members to a principal (user or role).
  */
-export function addMembers(
-  principalKey: string,
-  members: ReadonlyArray<string>
-): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => authLib.addMembers(principalKey, members)
-  );
+export function addMembers(principalKey: string, members: Array<string>): IOEither<EnonicError, void> {
+  return catchEnonicError(() => authLib.addMembers(principalKey, members));
 }
 
 /**
  * Removes members from a principal (group or role).
  */
-export function removeMembers(
-  principalKey: string,
-  members: ReadonlyArray<string>
-): IOEither<EnonicError, void> {
-  return catchEnonicError(
-    () => authLib.removeMembers(principalKey, members)
-  );
+export function removeMembers(principalKey: string, members: Array<string>): IOEither<EnonicError, void> {
+  return catchEnonicError(() => authLib.removeMembers(principalKey, members));
 }
 
 /**
  * Deletes the principal with the specifkey.
  */
 export function deletePrincipal(principalKey: string): IOEither<EnonicError, boolean> {
-  return catchEnonicError(
-    () => authLib.deletePrincipal(principalKey)
-  );
+  return catchEnonicError(() => authLib.deletePrincipal(principalKey));
 }
 
 /**
  * Search for principals matching the specified criteria.
  */
 export function findPrincipals(params: FindPrincipalsParams): IOEither<EnonicError, FindPrincipalsResult> {
-  return catchEnonicError(
-    () => authLib.findPrincipals(params)
-  );
+  return catchEnonicError(() => authLib.findPrincipals(params));
 }
 
 /**
@@ -200,67 +163,43 @@ export function getPrincipal(principalKey: string): Option<User> {
 /**
  * Creates a role.
  */
-export function createRole(
-  params: CreateRoleParams
-): IOEither<EnonicError, Role> {
-  return catchEnonicError(
-    () => authLib.createRole(params)
-  );
+export function createRole(params: CreateRoleParams): IOEither<EnonicError, Role> {
+  return catchEnonicError(() => authLib.createRole(params));
 }
 
 /**
  * Checks if the logged-in user has the specified role.
  */
-export function hasRole(
-  role: string
-): IOEither<EnonicError, boolean> {
-  return catchEnonicError(
-    () => authLib.hasRole(role)
-  );
+export function hasRole(role: string): IOEither<EnonicError, boolean> {
+  return catchEnonicError(() => authLib.hasRole(role));
 }
 
 /**
  * Retrieves the role specified and updates it with the changes applied through an editor.
  */
-export function modifyRole(
-  params: ModifyRoleParams
-): IOEither<EnonicError, Role> {
-  return catchEnonicError(
-    () => authLib.modifyRole(params)
-  );
+export function modifyRole(params: ModifyRoleParams): IOEither<EnonicError, Role> {
+  return catchEnonicError(() => authLib.modifyRole(params));
 }
 
 /**
  * Creates a group.
  */
-export function createGroup(
-  params: CreateGroupParams
-): IOEither<EnonicError, Group> {
-  return catchEnonicError(
-    () => authLib.createGroup(params)
-  );
+export function createGroup(params: CreateGroupParams): IOEither<EnonicError, Group> {
+  return catchEnonicError(() => authLib.createGroup(params));
 }
 
 /**
  * Retrieves the group specified and updates it with the changes applied.
  */
-export function modifyGroup(
-  params: ModifyGroupParams
-): IOEither<EnonicError, Group> {
-  return catchEnonicError(
-    () => authLib.modifyGroup(params)
-  );
+export function modifyGroup(params: ModifyGroupParams): IOEither<EnonicError, Group> {
+  return catchEnonicError(() => authLib.modifyGroup(params));
 }
 
 /**
  * Returns a list of principals that are members of the specified principal.
  */
-export function getMembers(
-  principalKey: string
-): IOEither<EnonicError, ReadonlyArray<User>> {
-  return catchEnonicError(
-    () => authLib.getMembers(principalKey)
-  );
+export function getMembers(principalKey: string): IOEither<EnonicError, ReadonlyArray<User>> {
+  return catchEnonicError(() => authLib.getMembers(principalKey));
 }
 
 /**
@@ -270,7 +209,5 @@ export function getMemberships(
   principalKey: string,
   transitive?: boolean
 ): IOEither<EnonicError, ReadonlyArray<Principal>> {
-  return catchEnonicError(
-    () => authLib.getMemberships(principalKey, transitive)
-  );
+  return catchEnonicError(() => authLib.getMemberships(principalKey, transitive));
 }
