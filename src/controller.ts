@@ -163,6 +163,6 @@ function asResponseFromStatus(httpStatus: number): AsResponse {
   return (body: ResponseType, extras: Partial<Response> = {}) => status(httpStatus, body, extras);
 }
 
-function isTurboStream(v: unknown): v is TurboStreamAction | ReadonlyArray<TurboStreamAction> {
+function isTurboStream(v: unknown): v is TurboStreamAction | Array<TurboStreamAction> {
   return isTurboStreamAction(v instanceof Array ? v[0] : v);
 }

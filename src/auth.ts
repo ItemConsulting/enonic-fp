@@ -90,12 +90,6 @@ export function getIdProviderConfig<A>(): Option<A> {
   return fromNullable(authLib.getIdProviderConfig());
 }
 
-/*function findUsers2<A>(params: FindUsersParams & { includeProfile: true }): UserQueryResult<UserWithProfile<A>>;
-function findUsers2(params: FindUsersParams  & { includeProfile?: false }): UserQueryResult<User>;
-function findUsers2<A>(params: FindUsersParams  & { includeProfile?: boolean }): UserQueryResult<UserWithProfile<A> | User> {
-  return null;
-}*/
-
 /**
  * Search for users matching the specified query.
  */
