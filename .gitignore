@@ -60,6 +60,9 @@ typings/
 # next.js build output
 .next
 
+# IDEA
+.idea
+
 lib
 
 # Buildt files

@@ -3,6 +3,7 @@ import { pipe } from "fp-ts/function";
 import { catchEnonicError, EnonicError, notFoundError } from "./errors";
 import { fromNullable } from "./utils";
 import {
+  BranchConfig,
   CreateBranchParams,
   CreateRepoParams,
   DeleteBranchParams,
@@ -24,13 +25,13 @@ export function create(params: CreateRepoParams): IOEither<EnonicError, Reposito
   return catchEnonicError(() => repoLib.create(params));
 }
 
-export function createBranch(params: CreateBranchParams): IOEither<EnonicError, RepositoryConfig> {
+export function createBranch(params: CreateBranchParams): IOEither<EnonicError, BranchConfig> {
   return catchEnonicError(() => repoLib.createBranch(params));
 }
 
-export function get(id: string): IOEither<EnonicError, RepositoryConfig> {
+export function get<Data>(id: string): IOEither<EnonicError, RepositoryConfig<Data> | null> {
   return pipe(
-    catchEnonicError(() => repoLib.get(id)),
+    catchEnonicError(() => repoLib.get<Data>(id)),
     chain(fromNullable(notFoundError))
   );
 }
@@ -47,6 +48,6 @@ export function deleteBranch(params: DeleteBranchParams): IOEither<EnonicError, 
   return catchEnonicError(() => repoLib.deleteBranch(params));
 }
 
-export function refresh(params: RefreshParams): IOEither<EnonicError, ReadonlyArray<RepositoryConfig>> {
+export function refresh(params: RefreshParams): IOEither<EnonicError, ReadonlyArray<unknown>> {
   return catchEnonicError(() => repoLib.refresh(params));
 }

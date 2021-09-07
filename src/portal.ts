@@ -55,7 +55,10 @@ export function getIdProviderKey(): IOEither<EnonicError, string> {
  * This function returns a JSON containing multipart items.
  * If not a multipart request, then this function returns `BadRequestError`.
  */
-export function getMultipartForm(): IOEither<EnonicError, ReadonlyArray<MultipartItem | ReadonlyArray<MultipartItem>>> {
+export function getMultipartForm(): IOEither<
+  EnonicError,
+  Record<string, MultipartItem | ReadonlyArray<MultipartItem>>
+> {
   return catchEnonicError(() => portalLib.getMultipartForm());
 }
 

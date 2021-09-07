@@ -11,7 +11,7 @@ export function fromNullable<E = EnonicError>(e: E): <A>(a: A | null | undefined
 }
 
 export function fromIOEither<E, A>(ma: IOEither<E, A>): O.Option<A> {
-  return O.fromEither<E, A>(ma());
+  return O.fromEither<A>(ma());
 }
 
 export function parseJSON<E = EnonicError>(s: string, onError: (reason: unknown) => E): IOEither<E, JSON.Json> {
