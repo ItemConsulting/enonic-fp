@@ -1,6 +1,6 @@
 {
   "name": "enonic-fp",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "sideEffects": false,
   "description": "Functional programming helpers for Enonic XP",
   "scripts": {

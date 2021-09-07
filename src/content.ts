@@ -2,7 +2,7 @@ import { pipe } from "fp-ts/function";
 import { chain, IOEither, left, right } from "fp-ts/IOEither";
 import { last, Semigroup } from "fp-ts/Semigroup";
 import { fromNullable, isString, stringToByKey } from "./utils";
-import {
+import type {
   AddAttachmentParams,
   Attachments,
   AttachmentStreamParams,
@@ -44,15 +44,7 @@ import {
   publishError,
   unPublishError,
 } from "./errors";
-
-let contentLib = __non_webpack_require__("/lib/xp/content");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: ContentLibrary): void {
-  contentLib = library;
-}
+import * as contentLib from "/lib/xp/content";
 
 export function get<A extends object>(params: GetContentParams): IOEither<EnonicError, Content<A>>;
 export function get<A extends object>(key: string): IOEither<EnonicError, Content<A>>;

@@ -1,15 +1,6 @@
 import { catchEnonicError, EnonicError } from "./errors";
 import { IOEither } from "fp-ts/IOEither";
-import { WebsocketLibrary } from "enonic-types/websocket";
-
-let websocketLib = __non_webpack_require__("/lib/xp/websocket");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: WebsocketLibrary): void {
-  websocketLib = library;
-}
+import * as websocketLib from "/lib/xp/websocket";
 
 /**
  * Add an id to a socket group.

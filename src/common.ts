@@ -1,13 +1,4 @@
-import { CommonLibrary } from "enonic-types/common";
-
-let commonLib = __non_webpack_require__("/lib/xp/common");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: CommonLibrary): void {
-  commonLib = library;
-}
+import * as commonLib from "/lib/xp/common";
 
 /**
  * Transform a text string so that it can be safely used in cases where the range of accepted characters is restricted.

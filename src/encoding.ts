@@ -3,16 +3,7 @@ import { chain, IOEither } from "fp-ts/IOEither";
 import { fromNullable } from "./utils";
 import { pipe } from "fp-ts/function";
 import { catchEnonicError, EnonicError, notFoundError } from "./errors";
-import { EncodingLibrary } from "enonic-types/encoding";
-
-let encodingLib = __non_webpack_require__("/lib/text-encoding");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: EncodingLibrary): void {
-  encodingLib = library;
-}
+import * as encodingLib from "/lib/text-encoding";
 
 export function base64Encode(stream: ByteSource | string): string {
   return encodingLib.base64Encode(stream);

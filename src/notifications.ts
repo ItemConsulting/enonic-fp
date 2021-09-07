@@ -1,15 +1,7 @@
-import { KeyPair, NotificationsLibrary, SendAsyncParams, SendParams } from "enonic-types/notifications";
+import type { KeyPair, SendAsyncParams, SendParams } from "enonic-types/notifications";
 import { catchEnonicError, EnonicError } from "./errors";
-import { IOEither } from "fp-ts/IOEither";
-
-let notificationsLib: NotificationsLibrary = __non_webpack_require__("/lib/notifications");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: NotificationsLibrary): void {
-  notificationsLib = library;
-}
+import type { IOEither } from "fp-ts/IOEither";
+import * as notificationsLib from "/lib/notifications";
 
 /**
  * Generate a VAPID public/private key pair.

@@ -1,7 +1,6 @@
 import { IOEither } from "fp-ts/IOEither";
 import { fromNullable, Option } from "fp-ts/Option";
-import {
-  AuthLibrary,
+import type {
   ChangePasswordParams,
   CreateGroupParams,
   CreateRoleParams,
@@ -24,15 +23,7 @@ import {
   UserWithProfile,
 } from "enonic-types/auth";
 import { catchEnonicError, EnonicError } from "./errors";
-
-let authLib = __non_webpack_require__("/lib/xp/auth");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: AuthLibrary): void {
-  authLib = library;
-}
+import * as authLib from "/lib/xp/auth";
 
 /**
  * Login a user through the specified idProvider, with userName and password.

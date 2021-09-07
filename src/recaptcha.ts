@@ -2,16 +2,8 @@ import { pipe } from "fp-ts/function";
 import { filterOrElse, IOEither } from "fp-ts/IOEither";
 import { filter, Option, some } from "fp-ts/Option";
 import { badRequestError, catchEnonicError, EnonicError } from "./errors";
-import { RecaptchaLibrary, VerifyResponse } from "enonic-types/recaptcha";
-
-let recaptchaLib = __non_webpack_require__("/lib/recaptcha");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: RecaptchaLibrary): void {
-  recaptchaLib = library;
-}
+import type { VerifyResponse } from "enonic-types/recaptcha";
+import * as recaptchaLib from "/lib/recaptcha";
 
 function notEmptyString(str: string): boolean {
   return str.length > 0;

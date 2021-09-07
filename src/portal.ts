@@ -2,8 +2,8 @@ import { chain, IOEither } from "fp-ts/IOEither";
 import { catchEnonicError, EnonicError, missingIdProviderError, notFoundError } from "./errors";
 import { fromNullable, isString, stringToById, stringToByPath } from "./utils";
 import { pipe } from "fp-ts/function";
-import { ByteSource, Content, Site } from "enonic-types/content";
-import {
+import type { ByteSource, Content, Site } from "enonic-types/content";
+import type {
   AssetUrlParams,
   AttachmentUrlParams,
   Component,
@@ -15,20 +15,11 @@ import {
   LogoutUrlParams,
   MultipartItem,
   PageUrlParams,
-  PortalLibrary,
   ProcessHtmlParams,
   ServiceUrlParams,
   UrlParams,
 } from "enonic-types/portal";
-
-let portalLib = __non_webpack_require__("/lib/xp/portal");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: PortalLibrary): void {
-  portalLib = library;
-}
+import * as portalLib from "/lib/xp/portal";
 
 export function getContent<A extends object, PageConfig extends object = never>(): IOEither<
   EnonicError,

@@ -1,13 +1,5 @@
-import { EnonicEventData, EventLibrary, ListenerParams, SendParams } from "enonic-types/event";
-
-let eventLib = __non_webpack_require__("/lib/xp/event");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: EventLibrary): void {
-  eventLib = library;
-}
+import type { EnonicEventData, ListenerParams, SendParams } from "enonic-types/event";
+import * as eventLib from "/lib/xp/event";
 
 export function listener<A extends object = EnonicEventData>(params: ListenerParams<A>): null {
   return eventLib.listener(params);

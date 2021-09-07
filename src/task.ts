@@ -1,15 +1,7 @@
-import { ListParams, ProgressParams, SubmitNamedParams, SubmitParams, TaskInfo, TaskLibrary } from "enonic-types/task";
+import type { ListParams, ProgressParams, TaskInfo, ExecuteFunctionParams, SubmitTaskParams } from "enonic-types/task";
 import { catchEnonicError, EnonicError } from "./errors";
 import { IOEither } from "fp-ts/IOEither";
-
-let taskLib = __non_webpack_require__("/lib/xp/task");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: TaskLibrary): void {
-  taskLib = library;
-}
+import * as taskLib from "/lib/xp/task";
 
 /**
  * Returns the current state and progress details for the specified task.
@@ -53,14 +45,16 @@ export function sleep(timeMillis: number): IOEither<EnonicError, void> {
  * Submits an inlined task (function) to be executed in the background. Returns an id representing the task.
  * This function returns immediately. The callback function will be executed asynchronously.
  */
-export function submit(params: SubmitParams): IOEither<EnonicError, string> {
-  return catchEnonicError(() => taskLib.submit(params));
+export function executeFunction(params: ExecuteFunctionParams): IOEither<EnonicError, string> {
+  return catchEnonicError(() => taskLib.executeFunction(params));
 }
 
 /**
  * Submits a named task to be executed in the background and returns an id representing the task.
  * This function returns immediately. The callback function will be executed asynchronously.
  */
-export function submitNamed<A extends object = never>(params: SubmitNamedParams<A>): IOEither<EnonicError, string> {
-  return catchEnonicError(() => taskLib.submitNamed<A>(params));
+export function submitTask<Config extends object = never>(
+  params: SubmitTaskParams<Config>
+): IOEither<EnonicError, string> {
+  return catchEnonicError(() => taskLib.submitTask<Config>(params));
 }

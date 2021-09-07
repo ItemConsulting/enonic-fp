@@ -2,7 +2,7 @@ import { chain, IOEither } from "fp-ts/IOEither";
 import { catchEnonicError, EnonicError, notFoundError } from "./errors";
 import { pipe } from "fp-ts/function";
 import { fromNullable, stringToById } from "./utils";
-import {
+import type {
   AddPermissionsParams,
   CreateProjectParams,
   DeleteProjectParams,
@@ -11,18 +11,9 @@ import {
   ModifyReadAccessParams,
   ModifyReadAccessResult,
   Project,
-  ProjectLibrary,
   RemovePermissionsParams,
 } from "enonic-types/project";
-
-let projectLib = __non_webpack_require__("/lib/xp/project");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: ProjectLibrary): void {
-  projectLib = library;
-}
+import * as projectLib from "/lib/xp/project";
 
 export function addPermissions(params: AddPermissionsParams): IOEither<EnonicError, boolean> {
   return catchEnonicError(() => projectLib.addPermissions(params));

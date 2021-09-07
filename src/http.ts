@@ -1,18 +1,10 @@
 import { chain, IOEither } from "fp-ts/IOEither";
-import { HttpLibrary, HttpRequestParams, HttpResponse } from "enonic-types/http";
+import type { HttpRequestParams, HttpResponse } from "enonic-types/http";
 import { badGatewayError, catchEnonicError, EnonicError } from "./errors";
 import { fromNullable, isString, parseJSON } from "./utils";
-import { Json } from "fp-ts/Json";
+import type { Json } from "fp-ts/Json";
 import { pipe } from "fp-ts/function";
-
-let httpLib = __non_webpack_require__("/lib/http-client");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: HttpLibrary): void {
-  httpLib = library;
-}
+import * as httpLib from "/lib/http-client";
 
 /**
  * Sends an HTTP request and returns the response received from the remote server.

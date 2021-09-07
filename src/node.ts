@@ -1,5 +1,5 @@
 import { IOEither } from "fp-ts/IOEither";
-import {
+import type {
   DiffParams,
   DiffResponse,
   FindVersionsParams,
@@ -8,7 +8,6 @@ import {
   NodeCreateParams,
   NodeFindChildrenParams,
   NodeGetParams,
-  NodeLibrary,
   NodeModifyParams,
   NodeQueryParams,
   NodeQueryResponse,
@@ -18,15 +17,7 @@ import {
   Source,
 } from "enonic-types/node";
 import { catchEnonicError, EnonicError } from "./errors";
-
-let nodeLib = __non_webpack_require__("/lib/xp/node");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: NodeLibrary): void {
-  nodeLib = library;
-}
+import * as nodeLib from "/lib/xp/node";
 
 /**
  * Creates a connection to a repository with a given branch and authentication info.

@@ -12,7 +12,7 @@ import { catchEnonicError, EnonicError } from "./errors";
 let lib: TurboStreamsLibrary;
 
 export function getLibrary(): TurboStreamsLibrary {
-  return lib ?? __non_webpack_require__("/lib/turbo-streams");
+  return lib ?? import("/lib/turbo-streams");
 }
 
 /**

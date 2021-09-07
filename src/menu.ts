@@ -1,24 +1,15 @@
-import {
+import type {
   BreadcrumbMenu,
   GetBreadcrumbMenuParams,
   GetMenuParams,
   GetMenuTreeParams,
   MenuItem,
-  MenuLibrary,
   MenuTree,
 } from "enonic-types/menu";
-import { Content, Site } from "enonic-types/content";
+import type { Content, Site } from "enonic-types/content";
 import { IOEither } from "fp-ts/IOEither";
 import { catchEnonicError, EnonicError } from "./errors";
-
-let menuLib = __non_webpack_require__("/lib/menu");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: MenuLibrary): void {
-  menuLib = library;
-}
+import * as menuLib from "/lib/menu";
 
 export function getBreadcrumbMenu(params: GetBreadcrumbMenuParams): IOEither<EnonicError, BreadcrumbMenu> {
   return catchEnonicError(() => menuLib.getBreadcrumbMenu(params));

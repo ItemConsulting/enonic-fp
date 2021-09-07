@@ -2,24 +2,15 @@ import { chain, IOEither } from "fp-ts/IOEither";
 import { pipe } from "fp-ts/function";
 import { catchEnonicError, EnonicError, notFoundError } from "./errors";
 import { fromNullable } from "./utils";
-import {
+import type {
   BranchConfig,
   CreateBranchParams,
   CreateRepoParams,
   DeleteBranchParams,
   RefreshParams,
-  RepoLibrary,
   RepositoryConfig,
 } from "enonic-types/repo";
-
-let repoLib = __non_webpack_require__("/lib/xp/repo");
-
-/**
- * Replace the library with a mocked version
- */
-export function setLibrary(library: RepoLibrary): void {
-  repoLib = library;
-}
+import * as repoLib from "/lib/xp/repo";
 
 export function create(params: CreateRepoParams): IOEither<EnonicError, RepositoryConfig> {
   return catchEnonicError(() => repoLib.create(params));
