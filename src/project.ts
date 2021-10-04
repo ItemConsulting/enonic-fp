@@ -12,7 +12,7 @@ import type {
   ModifyReadAccessResult,
   Project,
   RemovePermissionsParams,
-} from "enonic-types/project";
+} from "/lib/xp/project";
 import * as projectLib from "/lib/xp/project";
 
 export function addPermissions(params: AddPermissionsParams): IOEither<EnonicError, boolean> {

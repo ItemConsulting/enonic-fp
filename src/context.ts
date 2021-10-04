@@ -1,6 +1,6 @@
 import { IO } from "fp-ts/IO";
 import { IOEither } from "fp-ts/IOEither";
-import type { Context, RunContext } from "enonic-types/context";
+import type { Context, RunContext } from "/lib/xp/context";
 import { catchEnonicError, EnonicError } from "./errors";
 import * as contextLib from "/lib/xp/context";
 

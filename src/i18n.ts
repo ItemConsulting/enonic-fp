@@ -1,6 +1,6 @@
 import { fromPredicate, Option } from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
-import type { LocalizeParams } from "enonic-types/i18n";
+import type { LocalizeParams } from "/lib/xp/i18n";
 import { stringToByKey } from "./utils";
 import { findFirstMap } from "fp-ts/Array";
 import * as i18nLib from "/lib/xp/i18n";

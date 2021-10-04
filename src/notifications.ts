@@ -1,4 +1,4 @@
-import type { KeyPair, SendAsyncParams, SendParams } from "enonic-types/notifications";
+import type { KeyPair, SendAsyncParams, SendParams } from "/lib/notifications";
 import { catchEnonicError, EnonicError } from "./errors";
 import type { IOEither } from "fp-ts/IOEither";
 import * as notificationsLib from "/lib/notifications";

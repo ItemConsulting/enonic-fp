@@ -1,4 +1,4 @@
-import { ByteSource } from "enonic-types/content";
+import { ByteSource } from "/lib/xp/content";
 import { chain, IOEither } from "fp-ts/IOEither";
 import { fromNullable } from "./utils";
 import { pipe } from "fp-ts/function";

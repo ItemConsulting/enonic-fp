@@ -1,5 +1,5 @@
 import { chain, IOEither } from "fp-ts/IOEither";
-import type { HttpRequestParams, HttpResponse } from "enonic-types/http";
+import type { HttpRequestParams, HttpResponse } from "/lib/http-client";
 import { badGatewayError, catchEnonicError, EnonicError } from "./errors";
 import { fromNullable, isString, parseJSON } from "./utils";
 import type { Json } from "fp-ts/Json";

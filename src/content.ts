@@ -8,7 +8,6 @@ import type {
   AttachmentStreamParams,
   ByteSource,
   Content,
-  ContentLibrary,
   ContentType,
   CreateContentParams,
   CreateMediaParams,
@@ -35,7 +34,7 @@ import type {
   SetPermissionsParams,
   Site,
   UnpublishContentParams,
-} from "enonic-types/content";
+} from "/lib/xp/content";
 import {
   catchEnonicError,
   EnonicError,

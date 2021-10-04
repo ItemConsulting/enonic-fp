@@ -41,12 +41,11 @@ wrong, we return an _Internal Server Error_ instead.
 ```typescript
 import {fold} from "fp-ts/IOEither";
 import {pipe} from "fp-ts/pipeable";
-import {Request, Response} from "enonic-types/controller";
 import {get as getContent} from "enonic-fp/content";
 import {Article} from "../../site/content-types/article/article"; // 1
 import {internalServerError, ok} from "enonic-fp/controller";
 
-export function get(req: Request): Response { // 2
+export function get(req: XP.Request): XP.Response { // 2
   const program = pipe( // 3
     getContent<Article>(req.params.key!), // 4
     fold( // 5
@@ -85,12 +84,11 @@ Or we return a http status `204`, indicating success.
 ```typescript
 import {chain, fold} from "fp-ts/IOEither";
 import {pipe} from "fp-ts/pipeable";
-import {Request, Response} from "enonic-types/controller";
 import {publish, remove} from "enonic-fp/content";
 import {run} from "enonic-fp/context";
 import {errorResponse, noContent} from "enonic-fp/controller";
 
-function del(req: Request): Response {
+function del(req: XP.Request): XP.Response {
   const program = pipe(
     runOnBranchDraft(
       remove(req.params.key!) // 1
@@ -142,8 +140,7 @@ import {sequenceT} from "fp-ts/Apply";
 import {Json} from "fp-ts/Either";
 import {chain, fold, ioEither, IOEither, map} from "fp-ts/IOEither";
 import {pipe} from "fp-ts/pipeable";
-import {Request, Response} from "enonic-types/controller";
-import {Content, QueryResponse} from "enonic-types/content";
+import {Content, QueryResponse} from "/lib/xp/content";
 import {getRenderer} from "enonic-fp/thymeleaf";
 import {EnonicError} from "enonic-fp/errors";
 import {get as getContent, query} from "enonic-fp/content";
@@ -157,7 +154,7 @@ const view = resolve('./article.html');
 const errorView = resolve('../../templates/error.html');
 const renderer = getRenderer<ThymeleafParams>(view); // 1
 
-export function get(req: Request): Response {
+export function get(req: XP.Request): XP.Response {
   const articleId = req.params.key!;
 
   return pipe(

@@ -21,7 +21,7 @@ import type {
   User,
   UserQueryResult,
   UserWithProfile,
-} from "enonic-types/auth";
+} from "/lib/xp/auth";
 import { catchEnonicError, EnonicError } from "./errors";
 import * as authLib from "/lib/xp/auth";
 

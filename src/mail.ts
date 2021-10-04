@@ -1,6 +1,6 @@
 import { chain, IOEither, left, right } from "fp-ts/IOEither";
 import { pipe } from "fp-ts/function";
-import type { EmailParams } from "enonic-types/mail";
+import type { EmailParams } from "/lib/xp/mail";
 import { catchEnonicError, EnonicError, internalServerError } from "./errors";
 import * as mailLib from "/lib/xp/mail";
 

@@ -15,7 +15,7 @@ import type {
   RepoConnection,
   RepoNode,
   Source,
-} from "enonic-types/node";
+} from "/lib/xp/node";
 import { catchEnonicError, EnonicError } from "./errors";
 import * as nodeLib from "/lib/xp/node";
 

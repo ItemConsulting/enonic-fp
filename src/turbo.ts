@@ -1,11 +1,10 @@
-import { Request } from "enonic-types/controller";
 import {
   GetWebSocketUrlParams,
   TurboStreamAction,
   TurboStreamsLibrary,
   TurboStreamsParams,
   TurboStreamsRemoveParams,
-} from "enonic-types/turbo";
+} from "/lib/turbo-streams";
 import { IOEither } from "fp-ts/IOEither";
 import { catchEnonicError, EnonicError } from "./errors";
 
@@ -91,7 +90,7 @@ export function serialize(actions: TurboStreamAction | Array<TurboStreamAction>)
 /**
  * Checks the request header if the response can be of mime type "text/vnd.turbo-stream.html"
  */
-export function acceptTurboStreams(req: Request): boolean {
+export function acceptTurboStreams(req: XP.Request): boolean {
   return getLibrary().acceptTurboStreams(req);
 }
 

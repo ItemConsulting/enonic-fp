@@ -2,7 +2,7 @@ import * as JSON from "fp-ts/Json";
 import * as EI from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
 import { fromEither, IOEither } from "fp-ts/IOEither";
-import { ById, ByKey, ByPath } from "enonic-types/portal";
+import { ById, ByKey, ByPath } from "/lib/xp/portal";
 import { EnonicError } from "./errors";
 import * as O from "fp-ts/Option";
 

@@ -9,7 +9,7 @@ import type {
   DeleteBranchParams,
   RefreshParams,
   RepositoryConfig,
-} from "enonic-types/repo";
+} from "/lib/xp/repo";
 import * as repoLib from "/lib/xp/repo";
 
 export function create(params: CreateRepoParams): IOEither<EnonicError, RepositoryConfig> {
