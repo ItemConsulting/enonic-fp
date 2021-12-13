@@ -1,6 +1,6 @@
 {
   "name": "enonic-fp",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "sideEffects": false,
   "description": "Functional programming helpers for Enonic XP",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/ItemConsulting/enonic-fp#readme",
   "dependencies": {
-    "enonic-types": "^0.3.8",
+    "enonic-types": "^0.3.9",
     "fp-ts": "^2.11.5"
   },
   "devDependencies": {

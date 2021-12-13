@@ -17,6 +17,10 @@ import type {
   ModifyRoleParams,
   ModifyUserParams,
   Principal,
+  PrincipalKey,
+  PrincipalKeyGroup,
+  PrincipalKeyRole,
+  PrincipalKeyUser,
   Role,
   User,
   UserQueryResult,
@@ -113,21 +117,27 @@ export function createUser(params: CreateUserParams): IOEither<EnonicError, User
 /**
  * Adds members to a principal (user or role).
  */
-export function addMembers(principalKey: string, members: Array<string>): IOEither<EnonicError, void> {
+export function addMembers(
+  principalKey: PrincipalKeyRole | PrincipalKeyGroup,
+  members: Array<PrincipalKeyGroup | PrincipalKeyUser>
+): IOEither<EnonicError, void> {
   return catchEnonicError(() => authLib.addMembers(principalKey, members));
 }
 
 /**
  * Removes members from a principal (group or role).
  */
-export function removeMembers(principalKey: string, members: Array<string>): IOEither<EnonicError, void> {
+export function removeMembers(
+  principalKey: PrincipalKeyRole | PrincipalKeyGroup,
+  members: Array<PrincipalKeyGroup | PrincipalKeyUser>
+): IOEither<EnonicError, void> {
   return catchEnonicError(() => authLib.removeMembers(principalKey, members));
 }
 
 /**
  * Deletes the principal with the specifkey.
  */
-export function deletePrincipal(principalKey: string): IOEither<EnonicError, boolean> {
+export function deletePrincipal(principalKey: PrincipalKey): IOEither<EnonicError, boolean> {
   return catchEnonicError(() => authLib.deletePrincipal(principalKey));
 }
 
@@ -141,7 +151,7 @@ export function findPrincipals(params: FindPrincipalsParams): IOEither<EnonicErr
 /**
  * Returns the principal with the specified key.
  */
-export function getPrincipal(principalKey: string): Option<User> {
+export function getPrincipal(principalKey: PrincipalKey): Option<Principal> {
   return fromNullable(authLib.getPrincipal(principalKey));
 }
 
@@ -183,7 +193,9 @@ export function modifyGroup(params: ModifyGroupParams): IOEither<EnonicError, Gr
 /**
  * Returns a list of principals that are members of the specified principal.
  */
-export function getMembers(principalKey: string): IOEither<EnonicError, ReadonlyArray<User>> {
+export function getMembers(
+  principalKey: PrincipalKeyRole | PrincipalKeyGroup
+): IOEither<EnonicError, ReadonlyArray<User | Group>> {
   return catchEnonicError(() => authLib.getMembers(principalKey));
 }
 
@@ -191,7 +203,7 @@ export function getMembers(principalKey: string): IOEither<EnonicError, Readonly
  * Returns the list of principals which the specified principal is a member of.
  */
 export function getMemberships(
-  principalKey: string,
+  principalKey: PrincipalKeyUser | PrincipalKeyGroup,
   transitive?: boolean
 ): IOEither<EnonicError, ReadonlyArray<Principal>> {
   return catchEnonicError(() => authLib.getMemberships(principalKey, transitive));
