@@ -1,6 +1,6 @@
 import type { ListParams, ProgressParams, TaskInfo, ExecuteFunctionParams, SubmitTaskParams } from "/lib/xp/task";
-import { catchEnonicError, EnonicError } from "./errors";
-import { IOEither } from "fp-ts/IOEither";
+import { catchEnonicError, type EnonicError } from "./errors";
+import { IOEither } from "fp-ts/es6/IOEither";
 import * as taskLib from "/lib/xp/task";
 
 /**

@@ -1,6 +1,6 @@
-import { pipe } from "fp-ts/function";
-import { chain, IOEither, left, right } from "fp-ts/IOEither";
-import { last, Semigroup } from "fp-ts/Semigroup";
+import { pipe } from "fp-ts/es6/function";
+import { chain, IOEither, left, right } from "fp-ts/es6/IOEither";
+import { last, Semigroup } from "fp-ts/es6/Semigroup";
 import { fromNullable, isString, stringToByKey } from "./utils";
 import type {
   AddAttachmentParams,

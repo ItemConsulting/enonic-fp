@@ -1,21 +1,21 @@
-import * as JSON from "fp-ts/Json";
-import * as EI from "fp-ts/Either";
-import { pipe } from "fp-ts/function";
-import { fromEither, IOEither } from "fp-ts/IOEither";
-import { ById, ByKey, ByPath } from "/lib/xp/portal";
-import { EnonicError } from "./errors";
-import * as O from "fp-ts/Option";
+import * as JSON from "fp-ts/es6/Json";
+import * as EI from "fp-ts/es6/Either";
+import * as IOE from "fp-ts/es6/IOEither";
+import { pipe } from "fp-ts/es6/function";
+import type { ById, ByKey, ByPath } from "/lib/xp/portal";
+import type { EnonicError } from "./errors";
+import * as O from "fp-ts/es6/Option";
 
-export function fromNullable<E = EnonicError>(e: E): <A>(a: A | null | undefined) => IOEither<E, A> {
-  return <A>(a: A | null | undefined): IOEither<E, A> => fromEither(EI.fromNullable(e)(a));
+export function fromNullable<E = EnonicError>(e: E): <A>(a: A | null | undefined) => IOE.IOEither<E, A> {
+  return <A>(a: A | null | undefined): IOE.IOEither<E, A> => IOE.fromEither(EI.fromNullable(e)(a));
 }
 
-export function fromIOEither<E, A>(ma: IOEither<E, A>): O.Option<A> {
+export function fromIOEither<E, A>(ma: IOE.IOEither<E, A>): O.Option<A> {
   return O.fromEither<A>(ma());
 }
 
-export function parseJSON<E = EnonicError>(s: string, onError: (reason: unknown) => E): IOEither<E, JSON.Json> {
-  return pipe(JSON.parse(s), EI.mapLeft(onError), fromEither);
+export function parseJSON<E = EnonicError>(s: string, onError: (reason: unknown) => E): IOE.IOEither<E, JSON.Json> {
+  return pipe(JSON.parse(s), EI.mapLeft(onError), IOE.fromEither);
 }
 
 export function isString<A>(a: A | string): a is string {

@@ -1,6 +1,6 @@
-import { chain, IOEither } from "fp-ts/IOEither";
-import { pipe } from "fp-ts/function";
-import { catchEnonicError, EnonicError, notFoundError } from "./errors";
+import { chain, IOEither } from "fp-ts/es6/IOEither";
+import { pipe } from "fp-ts/es6/function";
+import { catchEnonicError, type EnonicError, notFoundError } from "./errors";
 import { fromNullable } from "./utils";
 import type {
   BranchConfig,

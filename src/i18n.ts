@@ -1,8 +1,8 @@
-import { fromPredicate, Option } from "fp-ts/Option";
-import { pipe } from "fp-ts/function";
+import { fromPredicate, Option } from "fp-ts/es6/Option";
+import { pipe } from "fp-ts/es6/function";
 import type { LocalizeParams } from "/lib/xp/i18n";
 import { stringToByKey } from "./utils";
-import { findFirstMap } from "fp-ts/Array";
+import { findFirstMap } from "fp-ts/es6/Array";
 import * as i18nLib from "/lib/xp/i18n";
 
 const NOT_TRANSLATED_MESSAGE = "NOT_TRANSLATED";

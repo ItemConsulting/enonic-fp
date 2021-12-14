@@ -1,12 +1,12 @@
-import {
+import type {
   GetWebSocketUrlParams,
   TurboStreamAction,
   TurboStreamsLibrary,
   TurboStreamsParams,
   TurboStreamsRemoveParams,
 } from "/lib/turbo-streams";
-import { IOEither } from "fp-ts/IOEither";
-import { catchEnonicError, EnonicError } from "./errors";
+import { IOEither } from "fp-ts/es6/IOEither";
+import { catchEnonicError, type EnonicError } from "./errors";
 
 let lib: TurboStreamsLibrary;
 

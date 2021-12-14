@@ -1,5 +1,5 @@
-import { catchEnonicError, EnonicError } from "./errors";
-import { IOEither } from "fp-ts/IOEither";
+import { catchEnonicError, type EnonicError } from "./errors";
+import { IOEither } from "fp-ts/es6/IOEither";
 import * as websocketLib from "/lib/xp/websocket";
 
 /**

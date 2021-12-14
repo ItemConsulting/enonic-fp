@@ -1,7 +1,7 @@
-import { pipe } from "fp-ts/function";
-import { filterOrElse, IOEither } from "fp-ts/IOEither";
-import { filter, Option, some } from "fp-ts/Option";
-import { badRequestError, catchEnonicError, EnonicError } from "./errors";
+import { pipe } from "fp-ts/es6/function";
+import { filterOrElse, IOEither } from "fp-ts/es6/IOEither";
+import { filter, Option, some } from "fp-ts/es6/Option";
+import { badRequestError, catchEnonicError, type EnonicError } from "./errors";
 import type { VerifyResponse } from "/lib/recaptcha";
 import * as recaptchaLib from "/lib/recaptcha";
 

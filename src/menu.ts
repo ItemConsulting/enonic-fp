@@ -7,8 +7,8 @@ import type {
   MenuTree,
 } from "/lib/menu";
 import type { Content, Site } from "/lib/xp/content";
-import { IOEither } from "fp-ts/IOEither";
-import { catchEnonicError, EnonicError } from "./errors";
+import { IOEither } from "fp-ts/es6/IOEither";
+import { catchEnonicError, type EnonicError } from "./errors";
 import * as menuLib from "/lib/menu";
 
 export function getBreadcrumbMenu(params: GetBreadcrumbMenuParams): IOEither<EnonicError, BreadcrumbMenu> {

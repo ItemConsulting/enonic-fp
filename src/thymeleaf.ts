@@ -1,6 +1,6 @@
-import { IOEither } from "fp-ts/IOEither";
+import { IOEither } from "fp-ts/es6/IOEither";
 import type { ResourceKey, ThymeleafRenderOptions } from "/lib/thymeleaf";
-import { catchEnonicError, EnonicError } from "./errors";
+import { catchEnonicError, type EnonicError } from "./errors";
 import * as thymeleafLib from "/lib/thymeleaf";
 
 export function renderUnsafe<A extends object>(view: ResourceKey, model?: A, options?: ThymeleafRenderOptions): string {

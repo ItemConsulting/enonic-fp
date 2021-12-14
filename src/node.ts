@@ -1,4 +1,4 @@
-import { IOEither } from "fp-ts/IOEither";
+import { IOEither } from "fp-ts/es6/IOEither";
 import type {
   DiffParams,
   DiffResponse,
@@ -16,7 +16,7 @@ import type {
   RepoNode,
   Source,
 } from "/lib/xp/node";
-import { catchEnonicError, EnonicError } from "./errors";
+import { catchEnonicError, type EnonicError } from "./errors";
 import * as nodeLib from "/lib/xp/node";
 
 /**

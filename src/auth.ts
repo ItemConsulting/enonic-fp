@@ -1,5 +1,5 @@
-import { IOEither } from "fp-ts/IOEither";
-import { fromNullable, Option } from "fp-ts/Option";
+import { IOEither } from "fp-ts/es6/IOEither";
+import { fromNullable, Option } from "fp-ts/es6/Option";
 import type {
   ChangePasswordParams,
   CreateGroupParams,
@@ -26,7 +26,7 @@ import type {
   UserQueryResult,
   UserWithProfile,
 } from "/lib/xp/auth";
-import { catchEnonicError, EnonicError } from "./errors";
+import { catchEnonicError, type EnonicError } from "./errors";
 import * as authLib from "/lib/xp/auth";
 
 /**

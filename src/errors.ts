@@ -1,5 +1,5 @@
-import { Lazy } from "fp-ts/function";
-import { IOEither, tryCatch } from "fp-ts/IOEither";
+import { Lazy } from "fp-ts/es6/function";
+import { IOEither, tryCatch } from "fp-ts/es6/IOEither";
 
 // Implementation of RFC 7807
 export interface EnonicError {

@@ -1,7 +1,7 @@
-import { IO } from "fp-ts/IO";
-import { IOEither } from "fp-ts/IOEither";
+import { IO } from "fp-ts/es6/IO";
+import { IOEither } from "fp-ts/es6/IOEither";
 import type { Context, RunContext } from "/lib/xp/context";
-import { catchEnonicError, EnonicError } from "./errors";
+import { catchEnonicError, type EnonicError } from "./errors";
 import * as contextLib from "/lib/xp/context";
 import { ContextAttributes } from "*/lib/xp/context";
 

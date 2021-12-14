@@ -1,9 +1,9 @@
-import { chain, IOEither } from "fp-ts/IOEither";
+import { chain, IOEither } from "fp-ts/es6/IOEither";
 import type { HttpRequestParams, HttpResponse } from "/lib/http-client";
 import { badGatewayError, catchEnonicError, EnonicError } from "./errors";
 import { fromNullable, isString, parseJSON } from "./utils";
-import type { Json } from "fp-ts/Json";
-import { pipe } from "fp-ts/function";
+import type { Json } from "fp-ts/es6/Json";
+import { pipe } from "fp-ts/es6/function";
 import * as httpLib from "/lib/http-client";
 
 /**

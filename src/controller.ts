@@ -1,14 +1,14 @@
 import { localizeFirst } from "./i18n";
-import { getOrElse } from "fp-ts/Option";
-import { IO, of } from "fp-ts/IO";
+import { getOrElse } from "fp-ts/es6/Option";
+import { IO, of } from "fp-ts/es6/IO";
 import { getUnsafeRenderer } from "./thymeleaf";
-import { ResourceKey } from "/lib/thymeleaf";
+import type { ResourceKey } from "/lib/thymeleaf";
 import { EnonicError, isEnonicError } from "./errors";
-import { pipe } from "fp-ts/function";
+import { pipe } from "fp-ts/es6/function";
 import { substringAfter } from "./utils";
 import { serialize as serializeTurboStream, getTurboStreamsMimetype, isTurboStreamAction } from "./turbo";
-import { LocalizeParams } from "/lib/xp/i18n";
-import { TurboStreamAction } from "/lib/turbo-streams";
+import type { LocalizeParams } from "/lib/xp/i18n";
+import type { TurboStreamAction } from "/lib/turbo-streams";
 
 export type AsResponse = (body: XP.ResponseType, extras?: Partial<XP.Response>) => IO<XP.Response>;
 export type AsErrorResponse = (err: EnonicError, extras?: Partial<XP.Response>) => IO<XP.Response>;

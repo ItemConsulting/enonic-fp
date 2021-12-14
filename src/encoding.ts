@@ -1,7 +1,7 @@
 import { ByteSource } from "/lib/xp/content";
-import { chain, IOEither } from "fp-ts/IOEither";
+import { chain, IOEither } from "fp-ts/es6/IOEither";
 import { fromNullable } from "./utils";
-import { pipe } from "fp-ts/function";
+import { pipe } from "fp-ts/es6/function";
 import { catchEnonicError, EnonicError, notFoundError } from "./errors";
 import * as encodingLib from "/lib/text-encoding";
 
