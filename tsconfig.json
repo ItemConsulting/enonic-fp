@@ -7,7 +7,13 @@
     "moduleResolution": "node",
     "strict": true,
     "lib": ["es6"],
-    "types": ["enonic-types"]
+    "rootDirs": [
+      ".",
+    ],
+    "paths": {
+      "/lib/xp/*": ["./node_modules/@enonic-types/lib-*"],
+      "/lib/*": [ "./node_modules/@item-enonic-types/lib-*" ,"./src/main/resources/lib/*"],
+    }
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]

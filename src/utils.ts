@@ -2,7 +2,6 @@ import * as JSON from "fp-ts/es6/Json";
 import * as EI from "fp-ts/es6/Either";
 import * as IOE from "fp-ts/es6/IOEither";
 import { pipe } from "fp-ts/es6/function";
-import type { ById, ByKey, ByPath } from "/lib/xp/portal";
 import type { EnonicError } from "./errors";
 import * as O from "fp-ts/es6/Option";
 
@@ -36,4 +35,16 @@ export function stringToById<A>(input: string | A): A | ById {
 
 export function stringToByPath<A>(input: string | A): A | ByPath {
   return isString(input) ? { path: input } : input;
+}
+
+export interface ByKey {
+  key: string;
+}
+
+export interface ById {
+  id: string;
+}
+
+export interface ByPath {
+  path: string;
 }

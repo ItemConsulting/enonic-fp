@@ -3,37 +3,32 @@ import { chain, IOEither, left, right } from "fp-ts/es6/IOEither";
 import { last, Semigroup } from "fp-ts/es6/Semigroup";
 import { fromNullable, isString, stringToByKey } from "./utils";
 import type {
-  AddAttachmentParams,
-  Attachments,
-  AttachmentStreamParams,
   ByteSource,
   Content,
   ContentType,
   CreateContentParams,
   CreateMediaParams,
   DeleteContentParams,
-  ExistsParams,
-  GetChildrenParams,
   GetContentParams,
   GetOutboundDependenciesParams,
   GetPermissionsParams,
-  GetPermissionsResult,
   GetSiteConfigParams,
   GetSiteParams,
   ModifyContentParams,
-  MoveParams,
-  Page,
   PublishContentParams,
-  PublishResponse,
   QueryContentParams,
-  QueryContentParamsWithSort,
-  QueryResponse,
-  QueryResponseMetaDataScore,
-  QueryResponseMetaDataSort,
   RemoveAttachmentParams,
   SetPermissionsParams,
   Site,
   UnpublishContentParams,
+  AddAttachmentParam,
+  ContentExistsParams,
+  ContentsResult,
+  GetAttachmentStreamParams,
+  GetChildContentParams,
+  MoveContentParams,
+  Permissions,
+  PublishContentResult,
 } from "/lib/xp/content";
 import {
   catchEnonicError,
@@ -44,54 +39,52 @@ import {
   unPublishError,
 } from "./errors";
 import * as contentLib from "/lib/xp/content";
+import { Aggregations, AggregationsResult, AggregationsToAggregationResults } from "@enonic-types/core";
 
-export function get<A extends object>(params: GetContentParams): IOEither<EnonicError, Content<A>>;
-export function get<A extends object>(key: string): IOEither<EnonicError, Content<A>>;
-export function get<A extends object>(paramsOrKey: GetContentParams | string): IOEither<EnonicError, Content<A>>;
-export function get<A extends object>(paramsOrKey: GetContentParams | string): IOEither<EnonicError, Content<A>> {
+export function get<Hit extends Content<unknown> = Content>(params: GetContentParams): IOEither<EnonicError, Hit>;
+export function get<Hit extends Content<unknown> = Content>(key: string): IOEither<EnonicError, Hit>;
+export function get<Hit extends Content<unknown> = Content>(
+  paramsOrKey: GetContentParams | string
+): IOEither<EnonicError, Hit>;
+export function get<Hit extends Content<unknown> = Content>(
+  paramsOrKey: GetContentParams | string
+): IOEither<EnonicError, Hit> {
   return pipe(
     stringToByKey(paramsOrKey),
-    (params: GetContentParams) => catchEnonicError(() => contentLib.get<A>(params)),
+    (params: GetContentParams) => catchEnonicError(() => contentLib.get<Hit>(params)),
     chain(fromNullable(notFoundError))
   );
 }
 
-export function query<Data extends object, AggregationKeys extends string = never>(
-  params: QueryContentParams<AggregationKeys>
-): IOEither<EnonicError, QueryResponse<Data, AggregationKeys, QueryResponseMetaDataScore>>;
-export function query<Data extends object, AggregationKeys extends string = never>(
-  params: QueryContentParamsWithSort<AggregationKeys>
-): IOEither<EnonicError, QueryResponse<Data, AggregationKeys, QueryResponseMetaDataSort>>;
-export function query<Data extends object, AggregationKeys extends string = never>(
-  params: QueryContentParams<AggregationKeys> | QueryContentParamsWithSort<AggregationKeys>
-): IOEither<EnonicError, QueryResponse<Data, AggregationKeys, QueryResponseMetaDataScore | QueryResponseMetaDataSort>> {
-  return catchEnonicError(() => contentLib.query<Data, AggregationKeys>(params));
+export function query<Hit extends Content<unknown> = Content, AggregationInput extends Aggregations = never>(
+  params: QueryContentParams<AggregationInput>
+): IOEither<EnonicError, ContentsResult<Hit, AggregationsToAggregationResults<AggregationInput>>> {
+  return catchEnonicError(() => contentLib.query<Hit, AggregationInput>(params));
 }
 
-export function create<A extends object>(params: CreateContentParams<A>): IOEither<EnonicError, Content<A>> {
-  return catchEnonicError(() => contentLib.create<A>(params));
+export function create<Data = Record<string, unknown>, Type extends string = string>(
+  params: CreateContentParams<Data, Type>
+): IOEither<EnonicError, Content<Data, Type>> {
+  return catchEnonicError(() => contentLib.create<Data, Type>(params));
 }
 
-export function modify<A extends object, PageConfig extends object = object, XData extends object = object>(
-  params: ModifyContentParams<A, PageConfig, XData>
-): IOEither<EnonicError, Content<A, PageConfig, XData>> {
-  return catchEnonicError(() => contentLib.modify<A, PageConfig, XData>(params));
+export function modify<Data = Record<string, unknown>, Type extends string = string>(
+  params: ModifyContentParams<Data, Type>
+): IOEither<EnonicError, Content<Data, Type>> {
+  return pipe(
+    catchEnonicError(() => contentLib.modify<Data, Type>(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
  * Require only Content._id and Content.data
  */
-type PartialContent<A extends object, PageConfig extends object = object, XData extends object = object> = Partial<
-  Content<A, PageConfig, XData>
-> &
-  Pick<Content<A, PageConfig, XData>, "_id" | "data">;
+type PartialContent<Data, Type extends string = string> = Partial<Content<Data, Type>> &
+  Pick<Content<Data, Type>, "_id" | "data">;
 
-export interface ConcatContentParams<
-  A extends object,
-  PageConfig extends object = object,
-  XData extends object = object
-> {
-  readonly semigroup: Semigroup<PartialContent<A, PageConfig, XData>>;
+export interface ConcatContentParams<Data, Type extends string = string> {
+  readonly semigroup: Semigroup<PartialContent<Data, Type>>;
   readonly key?: string;
   readonly requireValid?: boolean;
 }
@@ -100,35 +93,31 @@ export interface ConcatContentParams<
  * Instead of taking an "editor" function like the original `modify()` this `modify()` takes a Semigroup
  * (or Monoid) to combine the old and new content.
  */
-export function modifyWithSemigroup<
-  A extends object,
-  PageConfig extends object = object,
-  XData extends object = object
->(
-  params: ConcatContentParams<A, PageConfig, XData>
-): (newContent: PartialContent<A, PageConfig, XData>) => IOEither<EnonicError, Content<A, PageConfig, XData>> {
-  return (newContent: PartialContent<A, PageConfig, XData>): IOEither<EnonicError, Content<A, PageConfig, XData>> => {
-    return catchEnonicError(() =>
-      contentLib.modify<A, PageConfig, XData>({
-        key: params.key ?? newContent._id,
-        requireValid: params.requireValid,
-        editor: (oldContent: Content<A, PageConfig, XData>) =>
-          params.semigroup.concat(oldContent, newContent) as Content<A, PageConfig, XData>,
-      })
+export function modifyWithSemigroup<Data, Type extends string>(
+  params: ConcatContentParams<Data, Type>
+): (newContent: PartialContent<Data, Type>) => IOEither<EnonicError, Content<Data, Type>> {
+  return (newContent: PartialContent<Data, Type>): IOEither<EnonicError, Content<Data, Type>> => {
+    return pipe(
+      catchEnonicError(() => {
+        return contentLib.modify<Data, Type>({
+          key: params.key ?? newContent._id,
+          requireValid: params.requireValid,
+          editor: (oldContent: Content<Data, Type>) =>
+            params.semigroup.concat(oldContent, newContent) as Content<Data, Type>,
+        });
+      }),
+      chain(fromNullable(notFoundError))
     );
   };
 }
 
-export function getContentSemigroup<A extends object, PageConfig extends object, XData extends object>(
-  dataSemigroup: Semigroup<A>,
-  pageConfigSemigroup: Semigroup<Page<PageConfig> | undefined> = last(),
-  xDataSemigroup: Semigroup<Record<string, Record<string, XData>> | undefined> = last()
-): Semigroup<PartialContent<A, PageConfig, XData>> {
+export function getContentSemigroup<Data, Type extends string = string>(
+  dataSemigroup: Semigroup<Data>,
+  pageConfigSemigroup: Semigroup<Content["page"] | undefined> = last(),
+  xDataSemigroup: Semigroup<Content["x"] | undefined> = last()
+): Semigroup<PartialContent<Data, Type>> {
   return {
-    concat: (
-      x: PartialContent<A, PageConfig, XData>,
-      y: PartialContent<A, PageConfig, XData>
-    ): PartialContent<A, PageConfig, XData> => ({
+    concat: (x: PartialContent<Data, Type>, y: PartialContent<Data, Type>): PartialContent<Data, Type> => ({
       _id: x._id,
       _name: x._name,
       _path: x._path,
@@ -162,18 +151,20 @@ export function remove(paramsOrKey: DeleteContentParams | string): IOEither<Enon
   );
 }
 
-export function exists(params: ExistsParams): IOEither<EnonicError, boolean>;
+export function exists(params: ContentExistsParams): IOEither<EnonicError, boolean>;
 export function exists(key: string): IOEither<EnonicError, boolean>;
-export function exists(paramsOrKey: ExistsParams | string): IOEither<EnonicError, boolean> {
-  return pipe(stringToByKey<ExistsParams>(paramsOrKey), (params: ExistsParams) =>
+export function exists(paramsOrKey: ContentExistsParams | string): IOEither<EnonicError, boolean> {
+  return pipe(stringToByKey<ContentExistsParams>(paramsOrKey), (params: ContentExistsParams) =>
     catchEnonicError(() => contentLib.exists(params), internalServerError)
   );
 }
 
-export function publish(key: string): IOEither<EnonicError, PublishResponse>;
-export function publish(content: Content): IOEither<EnonicError, PublishResponse>;
-export function publish(params: PublishContentParams): IOEither<EnonicError, PublishResponse>;
-export function publish(paramsOrKey: PublishContentParams | Content | string): IOEither<EnonicError, PublishResponse> {
+export function publish(key: string): IOEither<EnonicError, PublishContentResult>;
+export function publish(content: Content): IOEither<EnonicError, PublishContentResult>;
+export function publish(params: PublishContentParams): IOEither<EnonicError, PublishContentResult>;
+export function publish(
+  paramsOrKey: PublishContentParams | Content | string
+): IOEither<EnonicError, PublishContentResult> {
   const params = isString(paramsOrKey)
     ? {
         keys: [paramsOrKey],
@@ -199,8 +190,11 @@ export function unpublish(paramsOrKey: UnpublishContentParams | string): IOEithe
   return catchEnonicError(() => contentLib.unpublish(params), unPublishError);
 }
 
-export function getChildren<A extends object>(params: GetChildrenParams): IOEither<EnonicError, QueryResponse<A>> {
-  return catchEnonicError(() => contentLib.getChildren<A>(params));
+export function getChildren<
+  Hit extends Content<unknown> = Content,
+  AggregationOutput extends Record<string, AggregationsResult> = never
+>(params: GetChildContentParams): IOEither<EnonicError, ContentsResult<Hit, AggregationOutput>> {
+  return catchEnonicError(() => contentLib.getChildren<Hit, AggregationOutput>(params));
 }
 
 export function getOutboundDependencies(
@@ -215,44 +209,49 @@ export function getOutboundDependencies(
   );
 }
 
-export function move<A extends object>(params: MoveParams): IOEither<EnonicError, Content<A>> {
-  return catchEnonicError(() => contentLib.move<A>(params));
+export function move<Data = Record<string, unknown>, Type extends string = string>(
+  params: MoveContentParams
+): IOEither<EnonicError, Content<Data, Type>> {
+  return catchEnonicError(() => contentLib.move<Data, Type>(params));
 }
 
-export function getSite<A extends object, PageConfig extends object = never>(
-  params: GetSiteParams
-): IOEither<EnonicError, Site<A, PageConfig>>;
-export function getSite<A extends object, PageConfig extends object = never>(
-  key: string
-): IOEither<EnonicError, Site<A, PageConfig>>;
-export function getSite<A extends object, PageConfig extends object = never>(
+export function getSite<Config = Record<string, unknown>>(params: GetSiteParams): IOEither<EnonicError, Site<Config>>;
+export function getSite<Config = Record<string, unknown>>(key: string): IOEither<EnonicError, Site<Config>>;
+export function getSite<Config = Record<string, unknown>>(
   paramsOrKey: GetSiteParams | string
-): IOEither<EnonicError, Site<A, PageConfig>> {
-  return pipe(stringToByKey<GetOutboundDependenciesParams>(paramsOrKey), (params: GetOutboundDependenciesParams) =>
-    catchEnonicError(() => contentLib.getSite<A, PageConfig>(params))
+): IOEither<EnonicError, Site<Config>> {
+  return pipe(
+    stringToByKey<GetSiteParams>(paramsOrKey),
+    (params: GetSiteParams) => catchEnonicError(() => contentLib.getSite<Config>(params)),
+    chain(fromNullable(notFoundError))
   );
 }
 
-export function getSiteConfig<A extends object>(params: GetSiteConfigParams): IOEither<EnonicError, A> {
-  return catchEnonicError(() => contentLib.getSiteConfig<A>(params));
+export function getSiteConfig<Config = Record<string, unknown>>(
+  params: GetSiteConfigParams
+): IOEither<EnonicError, Config> {
+  return pipe(
+    catchEnonicError(() => contentLib.getSiteConfig<Config>(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 export function createMedia<A extends object>(params: CreateMediaParams): IOEither<EnonicError, Content<A>> {
   return catchEnonicError(() => contentLib.createMedia<A>(params));
 }
 
-export function addAttachment(params: AddAttachmentParams): IOEither<EnonicError, void> {
+export function addAttachment(params: AddAttachmentParam): IOEither<EnonicError, void> {
   return catchEnonicError(() => contentLib.addAttachment(params));
 }
 
-export function getAttachments(key: string): IOEither<EnonicError, Attachments> {
+export function getAttachments(key: string): IOEither<EnonicError, Content["attachments"]> {
   return pipe(
     catchEnonicError(() => contentLib.getAttachments(key)),
     chain(fromNullable(notFoundError))
   );
 }
 
-export function getAttachmentStream(params: AttachmentStreamParams): IOEither<EnonicError, ByteSource> {
+export function getAttachmentStream(params: GetAttachmentStreamParams): IOEither<EnonicError, ByteSource> {
   return pipe(
     catchEnonicError(() => contentLib.getAttachmentStream(params)),
     chain(fromNullable(notFoundError))
@@ -263,11 +262,14 @@ export function removeAttachment(params: RemoveAttachmentParams): IOEither<Enoni
   return catchEnonicError(() => contentLib.removeAttachment(params));
 }
 
-export function getPermissions(params: GetPermissionsParams): IOEither<EnonicError, GetPermissionsResult> {
-  return catchEnonicError(() => contentLib.getPermissions(params));
+export function getPermissions(params: GetPermissionsParams): IOEither<EnonicError, Permissions> {
+  return pipe(
+    catchEnonicError(() => contentLib.getPermissions(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
-export function setPermissions(params: SetPermissionsParams): IOEither<EnonicError, GetPermissionsResult> {
+export function setPermissions(params: SetPermissionsParams): IOEither<EnonicError, boolean> {
   return catchEnonicError(() => contentLib.setPermissions(params));
 }
 

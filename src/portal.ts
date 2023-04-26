@@ -9,7 +9,6 @@ import type {
   Component,
   ComponentUrlParams,
   IdProviderUrlParams,
-  ImagePlaceHolderParams,
   ImageUrlParams,
   LoginUrlParams,
   LogoutUrlParams,
@@ -20,13 +19,11 @@ import type {
   UrlParams,
 } from "/lib/xp/portal";
 import * as portalLib from "/lib/xp/portal";
+import { ImagePlaceholderParams } from "/lib/xp/portal";
 
-export function getContent<A extends object, PageConfig extends object = never>(): IOEither<
-  EnonicError,
-  Content<A, PageConfig>
-> {
+export function getContent<Hit extends Content<unknown> = Content>(): IOEither<EnonicError, Hit> {
   return pipe(
-    catchEnonicError(() => portalLib.getContent<A, PageConfig>()),
+    catchEnonicError(() => portalLib.getContent<Hit>()),
     chain(fromNullable(notFoundError))
   );
 }
@@ -57,7 +54,7 @@ export function getMultipartForm(): IOEither<
  * This function returns a JSON containing a named multipart item.
  * If the item does not exist it returns `BadRequestError`.
  */
-export function getMultipartItem(name: string, index = 0): IOEither<EnonicError, MultipartItem | undefined> {
+export function getMultipartItem(name: string, index = 0): IOEither<EnonicError, MultipartItem | null> {
   return catchEnonicError(() => portalLib.getMultipartItem(name, index));
 }
 
@@ -65,7 +62,7 @@ export function getMultipartItem(name: string, index = 0): IOEither<EnonicError,
  * This function returns a data-stream for a named multipart item.
  * If the item does not exist it returns `BadRequestError`.
  */
-export function getMultipartStream(name: string, index = 0): IOEither<EnonicError, ByteSource | undefined> {
+export function getMultipartStream(name: string, index = 0): IOEither<EnonicError, ByteSource | null> {
   return catchEnonicError(() => portalLib.getMultipartStream(name, index));
 }
 
@@ -73,23 +70,29 @@ export function getMultipartStream(name: string, index = 0): IOEither<EnonicErro
  * This function returns the multipart item data as text.
  * If the item does not exist it returns `BadRequestError`.
  */
-export function getMultipartText(name: string, index = 0): IOEither<EnonicError, string | undefined> {
+export function getMultipartText(name: string, index = 0): IOEither<EnonicError, string | null> {
   return catchEnonicError(() => portalLib.getMultipartText(name, index));
 }
 
-export function getSite<A extends object>(): IOEither<EnonicError, Site<A>> {
-  return catchEnonicError(() => portalLib.getSite<A>());
+export function getSite<Config = Record<string, unknown>>(): IOEither<EnonicError, Site<Config>> {
+  return pipe(
+    catchEnonicError(() => portalLib.getSite<Config>()),
+    chain(fromNullable(notFoundError))
+  );
 }
 
-export function getSiteConfig<A extends object>(): IOEither<EnonicError, A> {
-  return catchEnonicError(() => portalLib.getSiteConfig<A>());
+export function getSiteConfig<Config = Record<string, unknown>>(): IOEither<EnonicError, Config> {
+  return pipe(
+    catchEnonicError(() => portalLib.getSiteConfig<Config>()),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 export function idProviderUrl(params: IdProviderUrlParams): string {
   return portalLib.idProviderUrl(params);
 }
 
-export function imagePlaceholder(params: ImagePlaceHolderParams): string {
+export function imagePlaceholder(params: ImagePlaceholderParams): string {
   return portalLib.imagePlaceholder(params);
 }
 

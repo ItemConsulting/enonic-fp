@@ -1,5 +1,6 @@
 import { IOEither } from "fp-ts/es6/IOEither";
-import type { ResourceKey, ThymeleafRenderOptions } from "/lib/thymeleaf";
+import type { ThymeleafRenderOptions } from "/lib/thymeleaf";
+import type { ResourceKey } from "@enonic-types/core";
 import { catchEnonicError, type EnonicError } from "./errors";
 import * as thymeleafLib from "/lib/thymeleaf";
 

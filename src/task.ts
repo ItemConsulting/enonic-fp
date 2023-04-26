@@ -1,13 +1,18 @@
-import type { ListParams, ProgressParams, TaskInfo, ExecuteFunctionParams, SubmitTaskParams } from "/lib/xp/task";
-import { catchEnonicError, type EnonicError } from "./errors";
-import { IOEither } from "fp-ts/es6/IOEither";
+import { TaskInfo, ExecuteFunctionParams, SubmitTaskParams, ListTasksParams, TaskProgressParams } from "/lib/xp/task";
+import { catchEnonicError, type EnonicError, notFoundError } from "./errors";
+import { chain, IOEither } from "fp-ts/es6/IOEither";
 import * as taskLib from "/lib/xp/task";
+import { pipe } from "fp-ts/es6/function";
+import { fromNullable } from "./utils";
 
 /**
  * Returns the current state and progress details for the specified task.
  */
 export function get(taskId: string): IOEither<EnonicError, TaskInfo> {
-  return catchEnonicError(() => taskLib.get(taskId));
+  return pipe(
+    catchEnonicError(() => taskLib.get(taskId)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
@@ -20,7 +25,7 @@ export function isRunning(task: string): IOEither<EnonicError, boolean> {
 /**
  * Returns the list of running tasks with their current state and progress details.
  */
-export function list(params?: ListParams): IOEither<EnonicError, ReadonlyArray<TaskInfo>> {
+export function list(params: ListTasksParams): IOEither<EnonicError, ReadonlyArray<TaskInfo>> {
   return catchEnonicError(() => taskLib.list(params));
 }
 
@@ -29,7 +34,7 @@ export function list(params?: ListParams): IOEither<EnonicError, ReadonlyArray<T
  * This function may only be called within the context of a task function,
  * otherwise it will fail and throw an exception.
  */
-export function progress(params: Partial<ProgressParams>): IOEither<EnonicError, void> {
+export function progress(params: TaskProgressParams): IOEither<EnonicError, void> {
   return catchEnonicError(() => taskLib.progress(params));
 }
 
@@ -53,7 +58,7 @@ export function executeFunction(params: ExecuteFunctionParams): IOEither<EnonicE
  * Submits a named task to be executed in the background and returns an id representing the task.
  * This function returns immediately. The callback function will be executed asynchronously.
  */
-export function submitTask<Config extends object = never>(
+export function submitTask<Config extends Record<string, unknown> = Record<string, unknown>>(
   params: SubmitTaskParams<Config>
 ): IOEither<EnonicError, string> {
   return catchEnonicError(() => taskLib.submitTask<Config>(params));

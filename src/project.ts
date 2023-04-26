@@ -3,24 +3,29 @@ import { catchEnonicError, type EnonicError, notFoundError } from "./errors";
 import { pipe } from "fp-ts/es6/function";
 import { fromNullable, stringToById } from "./utils";
 import type {
-  AddPermissionsParams,
+  AddProjectPermissionsParams,
   CreateProjectParams,
   DeleteProjectParams,
   GetProjectParams,
   ModifyProjectParams,
-  ModifyReadAccessParams,
-  ModifyReadAccessResult,
   Project,
-  RemovePermissionsParams,
+  ProjectPermissions,
+  RemoveProjectPermissionsParams,
 } from "/lib/xp/project";
 import * as projectLib from "/lib/xp/project";
+import { ModifyProjectReadAccessParams, ProjectReadAccess } from "/lib/xp/project";
 
-export function addPermissions(params: AddPermissionsParams): IOEither<EnonicError, boolean> {
-  return catchEnonicError(() => projectLib.addPermissions(params));
+export function addPermissions(params: AddProjectPermissionsParams): IOEither<EnonicError, ProjectPermissions> {
+  return pipe(
+    catchEnonicError(() => projectLib.addPermissions(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
-export function create(params: CreateProjectParams): IOEither<EnonicError, Project> {
-  return catchEnonicError(() => projectLib.create(params));
+export function create<Config extends Record<string, unknown> = Record<string, unknown>>(
+  params: CreateProjectParams<Config>
+): IOEither<EnonicError, Project<Config>> {
+  return catchEnonicError(() => projectLib.create<Config>(params));
 }
 
 function remove(params: DeleteProjectParams): IOEither<EnonicError, boolean>;
@@ -47,14 +52,22 @@ export function list(): IOEither<EnonicError, ReadonlyArray<Project>> {
   return catchEnonicError(() => projectLib.list());
 }
 
-export function modify(params: ModifyProjectParams): IOEither<EnonicError, Project> {
-  return catchEnonicError(() => projectLib.modify(params));
+export function modify<Config extends Record<string, unknown> = Record<string, unknown>>(
+  params: ModifyProjectParams<Config>
+): IOEither<EnonicError, Project<Config>> {
+  return catchEnonicError(() => projectLib.modify<Config>(params));
 }
 
-export function modifyReadAccess(params: ModifyReadAccessParams): IOEither<EnonicError, ModifyReadAccessResult> {
-  return catchEnonicError(() => projectLib.modifyReadAccess(params));
+export function modifyReadAccess(params: ModifyProjectReadAccessParams): IOEither<EnonicError, ProjectReadAccess> {
+  return pipe(
+    catchEnonicError(() => projectLib.modifyReadAccess(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
-export function removePermissions(params: RemovePermissionsParams): IOEither<EnonicError, boolean> {
-  return catchEnonicError(() => projectLib.removePermissions(params));
+export function removePermissions(params: RemoveProjectPermissionsParams): IOEither<EnonicError, ProjectPermissions> {
+  return pipe(
+    catchEnonicError(() => projectLib.removePermissions(params)),
+    chain(fromNullable(notFoundError))
+  );
 }

@@ -1,10 +1,10 @@
-import type { EnonicEventData, ListenerParams, SendParams } from "/lib/xp/event";
+import type { ListenerParams, SendParams } from "/lib/xp/event";
 import * as eventLib from "/lib/xp/event";
 
-export function listener<A extends object = EnonicEventData>(params: ListenerParams<A>): null {
-  return eventLib.listener(params);
+export function listener<EventData extends object>(params: ListenerParams<EventData>): void {
+  return eventLib.listener<EventData>(params);
 }
 
-export function send(params: SendParams): null {
-  return eventLib.send(params);
+export function send<EventData extends object = object>(params: SendParams<EventData>): void {
+  return eventLib.send<EventData>(params);
 }

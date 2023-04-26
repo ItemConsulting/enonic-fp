@@ -1,20 +1,19 @@
 import { IO } from "fp-ts/es6/IO";
 import { IOEither } from "fp-ts/es6/IOEither";
-import type { Context, RunContext } from "/lib/xp/context";
+import type { Context, ContextParams } from "/lib/xp/context";
 import { catchEnonicError, type EnonicError } from "./errors";
 import * as contextLib from "/lib/xp/context";
-import { ContextAttributes } from "*/lib/xp/context";
 
-export function get<Attributes extends ContextAttributes>(): IOEither<EnonicError, Context<Attributes>> {
+export function get(): IOEither<EnonicError, Context> {
   return catchEnonicError(() => contextLib.get());
 }
 
-export function runUnsafe<A, Attributes extends ContextAttributes>(runContext: RunContext<Attributes>, f: () => A): A {
+export function runUnsafe<A>(runContext: ContextParams, f: () => A): A {
   return contextLib.run(runContext, f);
 }
 
-export function run<Attributes extends ContextAttributes>(runContext: RunContext<Attributes>): <A>(a: IO<A>) => IO<A> {
+export function run(runContext: ContextParams): <A>(a: IO<A>) => IO<A> {
   return <A>(a: IO<A>) =>
     (): A =>
-      runUnsafe<A, Attributes>(runContext, a);
+      runUnsafe<A>(runContext, a);
 }

@@ -1,28 +1,33 @@
-import { IOEither } from "fp-ts/es6/IOEither";
+import { chain, IOEither } from "fp-ts/es6/IOEither";
+import { catchEnonicError, type EnonicError, notFoundError } from "./errors";
+import * as nodeLib from "/lib/xp/node";
 import type {
-  DiffParams,
-  DiffResponse,
   FindVersionsParams,
   MultiRepoConnection,
   MultiRepoConnectParams,
-  NodeCreateParams,
-  NodeFindChildrenParams,
-  NodeGetParams,
-  NodeModifyParams,
-  NodeQueryParams,
-  NodeQueryResponse,
-  NodeVersionQueryResult,
   RepoConnection,
-  RepoNode,
-  Source,
+  ConnectParams,
+  CreateNodeParams,
+  DiffBranchesParams,
+  DiffBranchesResult,
+  FindChildrenParams,
+  FindNodesByParentResult,
+  GetNodeParams,
+  ModifyNodeParams,
+  Node,
+  NodeQueryResult,
+  NodeVersionsQueryResult,
+  QueryNodeParams,
 } from "/lib/xp/node";
-import { catchEnonicError, type EnonicError } from "./errors";
-import * as nodeLib from "/lib/xp/node";
+import { forceArray } from "./array";
+import { pipe } from "fp-ts/es6/function";
+import { fromNullable } from "./utils";
+import { Aggregations, AggregationsToAggregationResults } from "@enonic-types/core";
 
 /**
  * Creates a connection to a repository with a given branch and authentication info.
  */
-export function connect(params: Source): IOEither<EnonicError, RepoConnection> {
+export function connect(params: ConnectParams): IOEither<EnonicError, RepoConnection> {
   return catchEnonicError(() => nodeLib.connect(params));
 }
 
@@ -37,34 +42,31 @@ export function multiRepoConnect(params: MultiRepoConnectParams): IOEither<Enoni
  * Creating a node. To create a content where the name is not important and there could be multiple instances under the
  * same parent content, skip the name parameter and specify a displayName.
  */
-export function create<A>(repo: RepoConnection, params: A & NodeCreateParams): IOEither<EnonicError, A & RepoNode> {
-  return catchEnonicError(() => repo.create<A>(params));
+export function create<NodeData = Record<string, unknown>>(
+  repo: RepoConnection,
+  params: CreateNodeParams<NodeData>
+): IOEither<EnonicError, Node<NodeData>> {
+  return catchEnonicError(() => repo.create<NodeData>(params));
 }
 
 /**
  * Deleting a node or nodes.
  */
-export function remove(
-  repo: RepoConnection,
-  keys: string | ReadonlyArray<string>
-): IOEither<EnonicError, ReadonlyArray<string>> {
+export function remove(repo: RepoConnection, keys: string | string[]): IOEither<EnonicError, string[]> {
   return catchEnonicError(() => repo.delete(keys));
 }
 
 /**
  * Resolves the differences for a node between current and given branch.
  */
-export function diff(repo: RepoConnection, params: DiffParams): IOEither<EnonicError, DiffResponse> {
+export function diff(repo: RepoConnection, params: DiffBranchesParams): IOEither<EnonicError, DiffBranchesResult> {
   return catchEnonicError(() => repo.diff(params));
 }
 
 /**
  * Checking if a node or nodes exist for the current context.
  */
-export function exists(
-  repo: RepoConnection,
-  keys: string | ReadonlyArray<string>
-): IOEither<EnonicError, ReadonlyArray<string>> {
+export function exists(repo: RepoConnection, keys: string): IOEither<EnonicError, boolean> {
   return catchEnonicError(() => repo.exists(keys));
 }
 
@@ -74,40 +76,48 @@ export function exists(
 export function findVersions(
   repo: RepoConnection,
   params: FindVersionsParams
-): IOEither<EnonicError, NodeVersionQueryResult> {
+): IOEither<EnonicError, NodeVersionsQueryResult> {
   return catchEnonicError(() => repo.findVersions(params));
 }
 
 /**
  * Fetches specific nodes by path or ID.
  */
-export function get<A>(repo: RepoConnection, key: string | NodeGetParams): IOEither<EnonicError, A & RepoNode>;
-export function get<A>(
+export function get<NodeData = Record<string, unknown>>(
   repo: RepoConnection,
-  keys: ReadonlyArray<string | NodeGetParams>
-): IOEither<EnonicError, ReadonlyArray<A & RepoNode>>;
-
-export function get<A>(
+  key: string | GetNodeParams
+): IOEither<EnonicError, Node<NodeData>>;
+export function get<NodeData = Record<string, unknown>>(
   repo: RepoConnection,
-  keys: string | NodeGetParams | ReadonlyArray<string | NodeGetParams>
-): IOEither<EnonicError, (A & RepoNode) | ReadonlyArray<A & RepoNode>> {
-  return catchEnonicError(() => repo.get<A>(keys));
+  keys: (string | GetNodeParams)[]
+): IOEither<EnonicError, Node<NodeData>[]>;
+export function get<NodeData = Record<string, unknown>>(
+  repo: RepoConnection,
+  keys: string | GetNodeParams | (string | GetNodeParams)[]
+): IOEither<EnonicError, Node<NodeData> | Node<NodeData>[]> {
+  return pipe(
+    catchEnonicError(() => (Array.isArray(keys) ? forceArray(repo.get<NodeData>(keys)) : repo.get<NodeData>(keys))),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
  * This command queries nodes.
  */
-export function query<B extends string>(
+export function query<AggregationInput extends Aggregations = never>(
   repo: RepoConnection,
-  params: NodeQueryParams<B>
-): IOEither<EnonicError, NodeQueryResponse<B>> {
-  return catchEnonicError(() => repo.query<B>(params));
+  params: QueryNodeParams<AggregationInput>
+): IOEither<EnonicError, NodeQueryResult<AggregationsToAggregationResults<AggregationInput>>> {
+  return catchEnonicError(() => repo.query<AggregationInput>(params));
 }
 
 /**
  * This function modifies a node.
  */
-export function modify<A>(repo: RepoConnection, params: NodeModifyParams<A>): IOEither<EnonicError, A & RepoNode> {
+export function modify<NodeData = Record<string, unknown>>(
+  repo: RepoConnection,
+  params: ModifyNodeParams<NodeData>
+): IOEither<EnonicError, Node<NodeData>> {
   return catchEnonicError(() => repo.modify(params));
 }
 
@@ -116,7 +126,7 @@ export function modify<A>(repo: RepoConnection, params: NodeModifyParams<A>): IO
  */
 export function findChildren(
   repo: RepoConnection,
-  params: NodeFindChildrenParams
-): IOEither<EnonicError, NodeQueryResponse<never>> {
+  params: FindChildrenParams
+): IOEither<EnonicError, FindNodesByParentResult> {
   return catchEnonicError(() => repo.findChildren(params));
 }

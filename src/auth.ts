@@ -1,5 +1,5 @@
-import { IOEither } from "fp-ts/es6/IOEither";
-import { fromNullable, Option } from "fp-ts/es6/Option";
+import { chain, IOEither } from "fp-ts/es6/IOEither";
+import { fromNullable as optionFromNullable, Option } from "fp-ts/es6/Option";
 import type {
   ChangePasswordParams,
   CreateGroupParams,
@@ -18,16 +18,17 @@ import type {
   ModifyUserParams,
   Principal,
   PrincipalKey,
-  PrincipalKeyGroup,
-  PrincipalKeyRole,
-  PrincipalKeyUser,
+  GroupKey,
+  RoleKey,
+  UserKey,
   Role,
   User,
-  UserQueryResult,
   UserWithProfile,
 } from "/lib/xp/auth";
-import { catchEnonicError, type EnonicError } from "./errors";
+import { fromNullable } from "./utils";
+import { catchEnonicError, type EnonicError, notFoundError } from "./errors";
 import * as authLib from "/lib/xp/auth";
+import { pipe } from "fp-ts/es6/function";
 
 /**
  * Login a user through the specified idProvider, with userName and password.
@@ -61,42 +62,52 @@ export function generatePassword(): string {
  * Returns the logged-in user. If not logged-in, this will return undefined or null.
  */
 export function getUser(): Option<User> {
-  return fromNullable(authLib.getUser());
+  return optionFromNullable(authLib.getUser());
 }
 
 /**
  * Returns the profile of a user.
  */
-export function getProfile<A>(params: GetProfileParams): IOEither<EnonicError, A> {
-  return catchEnonicError(() => authLib.getProfile<A>(params));
+export function getProfile<A extends Record<string, unknown>>(params: GetProfileParams): IOEither<EnonicError, A> {
+  return pipe(
+    catchEnonicError(() => authLib.getProfile<A>(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
  * This function retrieves the profile of a user and updates it.
  */
-export function modifyProfile<A>(params: ModifyProfileParams<A>): IOEither<EnonicError, A> {
-  return catchEnonicError(() => authLib.modifyProfile<A>(params));
+export function modifyProfile<Profile extends Record<string, unknown>>(
+  params: ModifyProfileParams<Profile>
+): IOEither<EnonicError, Profile> {
+  return pipe(
+    catchEnonicError(() => authLib.modifyProfile<Profile>(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
  * This function returns the ID provider configuration. It is meant to be called from an ID provider controller.
  */
-export function getIdProviderConfig<A>(): Option<A> {
-  return fromNullable(authLib.getIdProviderConfig());
+export function getIdProviderConfig<
+  IdProviderConfig extends Record<string, unknown> = Record<string, unknown>
+>(): Option<IdProviderConfig> {
+  return optionFromNullable(authLib.getIdProviderConfig<IdProviderConfig>());
 }
 
 /**
  * Search for users matching the specified query.
  */
-export function findUsers<A>(
+export function findUsers<A extends Record<string, unknown> = Record<string, unknown>>(
   params: FindUsersParams & { includeProfile: true }
-): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>>>;
+): IOEither<EnonicError, FindPrincipalsResult<UserWithProfile<A>>>;
 export function findUsers(
   params: FindUsersParams & { includeProfile?: false }
-): IOEither<EnonicError, UserQueryResult<User>>;
-export function findUsers<A>(
+): IOEither<EnonicError, FindPrincipalsResult<User>>;
+export function findUsers<A extends Record<string, unknown> = Record<string, unknown>>(
   params: FindUsersParams & ({ includeProfile: true } | { includeProfile?: false })
-): IOEither<EnonicError, UserQueryResult<UserWithProfile<A>> | UserQueryResult<User>> {
+): IOEither<EnonicError, FindPrincipalsResult<UserWithProfile<A>> | FindPrincipalsResult<User>> {
   return catchEnonicError(() => (params.includeProfile ? authLib.findUsers(params) : authLib.findUsers(params)));
 }
 
@@ -104,7 +115,10 @@ export function findUsers<A>(
  * Retrieves the user specified and updates it with the changes applied through the editor.
  */
 export function modifyUser(params: ModifyUserParams): IOEither<EnonicError, User> {
-  return catchEnonicError(() => authLib.modifyUser(params));
+  return pipe(
+    catchEnonicError(() => authLib.modifyUser(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
@@ -118,8 +132,8 @@ export function createUser(params: CreateUserParams): IOEither<EnonicError, User
  * Adds members to a principal (user or role).
  */
 export function addMembers(
-  principalKey: PrincipalKeyRole | PrincipalKeyGroup,
-  members: Array<PrincipalKeyGroup | PrincipalKeyUser>
+  principalKey: RoleKey | GroupKey,
+  members: Array<GroupKey | UserKey>
 ): IOEither<EnonicError, void> {
   return catchEnonicError(() => authLib.addMembers(principalKey, members));
 }
@@ -128,8 +142,8 @@ export function addMembers(
  * Removes members from a principal (group or role).
  */
 export function removeMembers(
-  principalKey: PrincipalKeyRole | PrincipalKeyGroup,
-  members: Array<PrincipalKeyGroup | PrincipalKeyUser>
+  principalKey: RoleKey | GroupKey,
+  members: Array<GroupKey | UserKey>
 ): IOEither<EnonicError, void> {
   return catchEnonicError(() => authLib.removeMembers(principalKey, members));
 }
@@ -151,8 +165,8 @@ export function findPrincipals(params: FindPrincipalsParams): IOEither<EnonicErr
 /**
  * Returns the principal with the specified key.
  */
-export function getPrincipal(principalKey: PrincipalKey): Option<Principal> {
-  return fromNullable(authLib.getPrincipal(principalKey));
+export function getPrincipal(principalKey: UserKey): Option<Principal> {
+  return optionFromNullable(authLib.getPrincipal(principalKey));
 }
 
 /**
@@ -173,7 +187,10 @@ export function hasRole(role: string): IOEither<EnonicError, boolean> {
  * Retrieves the role specified and updates it with the changes applied through an editor.
  */
 export function modifyRole(params: ModifyRoleParams): IOEither<EnonicError, Role> {
-  return catchEnonicError(() => authLib.modifyRole(params));
+  return pipe(
+    catchEnonicError(() => authLib.modifyRole(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
@@ -187,15 +204,16 @@ export function createGroup(params: CreateGroupParams): IOEither<EnonicError, Gr
  * Retrieves the group specified and updates it with the changes applied.
  */
 export function modifyGroup(params: ModifyGroupParams): IOEither<EnonicError, Group> {
-  return catchEnonicError(() => authLib.modifyGroup(params));
+  return pipe(
+    catchEnonicError(() => authLib.modifyGroup(params)),
+    chain(fromNullable(notFoundError))
+  );
 }
 
 /**
  * Returns a list of principals that are members of the specified principal.
  */
-export function getMembers(
-  principalKey: PrincipalKeyRole | PrincipalKeyGroup
-): IOEither<EnonicError, ReadonlyArray<User | Group>> {
+export function getMembers(principalKey: RoleKey | GroupKey): IOEither<EnonicError, ReadonlyArray<User | Group>> {
   return catchEnonicError(() => authLib.getMembers(principalKey));
 }
 
@@ -203,7 +221,7 @@ export function getMembers(
  * Returns the list of principals which the specified principal is a member of.
  */
 export function getMemberships(
-  principalKey: PrincipalKeyUser | PrincipalKeyGroup,
+  principalKey: UserKey | GroupKey,
   transitive?: boolean
 ): IOEither<EnonicError, ReadonlyArray<Principal>> {
   return catchEnonicError(() => authLib.getMemberships(principalKey, transitive));

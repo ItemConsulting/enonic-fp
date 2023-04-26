@@ -1,31 +1,39 @@
 import { localizeFirst } from "./i18n";
 import { getOrElse } from "fp-ts/es6/Option";
-import { IO, of } from "fp-ts/es6/IO";
+import { of, type IO } from "fp-ts/es6/IO";
 import { getUnsafeRenderer } from "./thymeleaf";
-import type { ResourceKey } from "/lib/thymeleaf";
-import { EnonicError, isEnonicError } from "./errors";
+import type { ResourceKey } from "@enonic-types/core";
+import { isEnonicError, type EnonicError } from "./errors";
 import { pipe } from "fp-ts/es6/function";
 import { substringAfter } from "./utils";
 import { serialize as serializeTurboStream, getTurboStreamsMimetype, isTurboStreamAction } from "./turbo";
 import type { LocalizeParams } from "/lib/xp/i18n";
 import type { TurboStreamAction } from "/lib/turbo-streams";
+import type { Request, Response } from "@item-enonic-types/global/controller";
 
-export type AsResponse = (body: XP.ResponseType, extras?: Partial<XP.Response>) => IO<XP.Response>;
-export type AsErrorResponse = (err: EnonicError, extras?: Partial<XP.Response>) => IO<XP.Response>;
+export type AsResponse = <ResponseType>(
+  body: ResponseType,
+  extras?: Partial<Response<ResponseType>>
+) => IO<Response<ResponseType>>;
+
+export type AsErrorResponse = (err: EnonicError, extras?: Partial<Response<EnonicError>>) => IO<Response<EnonicError>>;
 
 export const ok: AsResponse = asResponseFromStatus(200);
 
 export const created: AsResponse = asResponseFromStatus(201);
 
-export const noContent: AsResponse = (body: XP.ResponseType, extras: Partial<XP.Response> = {}): IO<XP.Response> =>
-  of<XP.Response>({
+export const noContent: AsResponse = <ResponseType>(
+  body: ResponseType,
+  extras: Partial<Response> = {}
+): IO<Response<ResponseType>> =>
+  of<Response<ResponseType>>({
     ...extras,
     status: 204,
-    body: "",
+    body: "" as unknown as ResponseType,
   });
 
-export const redirect = (redirect: string): IO<XP.Response> =>
-  of<XP.Response>({
+export const redirect = (redirect: string): IO<Response> =>
+  of<Response>({
     applyFilters: false,
     postProcess: false,
     redirect,
@@ -50,12 +58,12 @@ export const badGateway: AsResponse = asResponseFromStatus(502);
 /**
  * Returns an error response where the "title"-field is translated with i18nLib.localize()
  */
-export function errorResponse(req?: XP.Request): AsErrorResponse;
+export function errorResponse(req?: Request): AsErrorResponse;
 export function errorResponse(params: ErrorResponseParams): AsErrorResponse;
-export function errorResponse(paramsOrReq?: XP.Request | ErrorResponseParams): AsErrorResponse {
+export function errorResponse(paramsOrReq?: Request | ErrorResponseParams): AsErrorResponse {
   const params: ErrorResponseParams | undefined = isRequest(paramsOrReq) ? { req: paramsOrReq } : paramsOrReq;
 
-  return (err: EnonicError, extras: Partial<XP.Response> = {}): IO<XP.Response> => {
+  return (err: EnonicError, extras: Partial<Response<EnonicError>> = {}): IO<Response<EnonicError>> => {
     const result: EnonicError = {
       type: err.type,
       title: translateField("title", err, params),
@@ -67,12 +75,12 @@ export function errorResponse(paramsOrReq?: XP.Request | ErrorResponseParams): A
       errors: err.status >= 500 && params?.req?.mode !== "live" ? err.errors : undefined,
     };
 
-    return status(result.status, result, extras);
+    return status<EnonicError>(result.status, result, extras);
   };
 }
 
-function isRequest(value: unknown): value is XP.Request {
-  const req = value as XP.Request;
+function isRequest(value: unknown): value is Request {
+  const req = value as Request;
   return req.method !== undefined && req.url !== undefined;
 }
 
@@ -81,7 +89,7 @@ export type LocalizeWithPrefixParams = Omit<LocalizeParams, "key"> & {
 };
 
 export interface ErrorResponseParams {
-  readonly req?: XP.Request;
+  readonly req?: Request;
   readonly localizeParams?: LocalizeWithPrefixParams;
 }
 
@@ -118,28 +126,36 @@ function translateField<FieldName extends "title" | "detail">(
 /**
  * Creates a Response based on a thymeleaf view, and an EnonicError
  */
-export function unsafeRenderErrorPage(view: ResourceKey): AsErrorResponse {
-  return (err: EnonicError, extras: Partial<XP.Response> = {}): IO<XP.Response> =>
-    status(err, getUnsafeRenderer<EnonicError>(view)(err), extras);
+export function unsafeRenderErrorPage(view: ResourceKey) {
+  return (err: EnonicError, extras: Partial<Response<string>> = {}): IO<Response<string>> =>
+    status<string>(err, getUnsafeRenderer<EnonicError>(view)(err), extras);
 }
 
 /**
  * Resolves the content-type based on the body content
  */
-function contentType(body: XP.ResponseType): string {
+function contentType<ResponseType>(body: ResponseType): string {
   return typeof body === "string" ? "text/html" : isEnonicError(body) ? "application/problem+json" : "application/json";
 }
 
 /**
  * Create a Response based on a http-status/ErrorMessage, body, and extra parameters
  */
-export function status(httpStatus: number, body?: XP.ResponseType, extras?: Partial<XP.Response>): IO<XP.Response>;
-export function status(error: EnonicError, body?: XP.ResponseType, extras?: Partial<XP.Response>): IO<XP.Response>;
-export function status(
+export function status<ResponseType>(
+  httpStatus: number,
+  body?: ResponseType,
+  extras?: Partial<Response<ResponseType>>
+): IO<Response<ResponseType>>;
+export function status<ResponseType>(
+  error: EnonicError,
+  body?: ResponseType,
+  extras?: Partial<Response<ResponseType>>
+): IO<Response<ResponseType>>;
+export function status<ResponseType>(
   httpStatusOrError: number | EnonicError,
-  body: XP.ResponseType = "",
-  extras: Partial<XP.Response> = {}
-): IO<XP.Response> {
+  body: ResponseType = "" as ResponseType,
+  extras: Partial<Response<ResponseType>> = {}
+): IO<Response<ResponseType>> {
   const httpStatus = typeof httpStatusOrError == "number" ? httpStatusOrError : httpStatusOrError.status;
 
   // automatic serialization of turbo streams
@@ -148,7 +164,7 @@ export function status(
         contentType: getTurboStreamsMimetype(),
         ...extras,
         status: httpStatus,
-        body: serializeTurboStream(body),
+        body: serializeTurboStream(body) as ResponseType,
       })
     : of({
         contentType: contentType(body),
@@ -159,7 +175,8 @@ export function status(
 }
 
 function asResponseFromStatus(httpStatus: number): AsResponse {
-  return (body: XP.ResponseType, extras: Partial<XP.Response> = {}) => status(httpStatus, body, extras);
+  return <ResponseType>(body: ResponseType, extras?: Partial<Response<ResponseType>>) =>
+    status<ResponseType>(httpStatus, body, extras);
 }
 
 function isTurboStream(v: unknown): v is TurboStreamAction | Array<TurboStreamAction> {

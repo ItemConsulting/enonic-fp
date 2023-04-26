@@ -10,17 +10,14 @@ const NOT_TRANSLATED_MESSAGE = "NOT_TRANSLATED";
 /**
  * Returns an object of key/value-pairs for all phrases with the given locales in the specified bundles.
  */
-export function getPhrases(
-  locale: string | ReadonlyArray<string>,
-  bundles: ReadonlyArray<string>
-): { [key: string]: string } {
+export function getPhrases(locale: string | string[], bundles: string[]): { [key: string]: string } {
   return i18nLib.getPhrases(locale, bundles);
 }
 
 /**
  * Returns the list of supported locale codes for the specified bundles.
  */
-export function getSupportedLocales(bundles: ReadonlyArray<string>): ReadonlyArray<string> {
+export function getSupportedLocales(bundles: string[]): ReadonlyArray<string> {
   return i18nLib.getSupportedLocales(bundles);
 }
 
