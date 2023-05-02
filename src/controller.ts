@@ -11,25 +11,19 @@ import type { LocalizeParams } from "/lib/xp/i18n";
 import type { TurboStreamAction } from "/lib/turbo-streams";
 import type { Request, Response } from "@item-enonic-types/global/controller";
 
-export type AsResponse = <ResponseType>(
-  body: ResponseType,
-  extras?: Partial<Response<ResponseType>>
-) => IO<Response<ResponseType>>;
+export type AsResponse = (body: unknown, extras?: Partial<Response>) => IO<Response>;
 
-export type AsErrorResponse = (err: EnonicError, extras?: Partial<Response<EnonicError>>) => IO<Response<EnonicError>>;
+export type AsErrorResponse = (err: EnonicError, extras?: Partial<Response>) => IO<Response>;
 
 export const ok: AsResponse = asResponseFromStatus(200);
 
 export const created: AsResponse = asResponseFromStatus(201);
 
-export const noContent: AsResponse = <ResponseType>(
-  body: ResponseType,
-  extras: Partial<Response> = {}
-): IO<Response<ResponseType>> =>
-  of<Response<ResponseType>>({
+export const noContent: AsResponse = (body: unknown, extras: Partial<Response> = {}): IO<Response> =>
+  of<Response>({
     ...extras,
     status: 204,
-    body: "" as unknown as ResponseType,
+    body: "",
   });
 
 export const redirect = (redirect: string): IO<Response> =>
@@ -63,7 +57,7 @@ export function errorResponse(params: ErrorResponseParams): AsErrorResponse;
 export function errorResponse(paramsOrReq?: Request | ErrorResponseParams): AsErrorResponse {
   const params: ErrorResponseParams | undefined = isRequest(paramsOrReq) ? { req: paramsOrReq } : paramsOrReq;
 
-  return (err: EnonicError, extras: Partial<Response<EnonicError>> = {}): IO<Response<EnonicError>> => {
+  return (err: EnonicError, extras: Partial<Response> = {}): IO<Response> => {
     const result: EnonicError = {
       type: err.type,
       title: translateField("title", err, params),
@@ -75,7 +69,7 @@ export function errorResponse(paramsOrReq?: Request | ErrorResponseParams): AsEr
       errors: err.status >= 500 && params?.req?.mode !== "live" ? err.errors : undefined,
     };
 
-    return status<EnonicError>(result.status, result, extras);
+    return status(result.status, result, extras);
   };
 }
 
@@ -127,8 +121,8 @@ function translateField<FieldName extends "title" | "detail">(
  * Creates a Response based on a thymeleaf view, and an EnonicError
  */
 export function unsafeRenderErrorPage(view: ResourceKey) {
-  return (err: EnonicError, extras: Partial<Response<string>> = {}): IO<Response<string>> =>
-    status<string>(err, getUnsafeRenderer<EnonicError>(view)(err), extras);
+  return (err: EnonicError, extras: Partial<Response> = {}): IO<Response> =>
+    status(err, getUnsafeRenderer<EnonicError>(view)(err), extras);
 }
 
 /**
@@ -141,21 +135,13 @@ function contentType<ResponseType>(body: ResponseType): string {
 /**
  * Create a Response based on a http-status/ErrorMessage, body, and extra parameters
  */
-export function status<ResponseType>(
-  httpStatus: number,
-  body?: ResponseType,
-  extras?: Partial<Response<ResponseType>>
-): IO<Response<ResponseType>>;
-export function status<ResponseType>(
-  error: EnonicError,
-  body?: ResponseType,
-  extras?: Partial<Response<ResponseType>>
-): IO<Response<ResponseType>>;
-export function status<ResponseType>(
+export function status(httpStatus: number, body?: unknown, extras?: Partial<Response>): IO<Response>;
+export function status(error: EnonicError, body?: unknown, extras?: Partial<Response>): IO<Response>;
+export function status(
   httpStatusOrError: number | EnonicError,
-  body: ResponseType = "" as ResponseType,
-  extras: Partial<Response<ResponseType>> = {}
-): IO<Response<ResponseType>> {
+  body: unknown = "",
+  extras: Partial<Response> = {}
+): IO<Response> {
   const httpStatus = typeof httpStatusOrError == "number" ? httpStatusOrError : httpStatusOrError.status;
 
   // automatic serialization of turbo streams
@@ -164,7 +150,7 @@ export function status<ResponseType>(
         contentType: getTurboStreamsMimetype(),
         ...extras,
         status: httpStatus,
-        body: serializeTurboStream(body) as ResponseType,
+        body: serializeTurboStream(body),
       })
     : of({
         contentType: contentType(body),
@@ -175,8 +161,7 @@ export function status<ResponseType>(
 }
 
 function asResponseFromStatus(httpStatus: number): AsResponse {
-  return <ResponseType>(body: ResponseType, extras?: Partial<Response<ResponseType>>) =>
-    status<ResponseType>(httpStatus, body, extras);
+  return (body: unknown, extras?: Partial<Response>) => status(httpStatus, body, extras);
 }
 
 function isTurboStream(v: unknown): v is TurboStreamAction | Array<TurboStreamAction> {
